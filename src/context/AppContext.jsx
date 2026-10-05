@@ -146,15 +146,18 @@ export function AppProvider({ children }) {
   const [guards, setGuards] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUARDS)
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        // Ensure defaultShiftHours defaults to 3h for standard consistency
-        return parsed.map((g) => ({
-          ...g,
-          defaultShiftHours: g.defaultShiftHours === 4 ? 3 : (g.defaultShiftHours || 3),
-        }))
+      let list = saved ? JSON.parse(saved) : INITIAL_GUARDS
+      // Ensure defaultShiftHours defaults to 3h for standard consistency
+      list = list.map((g) => ({
+        ...g,
+        defaultShiftHours: g.defaultShiftHours === 4 ? 3 : (g.defaultShiftHours || 3),
+      }))
+      // Ensure Folguista is always present
+      if (!list.some((g) => g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista')) {
+        const folguista = INITIAL_GUARDS.find((g) => g.id === 'g-folguista')
+        if (folguista) list.push(folguista)
       }
-      return INITIAL_GUARDS
+      return list
     } catch {
       return INITIAL_GUARDS
     }
@@ -268,7 +271,15 @@ export function AppProvider({ children }) {
         setPosts(postsRes.data.map(postFromDb))
       }
       if (guardsRes.data && guardsRes.data.length > 0) {
-        setGuards(guardsRes.data.map(guardFromDb))
+        let loadedGuards = guardsRes.data.map(guardFromDb)
+        if (!loadedGuards.some((g) => g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista')) {
+          const folguista = INITIAL_GUARDS.find((g) => g.id === 'g-folguista')
+          if (folguista) {
+            loadedGuards.push(folguista)
+            syncGuardCloud(folguista, 'upsert')
+          }
+        }
+        setGuards(loadedGuards)
       }
       if (shiftsRes.data && shiftsRes.data.length > 0) {
         const nextShifts = {}

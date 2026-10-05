@@ -160,6 +160,19 @@ export const INITIAL_GUARDS = [
     hourlyRate: 40,
     active: true,
   },
+  // Folguista / Substituto Operacional
+  {
+    id: 'g-folguista',
+    name: 'Folguista',
+    fullName: 'Folguista (Substituto Operacional)',
+    postId: null,
+    phone: '',
+    pixKey: 'A Definir',
+    pixType: 'Chave Aleatória',
+    defaultShiftHours: 3,
+    hourlyRate: 40,
+    active: true,
+  },
 ]
 
 // Current Month/Year key e.g. "2026-09"

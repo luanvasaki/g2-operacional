@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { MultiDayAssignModal } from './MultiDayAssignModal'
 import { GuardScheduleEditModal } from './GuardScheduleEditModal'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
-import { getHoliday, getWeekday, getMonthInfo } from '../utils/brazilianCalendar'
+import { getHoliday, getWeekday, getMonthInfo, BRAZILIAN_WEEKDAYS } from '../utils/brazilianCalendar'
 
 export function SpreadsheetView({
   onOpenNewGuardModal,
@@ -26,11 +26,30 @@ export function SpreadsheetView({
     togglePaymentStatus,
   } = useApp()
 
-  const [activeQuinzena, setActiveQuinzena] = useState(1) // 1 or 2
+  // Primary view range: 'month' (default: full month), 'q1' (1..15), 'q2' (16..end)
+  const [calendarRange, setCalendarRange] = useState('month')
   const [viewMode, setViewMode] = useState('calendar') // 'calendar', 'cards' or 'table'
-  const [fastEditModal, setFastEditModal] = useState(null) // { guard, day, hours }
+  const [selectedPostFilter, setSelectedPostFilter] = useState('all')
+
+  // Day Edit & Quick Autocomplete Modal
+  const [dayEditModal, setDayEditModal] = useState({ isOpen: false, day: null })
+  const [daySearchQuery, setDaySearchQuery] = useState('')
+  const [swappingGuardId, setSwappingGuardId] = useState(null)
+  const searchInputRef = useRef(null)
+
+  // Other modals
   const [scheduleModalGuard, setScheduleModalGuard] = useState(null)
   const [multiDayModal, setMultiDayModal] = useState({ isOpen: false, guardId: null })
+
+  // Focus search input when modal opens
+  useEffect(() => {
+    if (dayEditModal.isOpen) {
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [dayEditModal.isOpen])
 
   const handleOpenMultiDay = (guardId = null) => {
     if (onOpenMultiDay) {
@@ -46,31 +65,99 @@ export function SpreadsheetView({
 
   const daysQ1 = monthInfo.q1Days
   const daysQ2 = monthInfo.q2Days
-  const currentQuinzenaDays = activeQuinzena === 1 ? daysQ1 : daysQ2
+
+  // Displayed days based on calendarRange
+  const displayedDays =
+    calendarRange === 'month'
+      ? Array.from({ length: totalDaysInMonth }, (_, i) => i + 1)
+      : calendarRange === 'q1'
+      ? daysQ1
+      : daysQ2
+
+  // Weekday offset for calendar month layout (0 = Dom, 1 = Seg...)
+  const firstDayOfWeek = new Date(year, month - 1, 1).getDay()
+  const leadingBlanks = calendarRange === 'month' ? Array.from({ length: firstDayOfWeek }) : []
+  const trailingBlanksCount =
+    calendarRange === 'month' ? (7 - ((firstDayOfWeek + totalDaysInMonth) % 7)) % 7 : 0
+  const trailingBlanks = Array.from({ length: trailingBlanksCount })
 
   const activeGuards = guards.filter((g) => g.active)
 
-  // Calculate totals for active quinzena
+  // Filter guards by post if selected
+  const filteredGuards =
+    selectedPostFilter === 'all'
+      ? activeGuards
+      : activeGuards.filter((g) => g.postId === selectedPostFilter || g.id === 'g-folguista')
+
+  // Calculate totals for active range
+  let totalHours = 0
+  let totalAmount = 0
+  let paidAmount = 0
+
+  activeGuards.forEach((guard) => {
+    const calc = getGuardCalculations(guard.id)
+    const s1 = getPaymentStatus(guard.id, 'q1')
+    const s2 = getPaymentStatus(guard.id, 'q2')
+
+    let gHours = 0
+    let gAmount = 0
+
+    if (calendarRange === 'month') {
+      gHours = calc.totalHours
+      gAmount = calc.totalAmount
+      if (s1.status === 'PAID') paidAmount += calc.q1Total
+      if (s2.status === 'PAID') paidAmount += calc.q2Total
+    } else if (calendarRange === 'q1') {
+      gHours = calc.q1Hours
+      gAmount = calc.q1Total
+      if (s1.status === 'PAID') paidAmount += calc.q1Total
+    } else {
+      gHours = calc.q2Hours
+      gAmount = calc.q2Total
+      if (s2.status === 'PAID') paidAmount += calc.q2Total
+    }
+
+    totalHours += gHours
+    totalAmount += gAmount
+  })
+
+  const pendingAmount = Math.max(0, totalAmount - paidAmount)
+
+  // Guard cards rows for cards view
   const guardRows = activeGuards.map((guard) => {
     const post = posts.find((p) => p.id === guard.postId)
     const calc = getGuardCalculations(guard.id)
     const guardShifts = shifts[selectedMonth]?.[guard.id] || {}
 
-    const qHours = activeQuinzena === 1 ? calc.q1Hours : calc.q2Hours
-    const qAmount = activeQuinzena === 1 ? calc.q1Total : calc.q2Total
+    const qHours =
+      calendarRange === 'month'
+        ? calc.totalHours
+        : calendarRange === 'q1'
+        ? calc.q1Hours
+        : calc.q2Hours
+    const qAmount =
+      calendarRange === 'month'
+        ? calc.totalAmount
+        : calendarRange === 'q1'
+        ? calc.q1Total
+        : calc.q2Total
 
-    // List of active days in this quinzena
+    const s1 = getPaymentStatus(guard.id, 'q1')
+    const s2 = getPaymentStatus(guard.id, 'q2')
+    const isPaid =
+      calendarRange === 'q1'
+        ? s1.status === 'PAID'
+        : calendarRange === 'q2'
+        ? s2.status === 'PAID'
+        : s1.status === 'PAID' && s2.status === 'PAID'
+
     const activeDaysList = []
-    currentQuinzenaDays.forEach((d) => {
+    displayedDays.forEach((d) => {
       const h = guardShifts[d]
       if (h !== undefined && h !== null && Number(h) > 0) {
         activeDaysList.push(d)
       }
     })
-
-    const qKey = activeQuinzena === 1 ? 'q1' : 'q2'
-    const payment = getPaymentStatus(guard.id, qKey)
-    const isPaid = payment.status === 'PAID'
 
     return {
       guard,
@@ -84,54 +171,95 @@ export function SpreadsheetView({
     }
   })
 
-  const totalHours = guardRows.reduce((acc, r) => acc + r.qHours, 0)
-  const totalAmount = guardRows.reduce((acc, r) => acc + r.qAmount, 0)
-  const paidAmount = guardRows.filter((r) => r.isPaid).reduce((acc, r) => acc + r.qAmount, 0)
-  const pendingAmount = guardRows.filter((r) => !r.isPaid).reduce((acc, r) => acc + r.qAmount, 0)
-
-  // Open shift & overtime edit sheet
-  const handleOpenFastEdit = (guard, defaultDay) => {
-    const targetG = guard || activeGuards[0]
-    if (!targetG) return
-    const day = defaultDay || currentQuinzenaDays[0] || 1
-    const defaultH = targetG?.defaultShiftHours || 3
-    const existingVal = shifts[selectedMonth]?.[targetG?.id]?.[day]
-    const initialHours = existingVal !== undefined && existingVal !== null ? Number(existingVal) : defaultH
-    const currentNote = getShiftNote ? getShiftNote(targetG?.id, day) : ''
-    setFastEditModal({
-      guard: targetG,
-      day: day,
-      hours: initialHours,
-      note: currentNote || '',
-    })
+  // Open day editor
+  const handleOpenDayModal = (d) => {
+    setDaySearchQuery('')
+    setSwappingGuardId(null)
+    setDayEditModal({ isOpen: true, day: d })
   }
 
-  const handleSaveFastEdit = () => {
-    if (fastEditModal && fastEditModal.guard) {
-      setShiftHours(
-        fastEditModal.guard.id,
-        fastEditModal.day,
-        fastEditModal.hours,
-        fastEditModal.note
-      )
-      setFastEditModal(null)
+  // Get guards on a specific day
+  const getGuardsOnDay = (d) => {
+    return activeGuards
+      .filter((g) => {
+        if (selectedPostFilter !== 'all' && g.postId !== selectedPostFilter && g.id !== 'g-folguista') {
+          return false
+        }
+        const h = shifts[selectedMonth]?.[g.id]?.[d]
+        return h !== undefined && h !== null && Number(h) > 0
+      })
+      .map((g) => ({
+        guard: g,
+        hours: Number(shifts[selectedMonth]?.[g.id]?.[d]),
+        post: posts.find((p) => p.id === g.postId),
+        note: getShiftNote ? getShiftNote(g.id, d) : '',
+        isFolguista: g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista',
+      }))
+  }
+
+  // Add guard via autocomplete to current day
+  const handleSelectGuardForDay = (targetGuard, d) => {
+    if (!targetGuard || !d) return
+    const hours = targetGuard.defaultShiftHours || 3
+
+    if (swappingGuardId) {
+      // Swapping out an existing guard
+      setShiftHours(swappingGuardId, d, null)
+      setShiftHours(targetGuard.id, d, hours, 'Substituto')
+      setSwappingGuardId(null)
+    } else {
+      // Adding new guard
+      setShiftHours(targetGuard.id, d, hours)
     }
+    setDaySearchQuery('')
+    searchInputRef.current?.focus()
   }
+
+  // Quick "+ Preencher com Folguista"
+  const handleAddFolguistaToDay = (d) => {
+    if (!d) return
+    setShiftHours('g-folguista', d, 3, 'Substituto')
+    setDaySearchQuery('')
+  }
+
+  // Replace a specific regular guard with Folguista
+  const handleReplaceWithFolguista = (guardId, d, currentHours = 3) => {
+    if (!d || !guardId) return
+    setShiftHours(guardId, d, null)
+    setShiftHours('g-folguista', d, currentHours || 3, 'Substituto')
+  }
+
+  // Current day guards in open modal
+  const modalDayGuards = dayEditModal.isOpen && dayEditModal.day ? getGuardsOnDay(dayEditModal.day) : []
+  const modalDayTotalHours = modalDayGuards.reduce((acc, curr) => acc + curr.hours, 0)
+
+  // Matching guards for autocomplete (excluding those already scheduled on this day)
+  const scheduledGuardIds = modalDayGuards.map((item) => item.guard.id)
+  const matchingGuards = daySearchQuery.trim()
+    ? activeGuards.filter((g) => {
+        if (scheduledGuardIds.includes(g.id) && g.id !== swappingGuardId) return false
+        const q = daySearchQuery.toLowerCase().trim()
+        return (
+          g.name.toLowerCase().includes(q) ||
+          (g.fullName && g.fullName.toLowerCase().includes(q))
+        )
+      })
+    : []
 
   return (
     <div className="flex flex-col w-full pb-28 space-y-4 max-w-7xl mx-auto">
-      {/* Cycle Control & Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
-        {/* Month and Rate Bar */}
-        <div className="flex items-center justify-between gap-2">
+      {/* Control Header & Period Selection */}
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3.5">
+        {/* Month Selector & Rate Info */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 bg-[#eff4ff] px-3 py-1.5 rounded-xl border border-[#dde9ff]/60">
-            <span className="material-symbols-outlined text-[18px] text-[#45464d]">
+            <span className="material-symbols-outlined text-[20px] text-[#006c49]">
               calendar_today
             </span>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="bg-transparent font-bold text-xs text-[#0d1c2f] outline-none cursor-pointer capitalize"
+              className="bg-transparent font-bold text-xs sm:text-sm text-[#0d1c2f] outline-none cursor-pointer capitalize"
             >
               <option value="2026-08">Agosto 2026</option>
               <option value="2026-09">Setembro 2026</option>
@@ -141,65 +269,178 @@ export function SpreadsheetView({
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#6cf8bb]/20 px-3 py-1.5 rounded-xl border border-[#6cf8bb]/30">
-            <span className="font-mono text-xs text-[#00714d]">Hora Base:</span>
-            <span className="font-mono text-xs text-[#00714d] font-bold">
-              R$ {defaultHourlyRate.toFixed(2).replace('.', ',')}
-            </span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-[#6cf8bb]/20 px-3 py-1.5 rounded-xl border border-[#6cf8bb]/30">
+              <span className="font-mono text-xs text-[#00714d]">Hora Base:</span>
+              <span className="font-mono text-xs text-[#00714d] font-bold">
+                R$ {defaultHourlyRate.toFixed(2).replace('.', ',')}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={exportBackupJSON}
+              className="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-xl text-xs font-semibold border border-[#dde9ff] transition"
+              title="Baixar planilha/backup em JSON"
+            >
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              <span>Backup</span>
+            </button>
           </div>
         </div>
 
-        {/* Quinzena Toggle Pills */}
-        <div className="grid grid-cols-2 gap-1 bg-[#eff4ff] p-1 rounded-xl">
+        {/* Big Range Switcher: Mês Inteiro (Padrão) vs Quinzenas */}
+        <div className="grid grid-cols-3 gap-1 bg-[#eff4ff] p-1 rounded-xl">
           <button
-            onClick={() => setActiveQuinzena(1)}
-            className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all ${
-              activeQuinzena === 1
-                ? 'bg-white text-[#0d1c2f] shadow-xs font-bold'
+            type="button"
+            onClick={() => setCalendarRange('month')}
+            className={`flex flex-col items-center justify-center py-2 px-2 rounded-lg transition-all cursor-pointer ${
+              calendarRange === 'month'
+                ? 'bg-[#006c49] text-white shadow-xs font-bold'
+                : 'text-[#45464d] hover:text-[#0d1c2f]'
+            }`}
+          >
+            <span className="text-xs font-bold">Mês Inteiro (Todos os Dias)</span>
+            <span className="font-mono text-[10px] opacity-80">Dias 01 a {totalDaysInMonth}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCalendarRange('q1')}
+            className={`flex flex-col items-center justify-center py-2 px-2 rounded-lg transition-all cursor-pointer ${
+              calendarRange === 'q1'
+                ? 'bg-[#006c49] text-white shadow-xs font-bold'
                 : 'text-[#45464d] hover:text-[#0d1c2f]'
             }`}
           >
             <span className="text-xs font-bold">1ª Quinzena</span>
-            <span className="font-mono text-[10px] text-[#76777d]">Dias 01 a 15</span>
+            <span className="font-mono text-[10px] opacity-80">Dias 01 a 15</span>
           </button>
 
           <button
-            onClick={() => setActiveQuinzena(2)}
-            className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all ${
-              activeQuinzena === 2
-                ? 'bg-white text-[#0d1c2f] shadow-xs font-bold'
+            type="button"
+            onClick={() => setCalendarRange('q2')}
+            className={`flex flex-col items-center justify-center py-2 px-2 rounded-lg transition-all cursor-pointer ${
+              calendarRange === 'q2'
+                ? 'bg-[#006c49] text-white shadow-xs font-bold'
                 : 'text-[#45464d] hover:text-[#0d1c2f]'
             }`}
           >
             <span className="text-xs font-bold">2ª Quinzena</span>
-            <span className="font-mono text-[10px] text-[#76777d]">
-              Dias 16 a {totalDaysInMonth}
-            </span>
+            <span className="font-mono text-[10px] opacity-80">Dias 16 a {totalDaysInMonth}</span>
           </button>
         </div>
 
-        {/* Month Reference Banner */}
-        <div className="flex items-center justify-between px-1 pt-1 text-xs">
-          <span className="font-mono text-[11px] text-[#006c49] font-black uppercase flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[15px]">calendar_month</span>
-            <span>Mês de Referência: <strong>{monthInfo.formattedMonth}</strong> ({activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'})</span>
-          </span>
-          <span className="font-mono text-[10px] text-[#76777d]">
-            {activeGuards.length} vigias ativos
-          </span>
+        {/* Filters and View Mode Controls */}
+        <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+          {/* Post Filter */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <span className="text-xs font-bold text-[#45464d] mr-1 hidden sm:inline">Posto:</span>
+            <button
+              type="button"
+              onClick={() => setSelectedPostFilter('all')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
+                selectedPostFilter === 'all'
+                  ? 'bg-[#0d1c2f] text-white shadow-2xs'
+                  : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
+              }`}
+            >
+              Todos ({posts.length})
+            </button>
+            {posts.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setSelectedPostFilter(p.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
+                  selectedPostFilter === p.id
+                    ? 'bg-[#0d1c2f] text-white shadow-2xs'
+                    : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick Actions & View Mode Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#075e54] font-bold text-xs transition border border-[#25D366]/30 cursor-pointer active:scale-95 shadow-xs"
+              title="Colar escala do WhatsApp"
+            >
+              <WhatsAppIcon className="w-4 h-4 fill-[#25D366]" />
+              <span className="hidden sm:inline">Colar WhatsApp</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleOpenMultiDay(null)}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs transition active:scale-95 shadow-xs cursor-pointer"
+              title="Lançar múltiplos dias na grade"
+            >
+              <span className="material-symbols-outlined text-[15px]">calendar_add_on</span>
+              <span>+ Vários Dias</span>
+            </button>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-0.5 bg-[#eff4ff] p-0.5 rounded-xl border border-[#dde9ff]">
+              <button
+                type="button"
+                onClick={() => setViewMode('calendar')}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  viewMode === 'calendar'
+                    ? 'bg-[#006c49] text-white shadow-xs'
+                    : 'text-[#45464d] hover:text-[#0d1c2f]'
+                }`}
+                title="Grande Calendário do Mês"
+              >
+                <span className="material-symbols-outlined text-[17px]">calendar_month</span>
+                <span className="hidden sm:inline">Calendário</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('cards')}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  viewMode === 'cards'
+                    ? 'bg-[#0d1c2f] text-white shadow-xs'
+                    : 'text-[#45464d] hover:text-[#0d1c2f]'
+                }`}
+                title="Visualização em Cartões por Prestador"
+              >
+                <span className="material-symbols-outlined text-[17px]">view_agenda</span>
+                <span className="hidden sm:inline">Cartões</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('table')}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  viewMode === 'table'
+                    ? 'bg-[#0d1c2f] text-white shadow-xs'
+                    : 'text-[#45464d] hover:text-[#0d1c2f]'
+                }`}
+                title="Visualização em Grade / Tabela"
+              >
+                <span className="material-symbols-outlined text-[17px]">table_chart</span>
+                <span className="hidden sm:inline">Grade</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Quinzena Summary Metrics Ribbon - Differentiating Paid vs To Pay */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+        {/* Metrics Ribbon */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-[#eff4ff]">
           <div className="bg-[#eff4ff] p-2.5 rounded-xl flex flex-col border border-[#dde9ff]/60">
             <span className="font-mono text-[10px] text-[#45464d] uppercase font-bold">Carga Total</span>
             <span className="font-mono text-xs font-bold text-[#0d1c2f] mt-0.5">
-              {totalHours}h ({activeGuards.length} vig.)
+              {totalHours}h ({activeGuards.length} colaboradores)
             </span>
           </div>
 
           <div className="bg-[#eff4ff] p-2.5 rounded-xl flex flex-col border border-[#dde9ff]/60">
-            <span className="font-mono text-[10px] text-[#45464d] uppercase font-bold">Previsão Total</span>
+            <span className="font-mono text-[10px] text-[#45464d] uppercase font-bold">Previsão Folha</span>
             <span className="font-mono text-xs font-bold text-[#0d1c2f] mt-0.5">
               R$ {totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
             </span>
@@ -227,396 +468,245 @@ export function SpreadsheetView({
         </div>
       </div>
 
-      {/* Operational Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-[#0d1c2f]">Planilha de Escala</span>
-          <span className="bg-[#dde9ff] text-[#0d1c2f] font-mono text-[10px] px-2 py-0.5 rounded-full font-bold">
-            {activeGuards.length} Colaboradores
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <button
-            type="button"
-            onClick={() => onOpenWhatsApp?.()}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#006c49] font-bold text-xs border border-[#25D366]/30 transition active:scale-95 shadow-2xs"
-            title="Importar escala colada do WhatsApp"
-          >
-            <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
-            <span>Colar WhatsApp</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleOpenMultiDay(null)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs transition active:scale-95 shadow-xs"
-            title="Lançar múltiplos dias na grade"
-          >
-            <span className="material-symbols-outlined text-[15px]">calendar_add_on</span>
-            <span>Vários Dias</span>
-          </button>
-
-          {/* View Mode Toggle (Calendar vs Cards vs Table) */}
-          <div className="flex items-center gap-0.5 bg-[#eff4ff] p-0.5 rounded-xl border border-[#dde9ff]">
-            <button
-              type="button"
-              onClick={() => setViewMode('calendar')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === 'calendar'
-                  ? 'bg-[#006c49] text-white shadow-xs'
-                  : 'text-[#45464d] hover:text-[#0d1c2f]'
-              }`}
-              title="Visualização em Calendário"
-            >
-              <span className="material-symbols-outlined text-[17px]">calendar_month</span>
-              <span className="hidden sm:inline">Calendário</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('cards')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === 'cards'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'text-[#45464d] hover:text-[#0d1c2f]'
-              }`}
-              title="Visualização em Cartões por Prestador"
-            >
-              <span className="material-symbols-outlined text-[17px]">view_agenda</span>
-              <span className="hidden sm:inline">Cartões</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('table')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === 'table'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'text-[#45464d] hover:text-[#0d1c2f]'
-              }`}
-              title="Visualização em Grade / Tabela"
-            >
-              <span className="material-symbols-outlined text-[17px]">table_chart</span>
-              <span className="hidden sm:inline">Grade</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* VIEW MODE: Calendário Geral Quinzenal (Grade Visual de Fácil Leitura) */}
+      {/* VIEW MODE 1: GRANDE CALENDÁRIO MENSAL (Principal e Simples de Usar) */}
       {viewMode === 'calendar' && (
-        <div className="bg-white rounded-2xl shadow-xs border border-[#dde9ff] overflow-hidden p-3.5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
+        <div className="bg-white rounded-3xl shadow-xs border border-[#dde9ff] overflow-hidden p-4 sm:p-5 space-y-3">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#eff4ff]">
             <div>
-              <h3 className="text-sm font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[#006c49] text-[18px]">calendar_month</span>
-                <span>Calendário Geral • {activeQuinzena === 1 ? '1ª Quinzena (Dias 01 a 15)' : `2ª Quinzena (Dias 16 a ${totalDaysInMonth})`}</span>
+              <h3 className="text-base font-bold text-[#0d1c2f] flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#006c49]">calendar_month</span>
+                <span>
+                  Grande Calendário • {calendarRange === 'month' ? 'Mês Inteiro' : calendarRange === 'q1' ? '1ª Quinzena' : '2ª Quinzena'} ({monthInfo.formattedMonth})
+                </span>
               </h3>
-              <p className="text-xs text-[#76777d]">
-                Visão unificada dos plantões do dia • Clique em qualquer dia para ver ou lançar
+              <p className="text-xs text-[#76777d] mt-0.5">
+                👉 Clique em qualquer data para adicionar funcionário, trocar plantão ou preencher com folguista.
               </p>
             </div>
-            <span className="font-mono text-xs font-bold text-[#006c49] bg-[#6cf8bb]/20 px-2.5 py-1 rounded-xl">
-              {monthInfo.formattedMonth}
+            <span className="font-mono text-xs font-bold text-[#006c49] bg-[#6cf8bb]/20 px-3 py-1 rounded-xl">
+              {displayedDays.length} dias no painel
             </span>
           </div>
 
-          {/* Grid of days in this Quinzena - 5 columns on PC for optimal weekly alignment */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {currentQuinzenaDays.map((d) => {
+          {/* 7 Columns Weekday Header on Desktop PC */}
+          <div className="hidden lg:grid grid-cols-7 gap-2.5">
+            {BRAZILIAN_WEEKDAYS.map((w) => (
+              <div
+                key={w.id}
+                className={`text-center py-2 px-1 rounded-xl text-xs font-bold uppercase tracking-wider ${
+                  w.isWeekend ? 'bg-[#dde9ff]/50 text-[#0d1c2f]' : 'bg-[#eff4ff] text-[#45464d]'
+                }`}
+              >
+                {w.full}
+              </div>
+            ))}
+          </div>
+
+          {/* Monthly Calendar Grid: 7 columns on Desktop, responsive on Mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2.5">
+            {/* Leading blanks for full month alignment */}
+            {leadingBlanks.map((_, idx) => (
+              <div
+                key={`blank-lead-${idx}`}
+                className="hidden lg:flex flex-col p-3 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[140px]"
+              />
+            ))}
+
+            {/* Actual Days */}
+            {displayedDays.map((d) => {
               const weekday = getWeekday(year, month, d)
               const holiday = getHoliday(year, month, d)
               const isWeekend = weekday.isWeekend
-
-              // Who works today
-              const guardsOnDay = activeGuards.filter((g) => {
-                const h = shifts[selectedMonth]?.[g.id]?.[d]
-                return h !== undefined && h !== null && Number(h) > 0
-              }).map((g) => ({
-                guard: g,
-                hours: Number(shifts[selectedMonth]?.[g.id]?.[d]),
-                post: posts.find((p) => p.id === g.postId),
-                note: getShiftNote ? getShiftNote(g.id, d) : '',
-              }))
-
+              const guardsOnDay = getGuardsOnDay(d)
               const totalDayHours = guardsOnDay.reduce((acc, curr) => acc + curr.hours, 0)
+              const hasFolguista = guardsOnDay.some((item) => item.isFolguista)
 
               return (
                 <div
                   key={d}
-                  className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 ${
+                  onClick={() => handleOpenDayModal(d)}
+                  className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 min-h-[140px] cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] group ${
                     holiday
-                      ? 'bg-amber-50/70 border-amber-300'
+                      ? 'bg-amber-50/70 border-amber-300 hover:border-amber-400'
                       : isWeekend
-                      ? 'bg-[#fcfaff] border-[#dde9ff]'
-                      : 'bg-white border-[#dde9ff] hover:border-[#6cf8bb]'
+                      ? 'bg-[#fcfaff] border-[#dde9ff] hover:border-[#6cf8bb]'
+                      : 'bg-white border-[#dde9ff] hover:border-[#006c49]'
                   }`}
+                  title={`Clique no dia ${d} para adicionar, trocar ou lançar folguista`}
                 >
-                  {/* Day Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-8 h-8 rounded-xl font-mono flex items-center justify-center font-black text-xs ${
-                        holiday
-                          ? 'bg-amber-200 text-amber-900 border border-amber-300'
-                          : isWeekend
-                          ? 'bg-[#e5eeff] text-[#0d1c2f]'
-                          : 'bg-[#eff4ff] text-[#006c49]'
-                      }`}>
-                        {String(d).padStart(2, '0')}
-                      </div>
-                      <div>
-                        <span className="font-bold text-xs text-[#0d1c2f] block leading-none capitalize">
+                  {/* Card Header (Day Number + Weekday + Badges) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className={`w-8 h-8 rounded-xl font-mono flex items-center justify-center font-black text-xs shadow-2xs ${
+                            holiday
+                              ? 'bg-amber-300 text-amber-950 border border-amber-400'
+                              : isWeekend
+                              ? 'bg-[#dde9ff] text-[#0d1c2f]'
+                              : 'bg-[#eff4ff] text-[#006c49] group-hover:bg-[#006c49] group-hover:text-white transition-colors'
+                          }`}
+                        >
+                          {String(d).padStart(2, '0')}
+                        </div>
+                        <span className="font-bold text-xs text-[#0d1c2f] capitalize lg:hidden">
                           {weekday.full}
                         </span>
-                        {holiday && (
-                          <span className="text-[10px] text-amber-900 font-bold flex items-center gap-0.5 mt-0.5" title={holiday.name}>
-                            <span>🇧🇷</span>
-                            <span className="truncate max-w-[130px]">{holiday.name}</span>
-                          </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        {hasFolguista && (
+                          <span
+                            className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"
+                            title="Dia com folguista"
+                          />
                         )}
+                        <span className="font-mono text-[11px] font-bold text-[#45464d] bg-[#eff4ff] px-1.5 py-0.5 rounded-md">
+                          {guardsOnDay.length > 0 ? `${totalDayHours}h` : '0h'}
+                        </span>
                       </div>
                     </div>
 
-                    <span className="font-mono text-[11px] font-bold text-[#45464d]">
-                      {guardsOnDay.length > 0 ? `${guardsOnDay.length} vig. (${totalDayHours}h)` : 'Sem plantão'}
-                    </span>
-                  </div>
-
-                  {/* Scheduled Guards on this Day */}
-                  <div className="space-y-1.5">
-                    {guardsOnDay.map(({ guard, hours, post, note }) => {
-                      const isOvertime = hours > (guard.defaultShiftHours || 3)
-                      const displayName = guard.fullName || guard.name
-                      return (
-                        <div
-                          key={guard.id}
-                          onClick={() => handleOpenFastEdit(guard, d)}
-                          className={`flex items-start justify-between p-2 rounded-xl text-xs font-semibold cursor-pointer transition active:scale-[0.98] border gap-2 ${
-                            isOvertime
-                              ? 'bg-amber-100/80 border-amber-300 text-amber-900 shadow-2xs'
-                              : 'bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] border-[#dde9ff]/80'
-                          }`}
-                          title={`Clique para editar horas de ${displayName} no dia ${d}`}
-                        >
-                          <div className="flex items-start gap-2 min-w-0 flex-1">
-                            <span className="w-2 h-2 rounded-full bg-[#006c49] shrink-0 mt-1"></span>
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="font-bold text-[#0d1c2f] leading-snug break-words">
-                                {displayName}
-                              </span>
-                              <div className="flex items-center gap-1.5 flex-wrap text-[10px] text-[#76777d] font-normal leading-none mt-1">
-                                {post?.name && (
-                                  <span className="bg-white/80 border border-[#dde9ff] px-1.5 py-0.5 rounded text-[#45464d] font-medium">
-                                    📍 {post.name}
-                                  </span>
-                                )}
-                                {note && (
-                                  <span className="bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
-                                    <span>📝</span>
-                                    <span>{note}</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col items-end shrink-0 pl-1">
-                            <span className="font-mono text-xs font-black text-[#006c49] bg-white px-2 py-0.5 rounded-lg border border-[#dde9ff] shadow-2xs">
-                              {hours}h
-                            </span>
-                            {isOvertime && (
-                              <span className="text-[10px] font-bold text-amber-800 mt-0.5">
-                                ★ Extra
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-
-                    {guardsOnDay.length === 0 && (
-                      <div className="py-2 text-center text-xs text-[#76777d] italic bg-[#f8f9ff] rounded-xl border border-dashed border-[#dde9ff]">
-                        Nenhum vigia escalado
+                    {holiday && (
+                      <div className="mb-1 text-[10px] text-amber-900 font-bold bg-amber-100/80 px-1.5 py-0.5 rounded-md truncate">
+                        🇧🇷 {holiday.name}
                       </div>
                     )}
                   </div>
 
-                  {/* Action on this day */}
-                  <div className="flex items-center justify-end pt-1 border-t border-[#eff4ff]">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenFastEdit(activeGuards[0], d)}
-                      className="text-[11px] font-bold text-[#006c49] hover:text-[#005236] flex items-center gap-0.5 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[14px]">add_circle</span>
-                      <span>Lançar / Ajustar</span>
-                    </button>
+                  {/* Scheduled Guards Pills */}
+                  <div className="space-y-1 my-auto">
+                    {guardsOnDay.slice(0, 4).map(({ guard, hours, post, isFolguista }) => {
+                      const displayName = guard.name
+                      return (
+                        <div
+                          key={guard.id}
+                          className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] font-semibold transition ${
+                            isFolguista
+                              ? 'bg-amber-100 text-amber-950 border border-amber-300 font-bold'
+                              : 'bg-[#eff4ff] group-hover:bg-white text-[#0d1c2f] border border-[#dde9ff]/80'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                isFolguista ? 'bg-amber-600' : 'bg-[#006c49]'
+                              }`}
+                            />
+                            <span className="truncate">{displayName}</span>
+                            {post?.name && !isFolguista && (
+                              <span className="text-[9px] text-[#76777d] truncate">
+                                ({post.name.slice(0, 3)})
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono text-[10px] font-bold shrink-0 ml-1">
+                            {hours}h
+                          </span>
+                        </div>
+                      )
+                    })}
+
+                    {guardsOnDay.length > 4 && (
+                      <div className="text-[10px] text-center font-bold text-[#006c49]">
+                        +{guardsOnDay.length - 4} outros...
+                      </div>
+                    )}
+
+                    {guardsOnDay.length === 0 && (
+                      <div className="py-3 text-center text-[11px] text-[#76777d] italic bg-[#f8f9ff] rounded-xl border border-dashed border-[#dde9ff]">
+                        Sem plantão
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Day Footer Action */}
+                  <div className="pt-1.5 border-t border-[#eff4ff] flex items-center justify-between text-[11px]">
+                    <span className="text-[#76777d] text-[10px]">
+                      {guardsOnDay.length} {guardsOnDay.length === 1 ? 'vigia' : 'vigias'}
+                    </span>
+                    <span className="font-bold text-[#006c49] group-hover:underline flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[14px]">edit</span>
+                      <span>Editar</span>
+                    </span>
                   </div>
                 </div>
               )
             })}
+
+            {/* Trailing blanks */}
+            {trailingBlanks.map((_, idx) => (
+              <div
+                key={`blank-trail-${idx}`}
+                className="hidden lg:flex flex-col p-3 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[140px]"
+              />
+            ))}
           </div>
         </div>
       )}
 
-      {/* VIEW MODE 1: Interactive Roster Cards (Responsive Grid for PC & Mobile) */}
+      {/* VIEW MODE 2: CARDS POR PRESTADOR */}
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
-          {activeGuards.length === 0 && (
-            <div className="bg-white rounded-2xl p-8 text-center border border-[#dde9ff] space-y-3">
+          {filteredGuards.length === 0 && (
+            <div className="bg-white rounded-2xl p-8 text-center border border-[#dde9ff] space-y-3 col-span-full">
               <span className="material-symbols-outlined text-4xl text-[#76777d]">group_off</span>
-              <p className="text-sm font-bold text-[#0d1c2f]">Nenhum prestador ativo encontrado</p>
-              <p className="text-xs text-[#76777d]">Adicione novos prestadores na aba Equipe para lançar horas na escala.</p>
-              <button
-                type="button"
-                onClick={onOpenNewGuardModal}
-                className="px-4 py-2 bg-[#006c49] text-white rounded-xl text-xs font-bold shadow-xs hover:bg-[#005236]"
-              >
-                Cadastrar Prestador
-              </button>
+              <p className="text-sm font-bold text-[#0d1c2f]">Nenhum colaborador encontrado</p>
             </div>
           )}
 
-          {guardRows.map(({ guard, post, qHours, qAmount, isPaid, activeDaysList, guardShifts }) => {
+          {guardRows.map(({ guard, post, qHours, qAmount, isPaid, activeDaysList }) => {
             const hasHours = qHours > 0
+            const isFolguista = guard.id === 'g-folguista' || guard.name.toLowerCase() === 'folguista'
+
             return (
               <div
                 key={guard.id}
-                className="bg-white rounded-2xl p-3.5 shadow-xs border border-[#dde9ff] hover:border-[#6cf8bb] transition-all"
+                className={`bg-white rounded-2xl p-4 shadow-xs border transition-all flex flex-col justify-between gap-3 ${
+                  isFolguista ? 'border-amber-300 bg-amber-50/30' : 'border-[#dde9ff]'
+                }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-full bg-[#dde9ff] flex items-center justify-center text-[#0d1c2f] font-bold text-xs shrink-0">
-                      {guard.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-sm font-bold text-[#0d1c2f] leading-snug break-words">
-                          {guard.fullName || guard.name}
-                        </h2>
-                        <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#eff4ff] text-[#45464d] border border-[#dde9ff]/80">
-                          📍 {post?.name || 'Posto'} • {guard.defaultShiftHours || 3}h
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs ${
+                        isFolguista ? 'bg-amber-200 text-amber-950 font-black' : 'bg-[#dde9ff] text-[#0d1c2f]'
+                      }`}>
+                        {isFolguista ? 'FOL' : guard.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-[#0d1c2f]">{guard.name}</h4>
+                          {isFolguista && (
+                            <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[9px] font-black uppercase">
+                              Substituto
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-[#76777d]">
+                          {isFolguista ? 'Plantões de Substituição' : `📍 ${post?.name || 'Geral'}`}
                         </span>
                       </div>
-                      {/* Visual Day-by-Day Quinzena Grid */}
-                      <div className="grid grid-cols-5 sm:grid-cols-8 gap-1 mt-2">
-                        {currentQuinzenaDays.map((d) => {
-                          const h = guardShifts[d]
-                          const hasVal = h !== undefined && h !== null && Number(h) > 0
-                          const isOvertime = Number(h) > (guard.defaultShiftHours || 3)
-                          const note = getShiftNote ? getShiftNote(guard.id, d) : ''
-                          const weekday = getWeekday(year, month, d)
-                          const holiday = getHoliday(year, month, d)
+                    </div>
 
-                          return (
-                            <button
-                              key={d}
-                              type="button"
-                              onClick={() => handleOpenFastEdit(guard, d)}
-                              title={
-                                holiday
-                                  ? `Dia ${d} (${weekday.short}) - 🇧🇷 Feriado Nacional: ${holiday.name} • ${hasVal ? `${h}h` : 'Folga'}${note ? ` (${note})` : ''}`
-                                  : note
-                                  ? `Dia ${d} (${weekday.short}): ${hasVal ? `${h}h` : 'Folga'} (${note})`
-                                  : `Dia ${d} (${weekday.short}): ${hasVal ? `${h}h` : 'Folga'}`
-                              }
-                              className={`p-1 rounded-xl text-center font-mono flex flex-col items-center justify-center transition active:scale-95 cursor-pointer border ${
-                                holiday
-                                  ? 'bg-amber-100/90 text-amber-900 border-amber-300'
-                                  : isOvertime
-                                  ? 'bg-[#ffb95f]/30 text-[#854d0e] border-[#ffb95f]'
-                                  : hasVal
-                                  ? 'bg-[#006c49]/10 text-[#006c49] border-[#006c49]/30 font-bold'
-                                  : 'bg-[#f8f9ff] text-[#76777d] border-transparent hover:border-[#dde9ff]'
-                              }`}
-                            >
-                              <span className="text-[9px] text-[#76777d] uppercase font-sans font-bold leading-none">
-                                {weekday.short}
-                              </span>
-                              <span className="text-xs font-black leading-tight mt-0.5">
-                                {String(d).padStart(2, '0')}
-                              </span>
-                              <span className={`text-[10px] font-black leading-none mt-0.5 ${hasVal ? (isOvertime ? 'text-[#b45309]' : 'text-[#006c49]') : 'text-slate-300'}`}>
-                                {hasVal ? `${h}h` : '-'}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
+                    <div className="flex flex-col items-end">
+                      <span className="font-mono text-sm font-bold text-[#006c49]">{qHours}h</span>
+                      <span className="font-mono text-xs font-bold text-[#0d1c2f]">
+                        R$ {qAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="text-right flex flex-col items-end gap-1">
-                    <span className="font-mono text-xs text-[#76777d] block font-semibold">
-                      {qHours}h
-                    </span>
-                    <span
-                      className={`font-mono text-xs font-bold px-2 py-0.5 rounded ${
-                        isPaid
-                          ? 'bg-[#6cf8bb]/20 text-[#00714d] border border-[#6cf8bb]/40'
-                          : hasHours
-                          ? 'bg-[#ffddb8] text-[#2a1700]'
-                          : 'bg-[#eff4ff] text-[#76777d]'
-                      }`}
-                    >
-                      {isPaid ? '✓ Pago: ' : 'A Pagar: '}R$ {qAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({monthInfo.monthName.slice(0, 3)}/{year})
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        togglePaymentStatus(guard.id, activeQuinzena === 1 ? 'q1' : 'q2')
-                      }}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 shadow-xs ${
-                        isPaid
-                          ? 'bg-[#006c49] text-white border border-[#6cf8bb] hover:bg-[#005236]'
-                          : 'bg-[#006c49] hover:bg-[#005236] text-white'
-                      }`}
-                      title={isPaid ? `Pagamento de ${guard.name} marcado como PAGO. Clique novamente para retirar o pagamento e reabrir.` : `Clique para pagar ${guard.name} (${monthInfo.formattedMonth})`}
-                    >
-                      <span className="material-symbols-outlined text-[15px]">
-                        {isPaid ? 'check_circle' : 'payments'}
-                      </span>
-                      <span>{isPaid ? '✓ Pago' : 'Pagar'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Mini tracker & fast launch buttons */}
-                <div className="mt-3 pt-2.5 border-t border-[#eff4ff] flex items-center justify-between text-xs text-[#76777d]">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#006c49]"></span>
-                    <span>{activeDaysList.length} dias alocados</span>
-                  </span>
-
-                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                    <button
-                      type="button"
-                      onClick={() => setScheduleModalGuard(guard)}
-                      className="bg-[#eff4ff] hover:bg-[#dde9ff] text-[#006c49] border border-[#dde9ff] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-xs transition active:scale-95 cursor-pointer shadow-2xs"
-                      title="Editar a escala completa deste prestador"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">edit_calendar</span>
-                      <span>Editar Escala</span>
-                    </button>
-
+                  <div className="mt-3 pt-2 border-t border-[#eff4ff] flex items-center justify-between text-xs text-[#76777d]">
+                    <span>{activeDaysList.length} dias alocados no período</span>
                     <button
                       type="button"
                       onClick={() => handleOpenMultiDay(guard.id)}
-                      className="bg-[#006c49] hover:bg-[#005236] text-white px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-xs transition active:scale-95 shadow-xs cursor-pointer"
-                      title="Lançar múltiplos dias para este segurança"
+                      className="px-2.5 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#006c49] font-bold text-xs flex items-center gap-1 transition"
                     >
-                      <span className="material-symbols-outlined text-[15px]">calendar_add_on</span>
-                      <span>Vários Dias</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleOpenFastEdit(guard)}
-                      className="bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 text-xs transition active:scale-95 border border-[#dde9ff] cursor-pointer"
-                      title="Ajustar horas ou lançar hora extra para qualquer dia"
-                    >
-                      <span className="material-symbols-outlined text-[15px] text-[#006c49]">more_time</span>
-                      <span>Ajustar / Extra</span>
+                      <span className="material-symbols-outlined text-[14px]">calendar_add_on</span>
+                      <span>Lançar Dias</span>
                     </button>
                   </div>
                 </div>
@@ -626,139 +716,86 @@ export function SpreadsheetView({
         </div>
       )}
 
-      {/* VIEW MODE 2: Horizontal Scrollable Spreadsheet Table */}
+      {/* VIEW MODE 3: GRADE / TABELA COMPLETA */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-2xl shadow-xs border border-[#dde9ff] overflow-hidden">
-          <div className="p-3.5 flex items-center justify-between border-b border-[#eff4ff]">
+        <div className="bg-white rounded-3xl shadow-xs border border-[#dde9ff] overflow-hidden">
+          <div className="p-4 flex items-center justify-between border-b border-[#eff4ff]">
             <div>
               <h3 className="text-sm font-bold text-[#0d1c2f]">Grade Completa de Dias</h3>
-              <p className="text-xs text-[#76777d]">
-                Deslize horizontalmente para auditar cada dia
-              </p>
+              <p className="text-xs text-[#76777d]">Auditoria dia a dia de todos os colaboradores</p>
             </div>
             <span className="material-symbols-outlined text-[#76777d]">swap_horiz</span>
           </div>
 
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-left text-xs border-collapse min-w-[640px]">
+            <table className="w-full text-left text-xs border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-[#eff4ff] text-[#45464d] font-mono text-[10px] uppercase">
                   <th className="py-2.5 px-3 sticky left-0 bg-[#eff4ff] shadow-[1px_0_4px_rgba(0,0,0,0.05)] z-10">
                     Prestador
                   </th>
-                  {currentQuinzenaDays.map((d) => {
+                  {displayedDays.map((d) => {
                     const weekday = getWeekday(year, month, d)
                     const holiday = getHoliday(year, month, d)
                     return (
                       <th
                         key={d}
-                        className={`py-2 px-1 text-center min-w-[34px] transition ${
+                        onClick={() => handleOpenDayModal(d)}
+                        className={`py-2 px-1 text-center min-w-[34px] cursor-pointer hover:bg-[#dde9ff] transition ${
                           holiday
                             ? 'bg-amber-100 text-amber-900 border-b-2 border-amber-400'
                             : weekday.isWeekend
                             ? 'bg-[#e5eeff] text-[#2c3e50]'
                             : ''
                         }`}
-                        title={
-                          holiday
-                            ? `Dia ${d} (${weekday.full}) • 🇧🇷 Feriado Nacional: ${holiday.name}`
-                            : `Dia ${d} (${weekday.full})`
-                        }
+                        title={`Dia ${d} (${weekday.full}) - Clique para editar`}
                       >
-                        <div className="flex flex-col items-center">
-                          <span className="font-mono text-xs font-bold leading-none">
-                            {String(d).padStart(2, '0')}
-                          </span>
-                          <span className="text-[9px] uppercase font-sans leading-none mt-0.5">
-                            {weekday.short}
-                          </span>
-                          {holiday && (
-                            <span className="text-[8px] leading-none mt-0.5">🇧🇷</span>
-                          )}
-                        </div>
+                        <div>{String(d).padStart(2, '0')}</div>
+                        <div className="text-[8px] opacity-75">{weekday.short}</div>
                       </th>
                     )
                   })}
-                  <th className="py-2.5 px-2 text-center font-bold">Total Horas</th>
-                  <th className="py-2.5 px-3 text-right font-bold bg-[#ffddb8]/50 text-[#2a1700]">
-                    Total a Pagar ({monthInfo.monthName.slice(0, 3)}/{year})
-                  </th>
-                  <th className="py-2.5 px-2 text-center font-bold">Status</th>
+                  <th className="py-2.5 px-2 text-center">Horas</th>
+                  <th className="py-2.5 px-3 text-right">Total R$</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#eff4ff] text-[#0d1c2f] font-mono text-xs">
-                {guardRows.map(({ guard, qHours, qAmount, isPaid, guardShifts }) => (
-                  <tr key={guard.id} className="hover:bg-[#f8f9ff]">
-                    <td className="py-2 px-3 font-sans font-bold sticky left-0 bg-white shadow-[1px_0_4px_rgba(0,0,0,0.05)] z-10 whitespace-nowrap">
-                      <div className="flex items-center justify-between gap-1.5">
-                        <span className="leading-snug break-words max-w-[180px] sm:max-w-none">
-                          {guard.fullName || guard.name}
-                        </span>
-                        <button
-                          onClick={() => handleOpenMultiDay(guard.id)}
-                          className="text-[#006c49] hover:bg-[#6cf8bb]/30 p-1 rounded transition"
-                          title="Lançar em vários dias"
-                        >
-                          <span className="material-symbols-outlined text-[15px]">calendar_add_on</span>
-                        </button>
+              <tbody className="divide-y divide-[#eff4ff]">
+                {guardRows.map(({ guard, post, qHours, qAmount, guardShifts }) => (
+                  <tr key={guard.id} className="hover:bg-[#f8f9ff] transition-colors">
+                    <td className="py-2 px-3 font-semibold text-[#0d1c2f] sticky left-0 bg-white shadow-[1px_0_4px_rgba(0,0,0,0.05)]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate max-w-[140px]">{guard.name}</span>
+                        {post?.name && (
+                          <span className="text-[9px] text-[#76777d]">({post.name.slice(0, 3)})</span>
+                        )}
                       </div>
                     </td>
 
-                    {currentQuinzenaDays.map((d) => {
+                    {displayedDays.map((d) => {
                       const h = guardShifts[d]
-                      const hasVal = h !== undefined && h !== null && h !== ''
-                      const isZero = Number(h) === 0
-                      const isOvertime = Number(h) > (guard.defaultShiftHours || 3)
-                      const note = getShiftNote ? getShiftNote(guard.id, d) : ''
+                      const hasVal = h !== undefined && h !== null
                       return (
                         <td
                           key={d}
-                          onClick={() => handleOpenFastEdit(guard, d)}
-                          className={`py-2 px-1 text-center cursor-pointer font-bold hover:bg-[#6cf8bb]/30 transition ${
-                            hasVal
-                              ? isZero
-                                ? 'text-slate-400'
-                                : isOvertime
-                                ? 'bg-[#ffb95f]/30 text-[#854d0e] font-black'
-                                : 'text-[#006c49] font-extrabold'
-                              : 'text-slate-300'
-                          }`}
-                          title={
-                            note
-                              ? `Dia ${d}: ${h}h (${note}) - Clique para ajustar`
-                              : isOvertime
-                              ? `Dia ${d}: ${h}h (Hora Extra) - Clique para ajustar`
-                              : `Dia ${d}: ${hasVal ? `${h}h` : 'Folga'} - Clique para ajustar`
-                          }
+                          onClick={() => handleOpenDayModal(d)}
+                          className="py-1 px-1 text-center font-mono text-[11px] cursor-pointer hover:bg-emerald-50 transition"
                         >
-                          <div className="flex items-center justify-center gap-0.5">
-                            <span>{hasVal ? (isZero ? '0' : `${h}h`) : '-'}</span>
-                            {isOvertime && <span className="text-[9px] text-[#b45309]">★</span>}
-                          </div>
+                          {hasVal && Number(h) > 0 ? (
+                            <span className="font-bold text-[#006c49] bg-emerald-50 px-1 py-0.5 rounded">
+                              {h}h
+                            </span>
+                          ) : (
+                            <span className="text-slate-300">-</span>
+                          )}
                         </td>
                       )
                     })}
 
-                    <td className="py-2 px-2 text-center font-bold">{qHours}h</td>
-                    <td className="py-2 px-3 text-right font-bold text-[#2a1700] bg-[#ffddb8]/30 whitespace-nowrap">
-                      R$ {qAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <td className="py-2 px-2 text-center font-mono font-bold text-[#006c49]">
+                      {qHours}h
                     </td>
-                    <td className="py-2 px-2 text-center whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={() => togglePaymentStatus(guard.id, activeQuinzena === 1 ? 'q1' : 'q2')}
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl font-bold text-xs transition active:scale-95 shadow-xs ${
-                          isPaid
-                            ? 'bg-[#006c49] text-white border border-[#6cf8bb] hover:bg-[#005236]'
-                            : 'bg-[#006c49] hover:bg-[#005236] text-white'
-                        }`}
-                        title={isPaid ? `Pagamento marcado como PAGO. Clique novamente para retirar o pagamento e reabrir.` : `Clique para pagar (${monthInfo.monthName.slice(0, 3)}/${year})`}
-                      >
-                        <span className="material-symbols-outlined text-[14px]">
-                          {isPaid ? 'check_circle' : 'payments'}
-                        </span>
-                        <span>{isPaid ? '✓ Pago' : 'Pagar'}</span>
-                      </button>
+                    <td className="py-2 px-3 text-right font-mono font-bold text-[#0d1c2f]">
+                      R$ {qAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
                     </td>
                   </tr>
                 ))}
@@ -768,380 +805,364 @@ export function SpreadsheetView({
         </div>
       )}
 
-      {/* Realtime Tactical Bottom Bar (Total & Quick Dispatch) */}
-      <div className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30">
-        <div className="max-w-7xl mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 backdrop-blur-md border border-white/10">
+      {/* Floating Tactical Bottom Bar */}
+      <div className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30 pointer-events-none">
+        <div className="max-w-7xl mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 backdrop-blur-md border border-white/10 pointer-events-auto">
           <div className="flex flex-col min-w-0">
-            <span className="font-mono text-[10px] text-[#bec6e0] flex items-center gap-1 font-semibold uppercase">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#6cf8bb]"></span>
-              Folha de {monthInfo.formattedMonth} • {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'} ({totalHours}h)
+            <span className="font-mono text-[10px] text-[#bec6e0] flex items-center gap-1.5 font-semibold uppercase">
+              <span className="inline-block w-2 h-2 rounded-full bg-[#6cf8bb]"></span>
+              <span>{monthInfo.formattedMonth}</span>
+              <span>•</span>
+              <span className="text-[#6cf8bb]">{calendarRange === 'month' ? 'Mês Inteiro' : calendarRange === 'q1' ? '1ª Quinzena' : '2ª Quinzena'}</span>
+              <span>({totalHours}h totais)</span>
             </span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-mono text-xs font-bold text-[#6cf8bb]" title="Total já liquidado">
+            <div className="flex items-center gap-3 mt-0.5">
+              <span className="font-mono text-xs font-bold text-[#6cf8bb]">
                 ✓ Pago: R$ {paidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
-              <span className="text-white/30">•</span>
-              <span className="font-mono text-xs font-bold text-[#ffddb8]" title="Total ainda a pagar">
-                ⏳ A Pagar: R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+              <span className="font-mono text-xs font-bold text-[#ffddb8]">
+                ⏳ Pendente: R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={exportBackupJSON}
-              className="h-9 px-3 rounded-xl bg-white/15 hover:bg-white/20 text-white flex items-center gap-1 text-xs font-semibold transition-colors"
+              type="button"
+              onClick={() => handleOpenMultiDay(null)}
+              className="h-9 px-3.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white flex items-center gap-1 text-xs font-bold transition active:scale-95 shadow-sm cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">ios_share</span>
-              <span className="hidden sm:inline">Exportar</span>
-            </button>
-            <button
-              onClick={() => handleOpenFastEdit(activeGuards[0])}
-              className="h-9 px-3.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white flex items-center gap-1 text-xs font-bold transition-transform active:scale-95 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[16px]">add_circle</span>
-              <span>Lançar</span>
+              <span className="material-symbols-outlined text-[16px]">calendar_add_on</span>
+              <span>Lançar Vários Dias</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Modal: Ajustar Plantão & Horas Extras (Overtime & Dobra) */}
-      {fastEditModal && (() => {
-        const guardDefaultHours = fastEditModal.guard.defaultShiftHours || 3
-        const isOvertime = fastEditModal.hours > guardDefaultHours
-        const extraHours = isOvertime ? fastEditModal.hours - guardDefaultHours : 0
-        const guardRate = fastEditModal.guard.hourlyRate || defaultHourlyRate
-        const totalDayAmount = fastEditModal.hours * guardRate
-        const extraAmount = extraHours * guardRate
-        const guardPost = posts.find((p) => p.id === fastEditModal.guard.postId)
-
-        return (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
-            <div className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 space-y-4 animate-in slide-in-from-bottom duration-200 border border-[#dde9ff] shadow-2xl max-h-[92vh] overflow-y-auto">
-              {/* Grabber handle */}
-              <div className="w-12 h-1.5 bg-[#dde9ff] rounded-full mx-auto mb-1 sm:hidden"></div>
-
-              <div className="flex items-center justify-between border-b border-[#eff4ff] pb-2.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-[#ffb95f]/30 flex items-center justify-center text-[#854d0e] font-black">
-                    <span className="material-symbols-outlined text-[22px]">more_time</span>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                      <span>Ajustar Plantão: {fastEditModal.guard.name}</span>
-                      {isOvertime && (
-                        <span className="px-1.5 py-0.5 rounded bg-[#ffb95f] text-[#422006] text-[10px] font-black uppercase">
-                          Hora Extra
-                        </span>
-                      )}
-                    </h4>
-                    <span className="text-xs text-[#76777d]">
-                      Posto {guardPost?.name || 'Geral'} • Carga Padrão: {guardDefaultHours}h
-                    </span>
-                  </div>
+      {/* ======================================================== */}
+      {/* MODAL: GERENCIAR PLANTÃO DO DIA (CLICOU NO DIA)           */}
+      {/* Com autocomplete de escrita rápida e botão de Folguista   */}
+      {/* ======================================================== */}
+      {dayEditModal.isOpen && dayEditModal.day && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 bg-[#131b2e] text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-[#006c49] text-white flex items-center justify-center font-black font-mono text-base border border-[#6cf8bb]/40 shadow-xs">
+                  {String(dayEditModal.day).padStart(2, '0')}
                 </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 flex-wrap">
+                    <span>
+                      Dia {dayEditModal.day} de {monthInfo.monthName} ({getWeekday(year, month, dayEditModal.day).full})
+                    </span>
+                    {getHoliday(year, month, dayEditModal.day) && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 font-bold text-[10px]">
+                        🇧🇷 {getHoliday(year, month, dayEditModal.day).name}
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-xs text-[#bec6e0] mt-0.5">
+                    Adicione funcionários, troque quem está no dia ou lance um folguista
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDayEditModal({ isOpen: false, day: null })}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
+              {/* Quick Actions Row */}
+              <div className="flex items-center gap-2.5">
+                {/* 1-Click Folguista Button */}
                 <button
-                  onClick={() => setFastEditModal(null)}
-                  className="w-8 h-8 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#45464d] hover:bg-[#dde9ff] transition"
+                  type="button"
+                  onClick={() => handleAddFolguistaToDay(dayEditModal.day)}
+                  className="w-full py-3 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+                  title="Adiciona um substituto/folguista nesta data sem precisar saber o nome"
                 >
-                  <span className="material-symbols-outlined text-[18px]">close</span>
+                  <span className="material-symbols-outlined text-[20px]">person_pin</span>
+                  <span>+ Preencher com Folguista (Substituto)</span>
                 </button>
               </div>
 
-              <div className="space-y-3.5">
-                {/* Guard Selector */}
-                {activeGuards.length > 1 && (
-                  <div>
-                    <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
-                      Prestador / Vigia:
-                    </label>
-                    <select
-                      value={fastEditModal.guard.id}
-                      onChange={(e) => {
-                        const selectedG = activeGuards.find((g) => g.id === e.target.value) || fastEditModal.guard
-                        const defH = selectedG.defaultShiftHours || 3
-                        const dayVal = shifts[selectedMonth]?.[selectedG.id]?.[fastEditModal.day]
-                        const h = dayVal !== undefined && dayVal !== null ? Number(dayVal) : defH
-                        const n = getShiftNote ? getShiftNote(selectedG.id, fastEditModal.day) : ''
-                        setFastEditModal({
-                          ...fastEditModal,
-                          guard: selectedG,
-                          hours: h,
-                          note: n,
-                        })
-                      }}
-                      className="w-full h-10 px-3 text-xs bg-[#eff4ff] text-[#0d1c2f] rounded-xl border border-[#dde9ff] font-bold focus:outline-none focus:ring-1 focus:ring-[#006c49] cursor-pointer"
+              {/* Autocomplete Input (Start typing and it auto-completes) */}
+              <div className="relative">
+                <label className="text-xs font-bold text-[#0d1c2f] flex items-center justify-between mb-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[18px] text-[#006c49]">person_search</span>
+                    <span>
+                      {swappingGuardId
+                        ? 'Selecione quem vai substituir este vigilante:'
+                        : 'Adicionar funcionário (digite para autocompletar):'}
+                    </span>
+                  </span>
+                  {swappingGuardId && (
+                    <button
+                      type="button"
+                      onClick={() => setSwappingGuardId(null)}
+                      className="text-[11px] text-red-600 font-bold hover:underline"
                     >
-                      {activeGuards.map((g) => {
-                        const p = posts.find((item) => item.id === g.postId)
+                      Cancelar troca
+                    </button>
+                  )}
+                </label>
+
+                <div className="relative flex items-center">
+                  <span className="material-symbols-outlined absolute left-3.5 text-[#76777d] text-[20px]">
+                    search
+                  </span>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={daySearchQuery}
+                    onChange={(e) => setDaySearchQuery(e.target.value)}
+                    placeholder="Digite o nome (ex: Carvalho, Gomes, Novaes, Folguista)..."
+                    className="w-full h-12 pl-10 pr-10 bg-[#eff4ff] text-[#0d1c2f] rounded-2xl text-xs sm:text-sm font-semibold border border-[#dde9ff] focus:outline-none focus:border-[#006c49] focus:bg-white focus:shadow-xs transition"
+                  />
+                  {daySearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setDaySearchQuery('')}
+                      className="absolute right-3 text-[#76777d] hover:text-[#0d1c2f] cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Floating Autocomplete Dropdown */}
+                {daySearchQuery.trim().length > 0 && (
+                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white rounded-2xl shadow-2xl border border-[#dde9ff] z-30 max-h-56 overflow-y-auto p-1.5 space-y-1 animate-in fade-in">
+                    {matchingGuards.length === 0 ? (
+                      <div className="p-3 text-center text-xs text-[#76777d] italic">
+                        Nenhum funcionário encontrado com "{daySearchQuery}".
+                      </div>
+                    ) : (
+                      matchingGuards.map((g) => {
+                        const post = posts.find((p) => p.id === g.postId)
+                        const isFolguista = g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista'
                         return (
-                          <option key={g.id} value={g.id}>
-                            {g.name} — {p?.name || 'Posto'} ({g.defaultShiftHours || 3}h/plantão)
-                          </option>
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => handleSelectGuardForDay(g, dayEditModal.day)}
+                            className="w-full p-2.5 rounded-xl hover:bg-[#eff4ff] text-left flex items-center justify-between transition cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
+                                  isFolguista
+                                    ? 'bg-amber-200 text-amber-950 font-black'
+                                    : 'bg-[#dde9ff] text-[#0d1c2f]'
+                                }`}
+                              >
+                                {isFolguista ? 'FOL' : g.name.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <span className="text-xs font-bold text-[#0d1c2f] block group-hover:text-[#006c49]">
+                                  {g.fullName || g.name}
+                                </span>
+                                <span className="text-[10px] text-[#76777d]">
+                                  {isFolguista ? '🔄 Substituto Geral' : `📍 ${post?.name || 'Posto Geral'}`}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-[#006c49] bg-[#eff4ff] px-2 py-0.5 rounded-md">
+                                +{g.defaultShiftHours || 3}h
+                              </span>
+                              <span className="material-symbols-outlined text-[18px] text-[#76777d] group-hover:text-[#006c49]">
+                                add_circle
+                              </span>
+                            </div>
+                          </button>
                         )
-                      })}
-                    </select>
+                      })
+                    )}
                   </div>
                 )}
+              </div>
 
-                {/* Day Picker */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold text-[#0d1c2f]">
-                      Dia do Mês Selecionado:
-                    </label>
-                    <span className="font-mono text-xs font-bold text-[#006c49] bg-[#6cf8bb]/20 px-2 py-0.5 rounded-full">
-                      Dia {String(fastEditModal.day).padStart(2, '0')}
-                    </span>
+              {/* Currently Scheduled Guards on this Day */}
+              <div className="flex flex-col gap-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#006c49] text-[18px]">group</span>
+                    <span>Escalados para o Dia {dayEditModal.day} ({modalDayGuards.length})</span>
+                  </h4>
+                  <span className="font-mono text-xs font-bold text-[#006c49] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Total: {modalDayTotalHours}h
+                  </span>
+                </div>
+
+                {modalDayGuards.length === 0 ? (
+                  <div className="p-6 text-center rounded-2xl border-2 border-dashed border-[#dde9ff] bg-[#f8f9ff] text-[#76777d] text-xs space-y-1">
+                    <p className="font-semibold text-[#0d1c2f]">Ninguém escalado nesta data.</p>
+                    <p className="text-[11px]">
+                      Comece a digitar um nome acima ou clique em "+ Preencher com Folguista".
+                    </p>
                   </div>
-                  <div className="grid grid-cols-5 sm:grid-cols-8 gap-1 max-h-28 overflow-y-auto p-1.5 bg-[#eff4ff] rounded-xl border border-[#dde9ff]/60">
-                    {currentQuinzenaDays.map((d) => {
-                      const dayH = shifts[selectedMonth]?.[fastEditModal.guard.id]?.[d]
-                      const hasHours = dayH !== undefined && Number(dayH) > 0
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {modalDayGuards.map(({ guard, hours, post, note, isFolguista }) => {
+                      const isBeingSwapped = swappingGuardId === guard.id
+
                       return (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => {
-                            const existingVal = shifts[selectedMonth]?.[fastEditModal.guard.id]?.[d]
-                            const newH = existingVal !== undefined && existingVal !== null ? Number(existingVal) : guardDefaultHours
-                            const newNote = getShiftNote ? getShiftNote(fastEditModal.guard.id, d) : ''
-                            setFastEditModal({
-                              ...fastEditModal,
-                              day: d,
-                              hours: Number(newH),
-                              note: newNote || '',
-                            })
-                          }}
-                          className={`py-1.5 rounded-lg text-center font-mono text-xs font-bold transition flex flex-col items-center justify-center ${
-                            fastEditModal.day === d
-                              ? 'bg-[#006c49] text-white shadow-xs'
-                              : hasHours
-                              ? 'bg-white text-[#0d1c2f] hover:bg-[#dde9ff]'
-                              : 'bg-white/60 text-[#76777d] hover:bg-white'
+                        <div
+                          key={guard.id}
+                          className={`p-3 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition ${
+                            isBeingSwapped
+                              ? 'border-[#006c49] bg-emerald-50/50 shadow-sm'
+                              : isFolguista
+                              ? 'bg-amber-50/80 border-amber-300'
+                              : 'bg-white border-[#dde9ff] shadow-xs'
                           }`}
                         >
-                          <span>{String(d).padStart(2, '0')}</span>
-                          {hasHours && (
-                            <span className={`text-[9px] ${fastEditModal.day === d ? 'text-[#6cf8bb]' : 'text-[#006c49]'}`}>
-                              {dayH}h
-                            </span>
-                          )}
-                        </button>
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${
+                                isFolguista
+                                  ? 'bg-amber-200 text-amber-950 font-black'
+                                  : 'bg-[#eff4ff] text-[#006c49]'
+                              }`}
+                            >
+                              {isFolguista ? 'FOL' : guard.name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-[#0d1c2f]">
+                                  {guard.fullName || guard.name}
+                                </span>
+                                {isFolguista && (
+                                  <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[9px] font-black uppercase">
+                                    Folguista
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-[#76777d]">
+                                {isFolguista ? 'Substituto do plantão' : `📍 ${post?.name || 'Posto Geral'}`}
+                                {note ? ` • 📝 ${note}` : ''}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Hours Controls and Quick Actions */}
+                          <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
+                            {/* Hours Increment/Decrement */}
+                            <div className="flex items-center gap-1 bg-[#eff4ff] p-1 rounded-xl border border-[#dde9ff]">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShiftHours(guard.id, dayEditModal.day, Math.max(1, hours - 1), note)
+                                }
+                                className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
+                                title="Diminuir 1h"
+                              >
+                                -
+                              </button>
+                              <span className="font-mono text-xs font-bold px-1.5 text-[#0d1c2f]">
+                                {hours}h
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShiftHours(guard.id, dayEditModal.day, hours + 1, note)
+                                }
+                                className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            {/* "Virou Folguista" button for regular guards */}
+                            {!isFolguista && (
+                              <button
+                                type="button"
+                                onClick={() => handleReplaceWithFolguista(guard.id, dayEditModal.day, hours)}
+                                className="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold flex items-center gap-1 transition cursor-pointer"
+                                title="Substituir este vigilante por um Folguista"
+                              >
+                                <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
+                                <span>Virou Folguista</span>
+                              </button>
+                            )}
+
+                            {/* "Trocar" button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSwappingGuardId(guard.id)
+                                setDaySearchQuery('')
+                                searchInputRef.current?.focus()
+                              }}
+                              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                                isBeingSwapped
+                                  ? 'bg-[#006c49] text-white'
+                                  : 'bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f]'
+                              }`}
+                              title="Trocar por outro funcionário"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">sync_alt</span>
+                              <span>{isBeingSwapped ? 'Trocando...' : 'Trocar'}</span>
+                            </button>
+
+                            {/* Delete button */}
+                            <button
+                              type="button"
+                              onClick={() => setShiftHours(guard.id, dayEditModal.day, null)}
+                              className="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition cursor-pointer"
+                              title="Remover deste dia"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">delete</span>
+                            </button>
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
-                </div>
-
-                {/* Overtime Quick Add Buttons (Trabalhou a mais) */}
-                <div className="p-3 bg-[#fffbeb] rounded-2xl border border-[#fef3c7] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#92400e] flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[17px]">hourglass_top</span>
-                      <span>Ficou trabalhando a mais? Adicione Horas Extras:</span>
-                    </span>
-                    <span className="text-[10px] text-[#b45309] font-mono font-bold">1 Clique</span>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {[
-                      { label: '+1h Extra', extra: 1 },
-                      { label: '+2h Extras', extra: 2 },
-                      { label: '+3h Extras', extra: 3 },
-                      { label: '+4h Dobra', extra: 4 },
-                    ].map((btn) => (
-                      <button
-                        key={btn.extra}
-                        type="button"
-                        onClick={() =>
-                          setFastEditModal({
-                            ...fastEditModal,
-                            hours: guardDefaultHours + btn.extra,
-                          })
-                        }
-                        className="py-1.5 px-1 bg-white hover:bg-amber-100 text-[#78350f] border border-amber-300 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition text-center"
-                      >
-                        {btn.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Stepper & Exact Hours Input */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-[#0d1c2f]">
-                      Total de Horas Trabalhadas no Dia:
-                    </label>
-                    {isOvertime ? (
-                      <span className="font-mono text-xs font-bold text-[#b45309] bg-[#ffb95f]/30 px-2 py-0.5 rounded-full">
-                        🔥 +{extraHours}h além da escala normal
-                      </span>
-                    ) : (
-                      <span className="font-mono text-xs text-[#006c49] font-bold">
-                        Carga Normal ({guardDefaultHours}h)
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFastEditModal({
-                          ...fastEditModal,
-                          hours: Math.max(0, fastEditModal.hours - 1),
-                        })
-                      }
-                      className="w-12 h-12 rounded-2xl bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-lg flex items-center justify-center transition active:scale-90 border border-[#dde9ff]"
-                    >
-                      -
-                    </button>
-
-                    <div className="flex-1 h-12 bg-white rounded-2xl border-2 border-[#006c49] flex items-center justify-center font-mono font-black text-xl text-[#0d1c2f] shadow-xs">
-                      <input
-                        type="number"
-                        min="0"
-                        max="24"
-                        value={fastEditModal.hours}
-                        onChange={(e) =>
-                          setFastEditModal({
-                            ...fastEditModal,
-                            hours: Math.max(0, Number(e.target.value) || 0),
-                          })
-                        }
-                        className="w-full text-center bg-transparent outline-none font-bold text-lg"
-                      />
-                      <span className="pr-3 text-xs text-[#76777d] font-normal font-sans">horas</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFastEditModal({
-                          ...fastEditModal,
-                          hours: fastEditModal.hours + 1,
-                        })
-                      }
-                      className="w-12 h-12 rounded-2xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-lg flex items-center justify-center transition active:scale-90 shadow-xs"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {/* Preset Pills */}
-                  <div className="grid grid-cols-6 gap-1 mt-2">
-                    {[0, 3, 4, 6, 7, 12].map((h) => (
-                      <button
-                        key={h}
-                        type="button"
-                        onClick={() => setFastEditModal({ ...fastEditModal, hours: h })}
-                        className={`py-1 rounded-lg text-xs font-mono font-bold transition border ${
-                          fastEditModal.hours === h
-                            ? 'bg-[#131b2e] text-white border-[#131b2e]'
-                            : 'bg-[#eff4ff] text-[#45464d] border-[#dde9ff] hover:bg-[#dde9ff]'
-                        }`}
-                      >
-                        {h === 0 ? 'Folga' : `${h}h`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Motivo / Justificativa da Hora Extra */}
-                <div>
-                  <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
-                    Motivo / Observação do Ajuste (Opcional):
-                  </label>
-                  <div className="flex flex-wrap gap-1 mb-1.5">
-                    {['Dobra de Plantão', 'Cobriu Falta', 'Ficou até Fechar', 'Reforço Portaria'].map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() =>
-                          setFastEditModal({
-                            ...fastEditModal,
-                            note: fastEditModal.note ? `${fastEditModal.note} • ${tag}` : tag,
-                          })
-                        }
-                        className="text-[10px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] px-2 py-0.5 rounded-lg border border-[#dde9ff] transition"
-                      >
-                        + {tag}
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    value={fastEditModal.note || ''}
-                    onChange={(e) =>
-                      setFastEditModal({ ...fastEditModal, note: e.target.value })
-                    }
-                    placeholder="Ex: Ficou 2h a mais fechando a loja..."
-                    className="w-full h-10 px-3 text-xs bg-[#f8f9ff] text-[#0d1c2f] rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-1 focus:ring-[#006c49]"
-                  />
-                </div>
-
-                {/* Demonstrativo Financeiro da Diária */}
-                <div className="bg-[#131b2e] text-white p-3 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
-                  <div>
-                    <span className="text-[10px] text-[#bec6e0] font-mono uppercase">
-                      Diária do Dia {fastEditModal.day}
-                    </span>
-                    <div className="flex items-center gap-1.5 text-xs text-white font-bold mt-0.5">
-                      <span>{fastEditModal.hours} horas</span>
-                      <span className="text-[#bec6e0] font-normal">× R$ {guardRate},00/h</span>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="font-mono text-base font-black text-[#6cf8bb]">
-                      R$ {totalDayAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                    {isOvertime && (
-                      <span className="block text-[10px] font-mono text-[#ffb95f]">
-                        (+ R$ {extraAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })} extras)
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions Footer */}
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFastEditModal(null)}
-                  className="w-1/3 py-2.5 rounded-xl bg-[#eff4ff] text-[#45464d] text-xs font-semibold hover:bg-[#dde9ff] transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveFastEdit}
-                  className="w-2/3 py-2.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-xs font-bold shadow-md transition active:scale-95 flex items-center justify-center gap-1.5"
-                >
-                  <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                  <span>Salvar Ajuste do Dia {fastEditModal.day}</span>
-                </button>
+                )}
               </div>
             </div>
+
+            {/* Modal Footer */}
+            <div className="p-3.5 sm:p-4 bg-[#f8f9ff] border-t border-[#eff4ff] flex items-center justify-between">
+              <span className="text-[11px] text-[#76777d]">
+                ✓ Salvo automaticamente em tempo real
+              </span>
+              <button
+                type="button"
+                onClick={() => setDayEditModal({ isOpen: false, day: null })}
+                className="px-5 py-2.5 rounded-xl bg-[#0d1c2f] hover:bg-[#1a2d47] text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-xs"
+              >
+                Concluir
+              </button>
+            </div>
           </div>
-        )
-      })()}
+        </div>
+      )}
 
-      {/* Multi-Day Bulk Assignment Modal */}
-      <MultiDayAssignModal
-        isOpen={multiDayModal.isOpen}
-        initialGuardId={multiDayModal.guardId}
-        onClose={() => setMultiDayModal({ isOpen: false, guardId: null })}
-      />
+      {/* Global Multi-Day Modal fallback */}
+      {multiDayModal.isOpen && (
+        <MultiDayAssignModal
+          isOpen={multiDayModal.isOpen}
+          initialGuardId={multiDayModal.guardId}
+          onClose={() => setMultiDayModal({ isOpen: false, guardId: null })}
+        />
+      )}
 
-      {/* Modal de Edição Completa da Escala */}
+      {/* Schedule Edit Modal */}
       {scheduleModalGuard && (
         <GuardScheduleEditModal
-          guard={scheduleModalGuard}
           isOpen={Boolean(scheduleModalGuard)}
+          guard={scheduleModalGuard}
           onClose={() => setScheduleModalGuard(null)}
         />
       )}
