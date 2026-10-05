@@ -832,9 +832,10 @@ export function AppProvider({ children }) {
   }
 
   // Batch apply parsed schedule from WhatsApp / external text
-  const batchApplyParsedSchedule = (records, clearExistingForGuards = false) => {
+  const batchApplyParsedSchedule = (records, clearExistingForGuards = false, targetMonth = undefined) => {
+    const monthKey = targetMonth || selectedMonth
     setShifts((prev) => {
-      const monthData = prev[selectedMonth] || {}
+      const monthData = prev[monthKey] || {}
       const newMonthData = { ...monthData }
 
       if (clearExistingForGuards) {
@@ -852,7 +853,7 @@ export function AppProvider({ children }) {
         } else {
           guardData[day] = Number(hours)
           rowsToUpsert.push({
-            month: selectedMonth,
+            month: monthKey,
             guard_id: guardId,
             day: Number(day),
             hours: Number(hours),
@@ -868,7 +869,7 @@ export function AppProvider({ children }) {
 
       return {
         ...prev,
-        [selectedMonth]: newMonthData,
+        [monthKey]: newMonthData,
       }
     })
   }

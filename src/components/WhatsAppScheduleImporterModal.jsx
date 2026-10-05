@@ -47,6 +47,7 @@ Confiança`
 export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
   const {
     selectedMonth,
+    setSelectedMonth,
     guards,
     posts,
     defaultHourlyRate,
@@ -54,6 +55,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
     addGuard,
   } = useApp()
 
+  const [targetMonth, setTargetMonth] = useState(selectedMonth)
   const [rawText, setRawText] = useState('')
   const [selectedPostId, setSelectedPostId] = useState('')
   const [overrideHours, setOverrideHours] = useState(null) // null = use post/guard default
@@ -62,8 +64,15 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
   const [showDetailedList, setShowDetailedList] = useState(false)
   const [successToast, setSuccessToast] = useState(false)
 
-  // Calculate days in current month
-  const [yearStr, monthStr] = selectedMonth.split('-')
+  // Keep targetMonth in sync when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setTargetMonth(selectedMonth)
+    }
+  }, [isOpen, selectedMonth])
+
+  // Calculate days in target month
+  const [yearStr, monthStr] = targetMonth.split('-')
   const totalDaysInMonth = new Date(Number(yearStr), Number(monthStr), 0).getDate()
 
   // Parsing logic
@@ -274,7 +283,10 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
       hours: e.hours,
     }))
 
-    batchApplyParsedSchedule(records, replaceExisting)
+    batchApplyParsedSchedule(records, replaceExisting, targetMonth)
+    if (targetMonth !== selectedMonth) {
+      setSelectedMonth(targetMonth)
+    }
     setSuccessToast(true)
 
     setTimeout(() => {
@@ -315,6 +327,40 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
 
         {/* Modal Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+          {/* Section 0: Target Month Selection */}
+          <div className="p-3.5 bg-[#eff4ff] rounded-2xl border border-[#dde9ff] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-[#006c49] flex items-center justify-center text-[#6cf8bb] shadow-xs shrink-0">
+                <span className="material-symbols-outlined text-[22px]">calendar_month</span>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-[#0d1c2f] block leading-tight">
+                  Mês de Destino da Escala:
+                </label>
+                <span className="text-[11px] text-[#76777d]">
+                  Selecione para qual mês esses plantões devem ser importados
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <select
+                value={targetMonth}
+                onChange={(e) => setTargetMonth(e.target.value)}
+                className="bg-white text-[#0d1c2f] font-bold text-xs px-3.5 py-2.5 rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49] cursor-pointer shadow-xs capitalize"
+              >
+                <option value="2026-08">Agosto 2026</option>
+                <option value="2026-09">Setembro 2026</option>
+                <option value="2026-10">Outubro 2026</option>
+                <option value="2026-11">Novembro 2026</option>
+                <option value="2026-12">Dezembro 2026</option>
+                <option value="2027-01">Janeiro 2027</option>
+                <option value="2027-02">Fevereiro 2027</option>
+                <option value="2027-03">Março 2027</option>
+              </select>
+            </div>
+          </div>
+
           {/* Section 1: Textarea with Quick Actions */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -577,7 +623,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               {parseResult.entries.filter((e) => e.guard !== null).length > 0
                 ? `Confirmar e Importar ${
                     parseResult.entries.filter((e) => e.guard !== null).length
-                  } Plantões`
+                  } Plantões (${targetMonth})`
                 : 'Aguardando texto da escala'}
             </span>
           </button>
