@@ -11,7 +11,8 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 const AppContext = createContext(null)
 
 const STORAGE_KEYS = {
-  USER: 'g2_user',
+  USER: 'g2_session_user',
+  TRUSTED_BROWSER: 'g2_trusted_device',
   POSTS: 'g2_posts',
   GUARDS: 'g2_guards',
   SHIFTS: 'g2_shifts',
@@ -77,11 +78,26 @@ export function AppProvider({ children }) {
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncTime, setLastSyncTime] = useState(null)
 
-  // Authentication
+  // Authentication - Checks trusted browser or active session
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.USER)
-      return saved ? JSON.parse(saved) : null
+      // Clear legacy prototype key so user sees login screen unless trusted
+      if (localStorage.getItem('g2_user')) {
+        localStorage.removeItem('g2_user')
+      }
+
+      // Check if browser was explicitly trusted ("Lembrar/Confiar neste navegador")
+      const isTrusted = localStorage.getItem(STORAGE_KEYS.TRUSTED_BROWSER) === 'true'
+      if (isTrusted) {
+        const saved = localStorage.getItem(STORAGE_KEYS.USER)
+        if (saved) return JSON.parse(saved)
+      }
+
+      // Check active tab session
+      const sessionSaved = sessionStorage.getItem(STORAGE_KEYS.USER)
+      if (sessionSaved) return JSON.parse(sessionSaved)
+
+      return null
     } catch {
       return null
     }
@@ -187,12 +203,18 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEYS.MANAGER_PASSWORD, managerPassword)
   }, [managerPassword])
 
-  // Save to LocalStorage
+  // Sync currentUser changes to whichever storage it was saved to
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser))
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.USER)
+    if (!currentUser) return
+    try {
+      const isTrusted = localStorage.getItem(STORAGE_KEYS.TRUSTED_BROWSER) === 'true'
+      if (isTrusted) {
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser))
+      } else if (sessionStorage.getItem(STORAGE_KEYS.USER)) {
+        sessionStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser))
+      }
+    } catch (e) {
+      console.warn('Storage sync error:', e)
     }
   }, [currentUser])
 
@@ -403,12 +425,33 @@ export function AppProvider({ children }) {
   }
 
   // Login & Logout
-  const login = (userData) => {
+  const login = (userData, trustBrowser = true) => {
     setCurrentUser(userData)
+    try {
+      if (trustBrowser) {
+        localStorage.setItem(STORAGE_KEYS.TRUSTED_BROWSER, 'true')
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
+        sessionStorage.removeItem(STORAGE_KEYS.USER)
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.TRUSTED_BROWSER)
+        localStorage.removeItem(STORAGE_KEYS.USER)
+        sessionStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
+      }
+    } catch (e) {
+      console.warn('Storage error during login:', e)
+    }
   }
 
   const logout = () => {
     setCurrentUser(null)
+    try {
+      localStorage.removeItem(STORAGE_KEYS.USER)
+      localStorage.removeItem(STORAGE_KEYS.TRUSTED_BROWSER)
+      sessionStorage.removeItem(STORAGE_KEYS.USER)
+      localStorage.removeItem('g2_user')
+    } catch (e) {
+      console.warn('Storage error during logout:', e)
+    }
   }
 
   // Update Rate & Budget with cloud sync

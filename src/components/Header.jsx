@@ -64,18 +64,23 @@ export function Header({ activeTab, onGoHome }) {
             <span className="material-symbols-outlined text-[20px]">notifications</span>
           </button>
 
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 p-1 pl-2 rounded-full bg-[#eff4ff] hover:bg-[#dde9ff] border border-[#dde9ff] transition-all"
-            title="Clique para sair"
-          >
-            <span className="text-[11px] font-semibold text-[#0d1c2f] hidden sm:inline">
-              {currentUser?.name?.split(' ')[0] || 'Gestor'}
+          <div className="flex items-center gap-1.5 bg-[#eff4ff] border border-[#dde9ff] rounded-full p-1 pl-2.5">
+            <span className="text-xs font-bold text-[#0d1c2f] hidden sm:inline">
+              {currentUser?.name?.split(' ')[0] || 'Luan'}
             </span>
-            <div className="w-7 h-7 rounded-full bg-[#006c49] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              {currentUser?.name?.charAt(0) || 'G'}
+            <div className="w-6 h-6 rounded-full bg-[#006c49] text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
+              {currentUser?.name?.charAt(0) || 'L'}
             </div>
-          </button>
+            <button
+              type="button"
+              onClick={logout}
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer ml-0.5"
+              title="Sair do sistema (exigirá senha novamente)"
+            >
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+              <span className="text-[11px] font-bold">Sair</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

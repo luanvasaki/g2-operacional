@@ -22,6 +22,8 @@ export function PostsManagement() {
     refreshFromSupabase,
     managerPassword,
     updateManagerPassword,
+    currentUser,
+    logout,
   } = useApp()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -29,7 +31,7 @@ export function PostsManagement() {
   const [postToDelete, setPostToDelete] = useState(null)
   const [rateInput, setRateInput] = useState(defaultHourlyRate)
   const [budgetInput, setBudgetInput] = useState(budgetCeiling || 12000)
-  const [passInput, setPassInput] = useState(managerPassword || 'g22026')
+  const [passInput, setPassInput] = useState(managerPassword || 'G2barreto$')
   const [toastMsg, setToastMsg] = useState('')
 
   const [formData, setFormData] = useState({
@@ -254,6 +256,28 @@ export function PostsManagement() {
         <p className="text-[11px] text-[#76777d]">
           Esta é a senha que os gerentes usam para entrar na plataforma. Ao salvar, atualiza na nuvem para todos.
         </p>
+      </div>
+
+      {/* Session Management Card */}
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex items-center justify-between">
+        <div>
+          <h3 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[#006c49]">verified_user</span>
+            <span>Sessão Atual ({currentUser?.name || 'Gestor'})</span>
+          </h3>
+          <p className="text-[11px] text-[#76777d] mt-0.5">
+            Navegador autenticado com credenciais G2
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={logout}
+          className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer active:scale-95"
+          title="Desconectar e voltar para tela de login"
+        >
+          <span className="material-symbols-outlined text-[16px]">logout</span>
+          <span>Desconectar</span>
+        </button>
       </div>
 
       {/* Posts Cards Grid */}

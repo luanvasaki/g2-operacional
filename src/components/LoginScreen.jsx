@@ -15,57 +15,53 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLogin = (e) => {
     e.preventDefault()
     setErrorMsg('')
 
-    const trimmedUser = username.trim()
+    const trimmedUser = username.trim().toLowerCase()
     const trimmedPass = password.trim()
     const effectivePass = managerPassword || 'G2barreto$'
 
     // Validates credentials
     const isMasterUser =
-      trimmedUser.toLowerCase() === 'luanbarreto' ||
-      trimmedUser.toLowerCase() === 'luan barreto' ||
-      trimmedUser.toLowerCase() === 'luan'
+      trimmedUser === 'luanbarreto' ||
+      trimmedUser === 'luan barreto' ||
+      trimmedUser === 'luan'
 
     const isPasswordCorrect =
       trimmedPass === effectivePass ||
-      trimmedPass === 'G2barreto$' ||
-      trimmedPass === '123456'
+      trimmedPass === 'G2barreto$'
 
     if (!isPasswordCorrect) {
-      setErrorMsg('Senha incorreta! Digite a senha oficial da G2 ou consulte o administrador.')
+      setErrorMsg('Senha incorreta! Digite a senha oficial da G2.')
       return
     }
 
-    const displayName = isMasterUser ? 'Luan Barreto' : (trimmedUser || 'Gestor Operacional')
+    setIsSubmitting(true)
+
+    const displayName = isMasterUser ? 'Luan Barreto' : (username.trim() || 'Gestor Operacional')
     const userRole = isMasterUser ? 'Diretor / Gestor Geral' : 'Supervisor Operacional'
 
     if (rememberMe) {
       try {
-        localStorage.setItem('g2_last_manager_name', trimmedUser)
+        localStorage.setItem('g2_last_manager_name', username.trim())
       } catch (err) {
         console.warn(err)
       }
     }
 
-    login({
-      id: `usr-${Date.now()}`,
+    const userData = {
+      id: isMasterUser ? 'usr-luan' : `usr-${Date.now()}`,
       name: displayName,
       role: userRole,
-      email: `${trimmedUser.toLowerCase().replace(/\s+/g, '.')}@g2operacional.com`,
-    })
-  }
+      email: `${trimmedUser.replace(/\s+/g, '.')}@g2operacional.com`,
+    }
 
-  const handleQuickLogin = () => {
-    login({
-      id: 'usr-luan',
-      name: 'Luan Barreto',
-      role: 'Diretor / Gestor Geral',
-      email: 'luanbarreto@g2operacional.com',
-    })
+    // Call login with trustBrowser boolean
+    login(userData, rememberMe)
   }
 
   return (
@@ -81,26 +77,26 @@ export function LoginScreen() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e6eeff] rounded-full mb-2">
               <span className="w-2 h-2 rounded-full bg-[#006c49]"></span>
               <span className="font-mono text-[11px] text-[#45464d] uppercase tracking-wider font-semibold">
-                Gestão Inteligente de Equipes
+                Gestão Operacional de Bicos
               </span>
             </div>
 
             <h1 className="text-2xl font-bold tracking-tight text-[#0d1c2f]">
-              G2 Operacional
+              G2 Atacado de Bebidas
             </h1>
             <p className="text-sm text-[#45464d] max-w-xs mt-1">
-              Controle de Diárias, Horas e Pagamentos de Bicos
+              Painel de Controle de Escalas, Horas e Diárias
             </p>
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-md p-5 mb-5 flex flex-col gap-4 border border-[#dde9ff]">
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-5 flex flex-col gap-4 border border-[#dde9ff]">
             <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
               <div>
                 <h2 className="text-sm font-bold text-[#0d1c2f]">Acesso de Gerência</h2>
-                <p className="text-xs text-[#76777d]">Digite seu usuário e senha da G2</p>
+                <p className="text-xs text-[#76777d]">Digite suas credenciais para entrar</p>
               </div>
-              <span className="material-symbols-outlined text-[#006c49] text-[22px]">
+              <span className="material-symbols-outlined text-[#006c49] text-[24px]">
                 admin_panel_settings
               </span>
             </div>
@@ -160,13 +156,14 @@ export function LoginScreen() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Digite a senha (G2barreto$)"
+                    placeholder="Digite sua senha"
                     className="w-full h-12 bg-transparent pr-12 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-2 w-9 h-9 flex items-center justify-center text-[#76777d] hover:text-[#0d1c2f] cursor-pointer"
+                    title={showPassword ? 'Ocultar senha' : 'Ver senha'}
                   >
                     <span className="material-symbols-outlined text-[20px]">
                       {showPassword ? 'visibility' : 'visibility_off'}
@@ -175,54 +172,49 @@ export function LoginScreen() {
                 </div>
               </div>
 
-              {/* Remember Me */}
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
+              {/* Remember Me / Trust Browser */}
+              <div className="bg-[#eff4ff]/60 border border-[#dde9ff] rounded-xl p-3 flex flex-col gap-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#006c49] accent-[#006c49] cursor-pointer"
+                    className="w-4 h-4 rounded text-[#006c49] accent-[#006c49] cursor-pointer shrink-0"
                   />
-                  <span className="text-xs text-[#0d1c2f]">Lembrar neste aparelho</span>
+                  <span className="text-xs font-semibold text-[#0d1c2f]">
+                    Confiar neste navegador (manter conectado)
+                  </span>
                 </label>
-                <span className="font-mono text-[10px] text-[#00714d] bg-[#6cf8bb]/30 px-2 py-0.5 rounded-full font-bold">
-                  Sessão Segura
+                <span className="text-[11px] text-[#76777d] pl-6.5 leading-tight">
+                  Não pedirá senha novamente ao reabrir o app neste dispositivo.
                 </span>
               </div>
 
               {/* Login Button */}
               <button
                 type="submit"
-                className="w-full h-12 mt-1 rounded-xl bg-[#0d1c2f] hover:bg-[#1a2d47] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full h-12 mt-1 rounded-xl bg-[#0d1c2f] hover:bg-[#1a2d47] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer disabled:opacity-70"
               >
-                <span className="material-symbols-outlined text-[20px]">login</span>
-                <span>Entrar no Sistema</span>
+                {isSubmitting ? (
+                  <>
+                    <span className="material-symbols-outlined text-[20px] animate-spin">
+                      progress_activity
+                    </span>
+                    <span>Entrando...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">login</span>
+                    <span>Entrar no Sistema</span>
+                  </>
+                )}
               </button>
             </form>
           </div>
 
-          {/* Quick Access Shortcut */}
-          <div className="flex flex-col gap-2.5">
-            <button
-              type="button"
-              onClick={handleQuickLogin}
-              className="w-full py-3 px-4 rounded-xl bg-white hover:bg-[#eff4ff] text-[#0d1c2f] font-semibold text-xs shadow-xs flex items-center justify-between border border-[#dde9ff] transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="material-symbols-outlined text-[#006c49] text-[18px]">
-                  bolt
-                </span>
-                <span>Entrar Direto como Luan Barreto</span>
-              </div>
-              <span className="material-symbols-outlined text-[#76777d] text-[16px]">
-                arrow_forward
-              </span>
-            </button>
-          </div>
-
           {/* Security Footer */}
-          <div className="flex flex-col items-center justify-center gap-2 text-center pt-6">
+          <div className="flex flex-col items-center justify-center gap-2 text-center pt-4">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eff4ff] text-[#45464d] border border-[#dde9ff]/80">
               <span className="material-symbols-outlined text-[15px] text-[#006c49]">lock</span>
               <span className="font-mono text-[11px]">
