@@ -20,6 +20,7 @@ const STORAGE_KEYS = {
   BUDGET_CEILING: 'g2_budget_ceiling',
   SELECTED_MONTH: 'g2_selected_month',
   SHIFT_NOTES: 'g2_shift_notes',
+  MANAGER_PASSWORD: 'g2_manager_password',
 }
 
 // Helpers for Supabase mapping
@@ -173,6 +174,19 @@ export function AppProvider({ children }) {
     }
   })
 
+  // Official G2 Manager Access Password
+  const [managerPassword, setManagerPassword] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.MANAGER_PASSWORD) || 'g22026'
+    } catch {
+      return 'g22026'
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MANAGER_PASSWORD, managerPassword)
+  }, [managerPassword])
+
   // Save to LocalStorage
   useEffect(() => {
     if (currentUser) {
@@ -268,6 +282,7 @@ export function AppProvider({ children }) {
           if (r.key === 'hourly_rate') setDefaultHourlyRate(Number(r.value) || 40)
           if (r.key === 'budget_ceiling') setBudgetCeiling(Number(r.value) || 12000)
           if (r.key === 'selected_month') setSelectedMonth(r.value)
+          if (r.key === 'manager_password' && r.value) setManagerPassword(r.value)
         })
       }
       setLastSyncTime(new Date())
@@ -410,6 +425,11 @@ export function AppProvider({ children }) {
   const updateSelectedMonth = (month) => {
     setSelectedMonth(month)
     syncSettingCloud('selected_month', month)
+  }
+
+  const updateManagerPassword = (pass) => {
+    setManagerPassword(pass)
+    syncSettingCloud('manager_password', pass)
   }
 
   // Guard Actions (Incluir / Editar / Inativar / Excluir)
@@ -942,6 +962,9 @@ export function AppProvider({ children }) {
         resetToTemplateData,
         exportBackupJSON,
         importBackupJSON,
+        // Manager Password
+        managerPassword,
+        updateManagerPassword,
         // Supabase Cloud State & Methods
         isSupabaseConfigured,
         isSyncing,

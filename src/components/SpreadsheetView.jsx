@@ -382,31 +382,52 @@ export function SpreadsheetView({
                   </div>
 
                   {/* Scheduled Guards on this Day */}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {guardsOnDay.map(({ guard, hours, post, note }) => {
                       const isOvertime = hours > (guard.defaultShiftHours || 3)
+                      const displayName = guard.fullName || guard.name
                       return (
                         <div
                           key={guard.id}
                           onClick={() => handleOpenFastEdit(guard, d)}
-                          className={`flex items-center justify-between p-1.5 px-2 rounded-xl text-xs font-semibold cursor-pointer transition active:scale-95 border ${
+                          className={`flex items-start justify-between p-2 rounded-xl text-xs font-semibold cursor-pointer transition active:scale-[0.98] border gap-2 ${
                             isOvertime
-                              ? 'bg-amber-100/70 border-amber-300 text-amber-900'
-                              : 'bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] border-[#dde9ff]/60'
+                              ? 'bg-amber-100/80 border-amber-300 text-amber-900 shadow-2xs'
+                              : 'bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] border-[#dde9ff]/80'
                           }`}
-                          title={`Clique para editar horas de ${guard.name} no dia ${d}`}
+                          title={`Clique para editar horas de ${displayName} no dia ${d}`}
                         >
-                          <div className="flex items-center gap-1.5 truncate">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#006c49] shrink-0"></span>
-                            <span className="truncate">{guard.name}</span>
-                            <span className="text-[10px] text-[#76777d] font-normal truncate">
-                              ({post?.name || 'Posto'})
-                            </span>
+                          <div className="flex items-start gap-2 min-w-0 flex-1">
+                            <span className="w-2 h-2 rounded-full bg-[#006c49] shrink-0 mt-1"></span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-bold text-[#0d1c2f] leading-snug break-words">
+                                {displayName}
+                              </span>
+                              <div className="flex items-center gap-1.5 flex-wrap text-[10px] text-[#76777d] font-normal leading-none mt-1">
+                                {post?.name && (
+                                  <span className="bg-white/80 border border-[#dde9ff] px-1.5 py-0.5 rounded text-[#45464d] font-medium">
+                                    📍 {post.name}
+                                  </span>
+                                )}
+                                {note && (
+                                  <span className="bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                                    <span>📝</span>
+                                    <span>{note}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-1 shrink-0 font-mono text-[11px] font-bold">
-                            <span>{hours}h</span>
-                            {isOvertime && <span className="text-[10px] text-amber-700">★</span>}
+                          <div className="flex flex-col items-end shrink-0 pl-1">
+                            <span className="font-mono text-xs font-black text-[#006c49] bg-white px-2 py-0.5 rounded-lg border border-[#dde9ff] shadow-2xs">
+                              {hours}h
+                            </span>
+                            {isOvertime && (
+                              <span className="text-[10px] font-bold text-amber-800 mt-0.5">
+                                ★ Extra
+                              </span>
+                            )}
                           </div>
                         </div>
                       )
@@ -469,7 +490,9 @@ export function SpreadsheetView({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-sm font-bold text-[#0d1c2f]">{guard.name}</h2>
+                        <h2 className="text-sm font-bold text-[#0d1c2f] leading-snug break-words">
+                          {guard.fullName || guard.name}
+                        </h2>
                         <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#eff4ff] text-[#45464d] border border-[#dde9ff]/80">
                           📍 {post?.name || 'Posto'} • {guard.defaultShiftHours || 3}h
                         </span>
@@ -668,7 +691,9 @@ export function SpreadsheetView({
                   <tr key={guard.id} className="hover:bg-[#f8f9ff]">
                     <td className="py-2 px-3 font-sans font-bold sticky left-0 bg-white shadow-[1px_0_4px_rgba(0,0,0,0.05)] z-10 whitespace-nowrap">
                       <div className="flex items-center justify-between gap-1.5">
-                        <span>{guard.name}</span>
+                        <span className="leading-snug break-words max-w-[180px] sm:max-w-none">
+                          {guard.fullName || guard.name}
+                        </span>
                         <button
                           onClick={() => handleOpenMultiDay(guard.id)}
                           className="text-[#006c49] hover:bg-[#6cf8bb]/30 p-1 rounded transition"

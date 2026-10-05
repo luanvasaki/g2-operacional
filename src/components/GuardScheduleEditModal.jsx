@@ -176,7 +176,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold text-white">
-                  Editar Escala & Valores: {guard.name}
+                  Editar Escala: {guard.fullName || guard.name}
                 </h2>
                 <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-[#6cf8bb]">
                   📍 {post?.name || 'Geral'}

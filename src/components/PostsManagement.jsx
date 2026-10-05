@@ -20,6 +20,8 @@ export function PostsManagement() {
     isSyncing,
     lastSyncTime,
     refreshFromSupabase,
+    managerPassword,
+    updateManagerPassword,
   } = useApp()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -27,6 +29,7 @@ export function PostsManagement() {
   const [postToDelete, setPostToDelete] = useState(null)
   const [rateInput, setRateInput] = useState(defaultHourlyRate)
   const [budgetInput, setBudgetInput] = useState(budgetCeiling || 12000)
+  const [passInput, setPassInput] = useState(managerPassword || 'g22026')
   const [toastMsg, setToastMsg] = useState('')
 
   const [formData, setFormData] = useState({
@@ -86,6 +89,13 @@ export function PostsManagement() {
     e.preventDefault()
     setBudgetCeiling(Number(budgetInput) || 12000)
     showToast('Teto orçado operacional atualizado!')
+  }
+
+  const handleSavePassword = (e) => {
+    e.preventDefault()
+    if (!passInput.trim()) return
+    updateManagerPassword(passInput.trim())
+    showToast('Senha oficial de acesso dos gerentes atualizada!')
   }
 
   const handleReset = () => {
@@ -207,6 +217,42 @@ export function PostsManagement() {
         </form>
         <p className="text-[11px] text-[#76777d]">
           Meta máxima de previsão de pagamento para controle da barra de progresso no Início.
+        </p>
+      </div>
+
+      {/* Manager Access Password Card */}
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#006c49]">vpn_key</span>
+            <h3 className="text-xs font-bold text-[#0d1c2f]">Senha Oficial de Acesso dos Gerentes</h3>
+          </div>
+          <span className="font-mono text-[10px] text-[#006c49] font-bold bg-[#6cf8bb]/20 px-2 py-0.5 rounded-md">
+            G2 Acesso
+          </span>
+        </div>
+        <form onSubmit={handleSavePassword} className="flex items-center gap-3">
+          <div className="relative flex items-center flex-1">
+            <span className="absolute left-3 text-[#76777d]">
+              <span className="material-symbols-outlined text-[18px]">lock</span>
+            </span>
+            <input
+              type="text"
+              value={passInput}
+              onChange={(e) => setPassInput(e.target.value)}
+              placeholder="Digite a nova senha oficial..."
+              className="w-full h-11 pl-9 pr-3 bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+            />
+          </div>
+          <button
+            type="submit"
+            className="h-11 px-4 bg-[#0d1c2f] hover:bg-[#1a2d47] text-white text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Salvar Senha
+          </button>
+        </form>
+        <p className="text-[11px] text-[#76777d]">
+          Esta é a senha que os gerentes usam para entrar na plataforma. Ao salvar, atualiza na nuvem para todos.
         </p>
       </div>
 

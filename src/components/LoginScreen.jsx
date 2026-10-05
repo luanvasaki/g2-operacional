@@ -3,27 +3,58 @@ import { G2Logo } from './G2Logo'
 import { useApp } from '../context/AppContext'
 
 export function LoginScreen() {
-  const { login } = useApp()
-  const [identifier, setIdentifier] = useState('supervisor@g2seguranca.com.br')
-  const [password, setPassword] = useState('123456')
+  const { login, managerPassword } = useApp()
+  const [managerName, setManagerName] = useState(() => {
+    try {
+      return localStorage.getItem('g2_last_manager_name') || ''
+    } catch {
+      return ''
+    }
+  })
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleLogin = (e) => {
     e.preventDefault()
+    setErrorMsg('')
+
+    const effectivePass = managerPassword || 'g22026'
+    // Allow either the configured manager password or standard fallback '123456' / 'g22026'
+    const isCorrect =
+      password.trim() === effectivePass.trim() ||
+      password.trim() === '123456' ||
+      password.trim() === 'g22026'
+
+    if (!isCorrect) {
+      setErrorMsg('Senha incorreta! Digite a senha oficial da G2 ou solicite à administração.')
+      return
+    }
+
+    const name = managerName.trim() || 'Gerente Operacional'
+    if (rememberMe) {
+      try {
+        localStorage.setItem('g2_last_manager_name', name)
+      } catch (err) {
+        console.warn(err)
+      }
+    }
+
     login({
-      id: 'usr-admin',
-      name: 'Supervisor Silva',
-      role: 'Supervisor / Mestre Operacional',
-      email: identifier,
+      id: `usr-${Date.now()}`,
+      name: name,
+      role: 'Gerente / Supervisor Operacional',
+      email: `${name.toLowerCase().replace(/\s+/g, '.')}@g2operacional.com`,
     })
   }
 
-  const handleDemoLogin = () => {
+  const handleQuickLogin = () => {
+    const name = managerName.trim() || 'Supervisor Silva'
     login({
-      id: 'usr-demo',
-      name: 'Supervisor Silva',
-      role: 'Supervisor / Mestre Operacional',
+      id: `usr-${Date.now()}`,
+      name: name,
+      role: 'Supervisor Operacional',
       email: 'gestor.g2@operacional.com',
     })
   }
@@ -53,58 +84,50 @@ export function LoginScreen() {
             </p>
           </div>
 
-          {/* Quick Metrics Bento */}
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#eff4ff] shadow-xs border border-[#dde9ff]/60">
-              <div className="w-8 h-8 rounded-lg bg-[#e6eeff] flex items-center justify-center text-[#0d1c2f]">
-                <span className="material-symbols-outlined text-[18px]">payments</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-mono text-[11px] text-[#45464d]">Fechamento</span>
-                <span className="text-sm font-semibold text-[#0d1c2f] leading-tight">
-                  Diário & Quinzenal
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#eff4ff] shadow-xs border border-[#dde9ff]/60">
-              <div className="w-8 h-8 rounded-lg bg-[#e6eeff] flex items-center justify-center text-[#0d1c2f]">
-                <span className="material-symbols-outlined text-[18px]">verified_user</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-mono text-[11px] text-[#45464d]">Auditoria</span>
-                <span className="text-sm font-semibold text-[#0d1c2f] leading-tight">
-                  100% Blindada
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-md p-5 mb-5 flex flex-col gap-4 border border-[#dde9ff]">
+            <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
+              <div>
+                <h2 className="text-sm font-bold text-[#0d1c2f]">Acesso de Gerência</h2>
+                <p className="text-xs text-[#76777d]">Digite seu nome e a senha oficial da G2</p>
+              </div>
+              <span className="material-symbols-outlined text-[#006c49] text-[22px]">
+                admin_panel_settings
+              </span>
+            </div>
+
+            {errorMsg && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2 animate-in fade-in">
+                <span className="material-symbols-outlined text-[18px] shrink-0 text-red-600">
+                  error
+                </span>
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              {/* Identifier */}
+              {/* Manager Name */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className="text-xs font-semibold text-[#0d1c2f] flex items-center justify-between"
-                  htmlFor="login-identifier"
+                  htmlFor="manager-name"
                 >
-                  <span>E-mail ou Telefone</span>
+                  <span>Seu Nome ou Cargo</span>
                   <span className="text-[11px] text-[#76777d] font-normal">
-                    Gestor ou Mestre
+                    Como você aparecerá no app
                   </span>
                 </label>
-                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#6cf8bb] transition-all">
+                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
                   <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
-                    badge
+                    person
                   </span>
                   <input
-                    id="login-identifier"
+                    id="manager-name"
                     type="text"
                     required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="supervisor@g2seguranca.com.br"
+                    value={managerName}
+                    onChange={(e) => setManagerName(e.target.value)}
+                    placeholder="Ex: Carlos Gerente, Supervisor Silva..."
                     className="w-full h-12 bg-transparent pr-4 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none"
                   />
                 </div>
@@ -112,21 +135,13 @@ export function LoginScreen() {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label
-                    className="text-xs font-semibold text-[#0d1c2f]"
-                    htmlFor="login-password"
-                  >
-                    Senha de Acesso
-                  </label>
-                  <button
-                    type="button"
-                    className="text-xs text-[#006c49] font-semibold hover:underline"
-                  >
-                    Esqueceu a senha?
-                  </button>
-                </div>
-                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#6cf8bb] transition-all">
+                <label
+                  className="text-xs font-semibold text-[#0d1c2f]"
+                  htmlFor="login-password"
+                >
+                  Senha Oficial da G2
+                </label>
+                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
                   <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
                     lock
                   </span>
@@ -136,8 +151,8 @@ export function LoginScreen() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Digite sua senha de 6 dígitos"
-                    className="w-full h-12 bg-transparent pr-12 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none"
+                    placeholder="Digite a senha oficial da G2"
+                    className="w-full h-12 bg-transparent pr-12 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-mono"
                   />
                   <button
                     type="button"
@@ -160,7 +175,7 @@ export function LoginScreen() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded text-[#006c49] accent-[#006c49] cursor-pointer"
                   />
-                  <span className="text-xs text-[#0d1c2f]">Lembrar este dispositivo</span>
+                  <span className="text-xs text-[#0d1c2f]">Lembrar neste aparelho</span>
                 </label>
                 <span className="font-mono text-[10px] text-[#00714d] bg-[#6cf8bb]/30 px-2 py-0.5 rounded-full font-bold">
                   Sessão Segura
@@ -170,68 +185,39 @@ export function LoginScreen() {
               {/* Login Button */}
               <button
                 type="submit"
-                className="w-full h-12 mt-1 rounded-xl bg-[#000000] hover:bg-slate-900 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all"
+                className="w-full h-12 mt-1 rounded-xl bg-[#0d1c2f] hover:bg-[#1a2d47] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">login</span>
-                <span>Entrar na Plataforma</span>
+                <span>Entrar no Sistema</span>
               </button>
             </form>
           </div>
 
-          {/* Divider */}
-          <div className="relative flex items-center justify-center my-1 mb-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full h-px bg-[#dde9ff]"></div>
-            </div>
-            <span className="relative px-3 bg-[#f8f9ff] text-xs text-[#45464d] font-medium">
-              ou acesse rapidamente com
-            </span>
-          </div>
-
-          {/* Quick Access */}
-          <div className="flex flex-col gap-3 mb-6">
+          {/* Quick Access Helper */}
+          <div className="flex flex-col gap-2.5">
             <button
               type="button"
-              onClick={handleDemoLogin}
-              className="w-full h-12 rounded-xl bg-white text-[#0d1c2f] font-semibold text-sm shadow-sm flex items-center justify-between px-4 border border-[#dde9ff] hover:bg-[#eff4ff] active:scale-[0.99] transition-all"
+              onClick={handleQuickLogin}
+              className="w-full py-3 px-4 rounded-xl bg-white hover:bg-[#eff4ff] text-[#0d1c2f] font-semibold text-xs shadow-xs flex items-center justify-between border border-[#dde9ff] transition cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#6cf8bb]/40 text-[#00714d] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">fingerprint</span>
-                </div>
-                <span className="text-xs font-semibold">Biometria / Face ID</span>
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-[#006c49] text-[18px]">
+                  bolt
+                </span>
+                <span>Entrar Direto (Acesso Rápido de Teste)</span>
               </div>
-              <span className="material-symbols-outlined text-[#76777d] text-[18px]">
-                arrow_forward_ios
+              <span className="material-symbols-outlined text-[#76777d] text-[16px]">
+                arrow_forward
               </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              className="w-full h-12 rounded-xl bg-[#e6eeff] hover:bg-[#dde9ff] text-[#0d1c2f] font-semibold text-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.99]"
-            >
-              <span className="material-symbols-outlined text-[20px] text-[#006c49]">play_circle</span>
-              <span>Explorar Demonstração Interativa</span>
             </button>
           </div>
 
-          {/* Footer Security Badges */}
-          <div className="flex flex-col items-center justify-center gap-2 text-center pt-2">
+          {/* Security Footer */}
+          <div className="flex flex-col items-center justify-center gap-2 text-center pt-6">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eff4ff] text-[#45464d] border border-[#dde9ff]/80">
-              <span className="material-symbols-outlined text-[15px] text-[#006c49]">encrypted</span>
+              <span className="material-symbols-outlined text-[15px] text-[#006c49]">lock</span>
               <span className="font-mono text-[11px]">
-                Criptografia bancária AES-256 e LGPD Compliant
-              </span>
-            </div>
-            <div className="flex items-center gap-2 font-mono text-[11px] text-[#76777d]">
-              <span>G2 Bicos & Diárias</span>
-              <span>•</span>
-              <span>Versão 1.0.4</span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#006c49]"></span>
-                Servidores Operacionais
+                G2 Operacional • Acesso Restrito aos Gestores
               </span>
             </div>
           </div>
