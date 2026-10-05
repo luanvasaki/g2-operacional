@@ -2,7 +2,7 @@ import React from 'react'
 import { G2Logo } from './G2Logo'
 import { useApp } from '../context/AppContext'
 
-export function Header({ activeTab }) {
+export function Header({ activeTab, onGoHome }) {
   const { currentUser, logout, isSupabaseConfigured, isSyncing } = useApp()
 
   const getTabTitle = (tab) => {
@@ -26,8 +26,13 @@ export function Header({ activeTab }) {
   return (
     <header className="fixed top-0 w-full z-40 bg-[#f8f9ff]/85 backdrop-blur-xl border-b border-[#dde9ff]/80 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="max-w-4xl mx-auto h-16 px-4 flex items-center justify-between gap-2">
-        {/* Brand & Page Info */}
-        <div className="flex items-center gap-3 min-w-0">
+        {/* Brand & Page Info - Click to go Home/Dashboard */}
+        <button
+          type="button"
+          onClick={onGoHome}
+          className="flex items-center gap-3 min-w-0 text-left hover:opacity-85 active:scale-95 transition cursor-pointer"
+          title="Clique para voltar à tela inicial (Dashboard)"
+        >
           <G2Logo className="h-11 sm:h-12 w-auto shrink-0 drop-shadow-xs" />
           <div className="flex flex-col truncate">
             <div className="flex items-center gap-1.5">
@@ -48,7 +53,7 @@ export function Header({ activeTab }) {
               {getTabTitle(activeTab)}
             </h1>
           </div>
-        </div>
+        </button>
 
         {/* Right Tools (Notifications & Profile) */}
         <div className="flex items-center gap-2 shrink-0">
