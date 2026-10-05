@@ -220,7 +220,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         </div>
       )}
 
-      <div className="bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto border border-[#dde9ff] animate-in slide-in-from-bottom duration-200">
+      <div className="bg-white w-full sm:max-w-3xl rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto border border-[#dde9ff] animate-in slide-in-from-bottom duration-200">
         {/* Grabber handle for mobile */}
         <div className="w-12 h-1.5 bg-[#dde9ff] rounded-full mx-auto mb-2 sm:hidden"></div>
 

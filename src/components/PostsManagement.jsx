@@ -130,7 +130,7 @@ export function PostsManagement() {
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 pb-28 max-w-xl mx-auto">
+    <div className="flex flex-col w-full gap-4 pb-28 max-w-7xl mx-auto">
       {/* Toast */}
       {toastMsg && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
@@ -151,15 +151,19 @@ export function PostsManagement() {
         </div>
         <button
           onClick={handleOpenAdd}
-          className="px-3.5 py-2 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+          className="px-3.5 py-2 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           <span>Novo Posto</span>
         </button>
       </div>
 
-      {/* Hourly Rate Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+      {/* 2-Column Responsive Layout for Desktop PC */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Left Column: Parâmetros & Senhas */}
+        <div className="flex flex-col gap-4">
+          {/* Hourly Rate Card */}
+          <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[#006c49]">payments</span>
           <h3 className="text-xs font-bold text-[#0d1c2f]">Taxa Base Padrão</h3>
@@ -279,7 +283,10 @@ export function PostsManagement() {
           <span>Desconectar</span>
         </button>
       </div>
+    </div>
 
+    {/* Right Column: Postos, Nuvem & Backup */}
+    <div className="flex flex-col gap-4">
       {/* Posts Cards Grid */}
       <div className="flex flex-col gap-2.5">
         <h3 className="text-xs font-bold text-[#0d1c2f] px-1">
@@ -454,6 +461,8 @@ export function PostsManagement() {
           Restaurar Dados Originais da Planilha Modelo
         </button>
       </div>
+    </div>
+  </div>
 
       {/* Add / Edit Post Modal */}
       {isModalOpen && (

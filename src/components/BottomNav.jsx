@@ -14,7 +14,7 @@ export function BottomNav({ activeTab, setActiveTab }) {
   ]
 
   return (
-    <nav className="fixed bottom-0 w-full z-40 bg-white/95 backdrop-blur-xl border-t border-[#dde9ff] shadow-[0_-2px_12px_rgba(13,28,47,0.06)] print:hidden">
+    <nav className="md:hidden fixed bottom-0 w-full z-40 bg-white/95 backdrop-blur-xl border-t border-[#dde9ff] shadow-[0_-2px_12px_rgba(13,28,47,0.06)] print:hidden">
       <div className="max-w-md mx-auto flex justify-around items-center h-16 px-1">
         {navItems.map((item) => {
           const isActive =

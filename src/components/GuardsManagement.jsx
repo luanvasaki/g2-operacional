@@ -137,7 +137,7 @@ export function GuardsManagement({
   const inactiveCount = guards.filter((g) => !g.active).length
 
   return (
-    <div className="flex flex-col w-full gap-4 pb-28 max-w-xl mx-auto">
+    <div className="flex flex-col w-full gap-4 pb-28 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
@@ -281,8 +281,8 @@ export function GuardsManagement({
         </div>
       </div>
 
-      {/* Workers Roster List */}
-      <div className="flex flex-col gap-2.5">
+      {/* Workers Roster List - Responsive Grid for PC & Mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {filteredGuards.map((guard) => {
           const post = posts.find((p) => p.id === guard.postId)
           return (

@@ -63,11 +63,12 @@ function MainContent() {
     <div className="min-h-screen bg-[#f8f9ff] text-[#0d1c2f] flex flex-col font-sans">
       <Header
         activeTab={activeTab}
+        setActiveTab={setActiveTab}
         onOpenQuickHub={() => openQuickHub('cadastro')}
         onGoHome={() => setActiveTab('dashboard')}
       />
 
-      <main className="flex-1 w-full max-w-xl mx-auto px-4 pt-20 pb-20">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-20 pb-24 md:pb-12">
         {activeTab === 'dashboard' && (
           <Dashboard
             setActiveTab={setActiveTab}

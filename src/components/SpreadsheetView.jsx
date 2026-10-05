@@ -119,7 +119,7 @@ export function SpreadsheetView({
   }
 
   return (
-    <div className="flex flex-col w-full pb-28 space-y-4 max-w-xl mx-auto">
+    <div className="flex flex-col w-full pb-28 space-y-4 max-w-7xl mx-auto">
       {/* Cycle Control & Filter Bar */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
         {/* Month and Rate Bar */}
@@ -320,8 +320,8 @@ export function SpreadsheetView({
             </span>
           </div>
 
-          {/* Grid of days in this Quinzena */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {/* Grid of days in this Quinzena - 5 columns on PC for optimal weekly alignment */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {currentQuinzenaDays.map((d) => {
               const weekday = getWeekday(year, month, d)
               const holiday = getHoliday(year, month, d)
@@ -458,9 +458,9 @@ export function SpreadsheetView({
         </div>
       )}
 
-      {/* VIEW MODE 1: Interactive Roster Cards (Stitch mobile cards) */}
+      {/* VIEW MODE 1: Interactive Roster Cards (Responsive Grid for PC & Mobile) */}
       {viewMode === 'cards' && (
-        <div className="flex flex-col space-y-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
           {activeGuards.length === 0 && (
             <div className="bg-white rounded-2xl p-8 text-center border border-[#dde9ff] space-y-3">
               <span className="material-symbols-outlined text-4xl text-[#76777d]">group_off</span>
@@ -769,8 +769,8 @@ export function SpreadsheetView({
       )}
 
       {/* Realtime Tactical Bottom Bar (Total & Quick Dispatch) */}
-      <div className="fixed bottom-16 left-0 w-full px-4 z-30">
-        <div className="max-w-xl mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-2 backdrop-blur-md border border-white/10">
+      <div className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30">
+        <div className="max-w-7xl mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 backdrop-blur-md border border-white/10">
           <div className="flex flex-col min-w-0">
             <span className="font-mono text-[10px] text-[#bec6e0] flex items-center gap-1 font-semibold uppercase">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#6cf8bb]"></span>

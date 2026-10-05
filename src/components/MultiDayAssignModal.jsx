@@ -177,7 +177,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0d1c2f]/70 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
+      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-[#eff4ff] flex items-center justify-between bg-[#131b2e] text-white">
           <div className="flex items-center gap-2.5">

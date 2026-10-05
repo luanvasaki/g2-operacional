@@ -87,7 +87,7 @@ export function Dashboard({
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 pb-8 max-w-xl mx-auto">
+    <div className="flex flex-col w-full gap-5 pb-8 max-w-7xl mx-auto">
       {/* Central de Facilidades G2 - Banner de Ações em 1 Toque */}
       <div className="bg-gradient-to-r from-[#131b2e] via-[#1a243b] to-[#006c49] text-white p-4 rounded-3xl shadow-lg border border-white/10 relative overflow-hidden">
         <div className="flex items-center justify-between mb-3 relative z-10">
@@ -267,8 +267,12 @@ export function Dashboard({
         </div>
       )}
 
-      {/* Financial Master Bento Card (Stitch Dark Theme #131b2e) */}
-      <div className="flex flex-col bg-[#131b2e] text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+      {/* 2-Column Responsive Layout for PC (Master Bento & Efetivo on Left, Postos & Atalhos on Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Financial Bento & Guards List */}
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
+          {/* Financial Master Bento Card (Stitch Dark Theme #131b2e) */}
+          <div className="flex flex-col bg-[#131b2e] text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
         <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-[#006c49]/20 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="flex items-center justify-between mb-2 z-10 flex-wrap gap-2">
@@ -500,6 +504,101 @@ export function Dashboard({
           <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
+    </div>
+
+    {/* Right Column: Postos, Atalhos & Cobertura */}
+    <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
+      {/* Postos de Serviço e Horas */}
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col gap-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#006c49] text-[20px]">location_on</span>
+            <h3 className="text-sm font-bold text-[#0d1c2f]">Postos e Cobertura</h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('configuracoes')}
+            className="text-[11px] text-[#006c49] font-bold hover:underline cursor-pointer"
+          >
+            Gerenciar
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {posts.map((p) => {
+            const postGuards = guards.filter((g) => g.postId === p.id && g.active)
+            let postHours = 0
+            postGuards.forEach((g) => {
+              const c = getGuardCalculations(g.id)
+              postHours += activeQuinzena === 1 ? c.q1Hours : c.q2Hours
+            })
+            return (
+              <div
+                key={p.id}
+                className="p-2.5 rounded-xl bg-[#eff4ff]/60 border border-[#dde9ff]/60 flex items-center justify-between hover:bg-[#eff4ff] transition-colors"
+              >
+                <div>
+                  <span className="text-xs font-bold text-[#0d1c2f] block">{p.name}</span>
+                  <span className="text-[10px] text-[#76777d]">
+                    {postGuards.length} segurança(s) alocado(s)
+                  </span>
+                </div>
+                <span className="font-mono text-xs font-bold text-[#006c49] bg-white px-2.5 py-1 rounded-lg border border-[#dde9ff] shadow-2xs">
+                  {postHours}h
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Atalhos Rápidos da Gestão */}
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col gap-3">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#eff4ff]">
+          <span className="material-symbols-outlined text-[#006c49] text-[20px]">bolt</span>
+          <h3 className="text-sm font-bold text-[#0d1c2f]">Atalhos da Gestão</h3>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
+            className="w-full py-2.5 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#075e54] font-bold text-xs flex items-center justify-between border border-[#25D366]/30 transition cursor-pointer active:scale-98"
+          >
+            <div className="flex items-center gap-2">
+              <WhatsAppIcon className="w-4 h-4 fill-[#25D366]" />
+              <span>Importar Escala do WhatsApp</span>
+            </div>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('quinzena-horas')}
+            className="w-full py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-xs flex items-center justify-between border border-[#dde9ff] transition cursor-pointer active:scale-98"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px] text-[#006c49]">calendar_month</span>
+              <span>Ver Grade & Calendário Geral</span>
+            </div>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('pagamentos')}
+            className="w-full py-2.5 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs flex items-center justify-between shadow-xs transition cursor-pointer active:scale-98"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">payments</span>
+              <span>Extrato & Pagamentos PIX</span>
+            </div>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
       {/* Hourly Rate Modal */}
       {showRateModal && (

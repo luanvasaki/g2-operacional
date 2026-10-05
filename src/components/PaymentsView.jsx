@@ -242,7 +242,7 @@ export function PaymentsView({ onOpenQuickHub }) {
   })
 
   return (
-    <div className="flex flex-col w-full gap-4 pb-36 max-w-xl mx-auto">
+    <div className="flex flex-col w-full gap-4 pb-36 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
@@ -1018,8 +1018,8 @@ export function PaymentsView({ onOpenQuickHub }) {
           </section>
 
           {/* Sticky Bottom Actions Dock (Pure Pagar with Checkbox) */}
-          <section className="fixed bottom-16 left-0 w-full px-4 z-30">
-            <div className="max-w-xl mx-auto flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-[#dde9ff]">
+          <section className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30">
+            <div className="max-w-7xl mx-auto flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-[#dde9ff]">
               {/* Ultra-clear Month Competência Label above the button */}
               <div className="flex items-center justify-between px-1 text-[11px] font-mono">
                 <span className="flex items-center gap-1 text-[#006c49] font-black uppercase">
