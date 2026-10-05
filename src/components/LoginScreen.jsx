@@ -4,11 +4,11 @@ import { useApp } from '../context/AppContext'
 
 export function LoginScreen() {
   const { login, managerPassword } = useApp()
-  const [managerName, setManagerName] = useState(() => {
+  const [username, setUsername] = useState(() => {
     try {
-      return localStorage.getItem('g2_last_manager_name') || ''
+      return localStorage.getItem('g2_last_manager_name') || 'luanbarreto'
     } catch {
-      return ''
+      return 'luanbarreto'
     }
   })
   const [password, setPassword] = useState('')
@@ -20,22 +20,32 @@ export function LoginScreen() {
     e.preventDefault()
     setErrorMsg('')
 
-    const effectivePass = managerPassword || 'g22026'
-    // Allow either the configured manager password or standard fallback '123456' / 'g22026'
-    const isCorrect =
-      password.trim() === effectivePass.trim() ||
-      password.trim() === '123456' ||
-      password.trim() === 'g22026'
+    const trimmedUser = username.trim()
+    const trimmedPass = password.trim()
+    const effectivePass = managerPassword || 'G2barreto$'
 
-    if (!isCorrect) {
-      setErrorMsg('Senha incorreta! Digite a senha oficial da G2 ou solicite à administração.')
+    // Validates credentials
+    const isMasterUser =
+      trimmedUser.toLowerCase() === 'luanbarreto' ||
+      trimmedUser.toLowerCase() === 'luan barreto' ||
+      trimmedUser.toLowerCase() === 'luan'
+
+    const isPasswordCorrect =
+      trimmedPass === effectivePass ||
+      trimmedPass === 'G2barreto$' ||
+      trimmedPass === '123456'
+
+    if (!isPasswordCorrect) {
+      setErrorMsg('Senha incorreta! Digite a senha oficial da G2 ou consulte o administrador.')
       return
     }
 
-    const name = managerName.trim() || 'Gerente Operacional'
+    const displayName = isMasterUser ? 'Luan Barreto' : (trimmedUser || 'Gestor Operacional')
+    const userRole = isMasterUser ? 'Diretor / Gestor Geral' : 'Supervisor Operacional'
+
     if (rememberMe) {
       try {
-        localStorage.setItem('g2_last_manager_name', name)
+        localStorage.setItem('g2_last_manager_name', trimmedUser)
       } catch (err) {
         console.warn(err)
       }
@@ -43,19 +53,18 @@ export function LoginScreen() {
 
     login({
       id: `usr-${Date.now()}`,
-      name: name,
-      role: 'Gerente / Supervisor Operacional',
-      email: `${name.toLowerCase().replace(/\s+/g, '.')}@g2operacional.com`,
+      name: displayName,
+      role: userRole,
+      email: `${trimmedUser.toLowerCase().replace(/\s+/g, '.')}@g2operacional.com`,
     })
   }
 
   const handleQuickLogin = () => {
-    const name = managerName.trim() || 'Supervisor Silva'
     login({
-      id: `usr-${Date.now()}`,
-      name: name,
-      role: 'Supervisor Operacional',
-      email: 'gestor.g2@operacional.com',
+      id: 'usr-luan',
+      name: 'Luan Barreto',
+      role: 'Diretor / Gestor Geral',
+      email: 'luanbarreto@g2operacional.com',
     })
   }
 
@@ -89,7 +98,7 @@ export function LoginScreen() {
             <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
               <div>
                 <h2 className="text-sm font-bold text-[#0d1c2f]">Acesso de Gerência</h2>
-                <p className="text-xs text-[#76777d]">Digite seu nome e a senha oficial da G2</p>
+                <p className="text-xs text-[#76777d]">Digite seu usuário e senha da G2</p>
               </div>
               <span className="material-symbols-outlined text-[#006c49] text-[22px]">
                 admin_panel_settings
@@ -106,29 +115,29 @@ export function LoginScreen() {
             )}
 
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              {/* Manager Name */}
+              {/* Username */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className="text-xs font-semibold text-[#0d1c2f] flex items-center justify-between"
-                  htmlFor="manager-name"
+                  htmlFor="login-username"
                 >
-                  <span>Seu Nome ou Cargo</span>
-                  <span className="text-[11px] text-[#76777d] font-normal">
-                    Como você aparecerá no app
+                  <span>Usuário</span>
+                  <span className="text-[11px] text-[#006c49] font-mono font-bold">
+                    luanbarreto
                   </span>
                 </label>
                 <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
                   <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
-                    person
+                    account_circle
                   </span>
                   <input
-                    id="manager-name"
+                    id="login-username"
                     type="text"
                     required
-                    value={managerName}
-                    onChange={(e) => setManagerName(e.target.value)}
-                    placeholder="Ex: Carlos Gerente, Supervisor Silva..."
-                    className="w-full h-12 bg-transparent pr-4 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="luanbarreto"
+                    className="w-full h-12 bg-transparent pr-4 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-medium"
                   />
                 </div>
               </div>
@@ -139,7 +148,7 @@ export function LoginScreen() {
                   className="text-xs font-semibold text-[#0d1c2f]"
                   htmlFor="login-password"
                 >
-                  Senha Oficial da G2
+                  Senha de Acesso
                 </label>
                 <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
                   <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
@@ -151,13 +160,13 @@ export function LoginScreen() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Digite a senha oficial da G2"
+                    placeholder="Digite a senha (G2barreto$)"
                     className="w-full h-12 bg-transparent pr-12 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 w-9 h-9 flex items-center justify-center text-[#76777d] hover:text-[#0d1c2f]"
+                    className="absolute right-2 w-9 h-9 flex items-center justify-center text-[#76777d] hover:text-[#0d1c2f] cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[20px]">
                       {showPassword ? 'visibility' : 'visibility_off'}
@@ -193,7 +202,7 @@ export function LoginScreen() {
             </form>
           </div>
 
-          {/* Quick Access Helper */}
+          {/* Quick Access Shortcut */}
           <div className="flex flex-col gap-2.5">
             <button
               type="button"
@@ -204,7 +213,7 @@ export function LoginScreen() {
                 <span className="material-symbols-outlined text-[#006c49] text-[18px]">
                   bolt
                 </span>
-                <span>Entrar Direto (Acesso Rápido de Teste)</span>
+                <span>Entrar Direto como Luan Barreto</span>
               </div>
               <span className="material-symbols-outlined text-[#76777d] text-[16px]">
                 arrow_forward
