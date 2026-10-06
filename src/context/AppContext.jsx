@@ -126,7 +126,10 @@ export function AppProvider({ children }) {
   // Selected Month (Format: YYYY-MM)
   const [selectedMonth, setSelectedMonth] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.SELECTED_MONTH) || CURRENT_MONTH_KEY
+      const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_MONTH)
+      // If user had previous default 2026-09 cached, upgrade to CURRENT_MONTH_KEY (2026-10)
+      if (saved && saved !== '2026-09') return saved
+      return CURRENT_MONTH_KEY
     } catch {
       return CURRENT_MONTH_KEY
     }
@@ -167,7 +170,15 @@ export function AppProvider({ children }) {
   const [shifts, setShifts] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SHIFTS)
-      return saved ? JSON.parse(saved) : INITIAL_SHIFTS
+      let parsed = saved ? JSON.parse(saved) : { ...INITIAL_SHIFTS }
+      // Merge initial shifts for current month 2026-10 and past month 2026-09 if not present
+      if (!parsed['2026-10'] && INITIAL_SHIFTS['2026-10']) {
+        parsed['2026-10'] = INITIAL_SHIFTS['2026-10']
+      }
+      if (!parsed['2026-09'] && INITIAL_SHIFTS['2026-09']) {
+        parsed['2026-09'] = INITIAL_SHIFTS['2026-09']
+      }
+      return parsed
     } catch {
       return INITIAL_SHIFTS
     }

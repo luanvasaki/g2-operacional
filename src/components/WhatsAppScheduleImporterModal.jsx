@@ -351,7 +351,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               >
                 <option value="2026-08">Agosto 2026</option>
                 <option value="2026-09">Setembro 2026</option>
-                <option value="2026-10">Outubro 2026</option>
+                <option value="2026-10">Outubro 2026 (Mês Atual)</option>
                 <option value="2026-11">Novembro 2026</option>
                 <option value="2026-12">Dezembro 2026</option>
                 <option value="2027-01">Janeiro 2027</option>

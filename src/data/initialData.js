@@ -175,12 +175,12 @@ export const INITIAL_GUARDS = [
   },
 ]
 
-// Current Month/Year key e.g. "2026-09"
-export const CURRENT_MONTH_KEY = '2026-09'
+// Current Month/Year key e.g. "2026-10"
+export const CURRENT_MONTH_KEY = '2026-10'
 
 // Pre-fill shifts exactly as in user's image
 export const INITIAL_SHIFTS = {
-  [CURRENT_MONTH_KEY]: {
+  '2026-09': {
     // Carvalho (Diadema)
     'g-carvalho': {
       2: 4, 4: 4, 6: 4, 8: 4, 10: 4, 12: 4,
@@ -245,10 +245,52 @@ export const INITIAL_SHIFTS = {
       1: 3, 3: 3, 5: 3, 7: 3, 9: 3, 11: 3, 13: 3, 15: 3,
       17: 3, 19: 3, 20: 3, 21: 3, 23: 3, 25: 3, 26: 3, 27: 3, 28: 3, 29: 3, 30: 3
     }
+  },
+  '2026-10': {
+    // Carvalho (Diadema - pares)
+    'g-carvalho': {
+      2: 4, 4: 4, 6: 4, 8: 4, 10: 4, 12: 4, 14: 4, 16: 4, 18: 4, 20: 4, 22: 4, 24: 4, 26: 4, 28: 4, 30: 4
+    },
+    // Novaes (Diadema - ímpares)
+    'g-novaes': {
+      1: 4, 3: 4, 5: 4, 7: 4, 9: 4, 11: 4, 13: 4, 15: 4, 17: 4, 19: 4, 21: 4, 23: 4, 25: 4, 27: 4, 29: 4, 31: 4
+    },
+    // Gomes (Confiança - ímpares)
+    'g-gomes': {
+      1: 3, 3: 3, 5: 3, 7: 3, 9: 3, 11: 3, 13: 3, 15: 3, 17: 3, 19: 3, 21: 3, 23: 3, 25: 3, 27: 3, 29: 3, 31: 3
+    },
+    // Barbosa (Confiança - pares)
+    'g-barbosa': {
+      2: 3, 4: 3, 6: 3, 8: 3, 10: 3, 12: 3, 14: 3, 16: 3, 18: 3, 20: 3, 22: 3, 24: 3, 26: 3, 28: 3, 30: 3
+    },
+    // Neto (Penha - pares)
+    'g-neto': {
+      2: 3, 4: 3, 6: 3, 8: 3, 10: 3, 12: 3, 14: 3, 16: 3, 18: 3, 20: 3, 22: 3, 24: 3, 26: 3, 28: 3, 30: 3
+    },
+    // Felipe (Penha - ímpares)
+    'g-felipe': {
+      1: 3, 3: 3, 5: 3, 7: 3, 9: 3, 11: 3, 13: 3, 15: 3, 17: 3, 19: 3, 21: 3, 23: 3, 25: 3, 27: 3, 29: 3, 31: 3
+    },
+    // Oliveira (Santo André - pares)
+    'g-oliveira': {
+      2: 3, 4: 3, 6: 3, 8: 3, 10: 3, 12: 3, 14: 3, 16: 3, 18: 3, 20: 3, 22: 3, 24: 3, 26: 3, 28: 3, 30: 3
+    },
+    // Pereira (Santo André - ímpares)
+    'g-pereira': {
+      1: 3, 3: 3, 5: 3, 7: 3, 9: 3, 11: 3, 13: 3, 15: 3, 17: 3, 19: 3, 21: 3, 23: 3, 25: 3, 27: 3, 29: 3, 31: 3
+    },
+    // David (Zona Norte - pares)
+    'g-david': {
+      2: 3, 4: 3, 6: 3, 8: 3, 10: 3, 12: 3, 14: 3, 16: 3, 18: 3, 20: 3, 22: 3, 24: 3, 26: 3, 28: 3, 30: 3
+    },
+    // Alex (Zona Norte - ímpares)
+    'g-alex': {
+      1: 3, 3: 3, 5: 3, 7: 3, 9: 3, 11: 3, 13: 3, 15: 3, 17: 3, 19: 3, 21: 3, 23: 3, 25: 3, 27: 3, 29: 3, 31: 3
+    }
   }
 }
 
 export const INITIAL_PAYMENTS = {
   // Key: `${monthKey}_${guardId}_q1` or `q2`
-  [`${CURRENT_MONTH_KEY}_g-carvalho_q1`]: { status: 'PAID', paidAt: '2026-09-16T10:00:00Z', notes: 'PIX Realizado' },
+  ['2026-09_g-carvalho_q1']: { status: 'PAID', paidAt: '2026-09-16T10:00:00Z', notes: 'PIX Realizado' },
 }

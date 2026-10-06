@@ -97,6 +97,16 @@ export function SpreadsheetView({
   const daysQ1 = monthInfo.q1Days
   const daysQ2 = monthInfo.q2Days
 
+  // Real today reference
+  const now = new Date()
+  const realDay = now.getDate()
+  const realMonth = now.getMonth() + 1
+  const realYear = now.getFullYear()
+  const realMonthKey = `${realYear}-${String(realMonth).padStart(2, '0')}`
+  const isCurrentRealMonth = selectedMonth === realMonthKey
+  const todayWeekdayObj = BRAZILIAN_WEEKDAYS[now.getDay()] || { full: 'Hoje' }
+  const todayFormatted = `${todayWeekdayObj.full}, ${String(realDay).padStart(2, '0')} de ${now.toLocaleDateString('pt-BR', { month: 'long' })} de ${realYear}`
+
   // Displayed days based on calendarRange
   const displayedDays =
     calendarRange === 'month'
@@ -105,11 +115,11 @@ export function SpreadsheetView({
       ? daysQ1
       : daysQ2
 
-  // Weekday offset for calendar month layout (0 = Dom, 1 = Seg...)
-  const firstDayOfWeek = new Date(year, month - 1, 1).getDay()
-  const leadingBlanks = calendarRange === 'month' ? Array.from({ length: firstDayOfWeek }) : []
-  const trailingBlanksCount =
-    calendarRange === 'month' ? (7 - ((firstDayOfWeek + totalDaysInMonth) % 7)) % 7 : 0
+  // Weekday offset for calendar layout (0 = Dom, 1 = Seg...)
+  const firstDisplayedDay = calendarRange === 'q2' ? 16 : 1
+  const firstDayOfWeek = new Date(year, month - 1, firstDisplayedDay).getDay()
+  const leadingBlanks = Array.from({ length: firstDayOfWeek })
+  const trailingBlanksCount = (7 - ((firstDayOfWeek + displayedDays.length) % 7)) % 7
   const trailingBlanks = Array.from({ length: trailingBlanksCount })
 
   const activeGuards = guards.filter((g) => g.active)
@@ -281,7 +291,7 @@ export function SpreadsheetView({
 
     // 3. Fallback: Check INITIAL_SHIFTS for this month & day
     // Find guard in INITIAL_SHIFTS that had hours on day d, but now has 0 / null
-    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-09'] || {}
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-10'] || INITIAL_SHIFTS['2026-09'] || {}
     for (const [gid, dayMap] of Object.entries(initialMonthShifts)) {
       if (gid === 'g-folguista') continue
       const initHours = dayMap[d]
@@ -398,7 +408,7 @@ export function SpreadsheetView({
   // Restore the day's original schedule from INITIAL_SHIFTS
   const handleRestoreDayDefault = (d) => {
     if (!d) return
-    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-09'] || {}
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-10'] || INITIAL_SHIFTS['2026-09'] || {}
 
     // Remove folguista
     setShiftHours('g-folguista', d, null, '')
@@ -451,21 +461,41 @@ export function SpreadsheetView({
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3.5">
         {/* Month Selector & Rate Info */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 bg-[#eff4ff] px-3 py-1.5 rounded-xl border border-[#dde9ff]/60">
-            <span className="material-symbols-outlined text-[20px] text-[#006c49]">
-              calendar_today
-            </span>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="bg-transparent font-bold text-xs sm:text-sm text-[#0d1c2f] outline-none cursor-pointer capitalize"
-            >
-              <option value="2026-08">Agosto 2026</option>
-              <option value="2026-09">Setembro 2026</option>
-              <option value="2026-10">Outubro 2026</option>
-              <option value="2026-11">Novembro 2026</option>
-              <option value="2026-12">Dezembro 2026</option>
-            </select>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 bg-[#eff4ff] px-3 py-1.5 rounded-xl border border-[#dde9ff]/60">
+              <span className="material-symbols-outlined text-[20px] text-[#006c49]">
+                calendar_today
+              </span>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="bg-transparent font-bold text-xs sm:text-sm text-[#0d1c2f] outline-none cursor-pointer capitalize"
+              >
+                <option value="2026-08">Agosto 2026</option>
+                <option value="2026-09">Setembro 2026</option>
+                <option value="2026-10">Outubro 2026 (Mês Atual)</option>
+                <option value="2026-11">Novembro 2026</option>
+                <option value="2026-12">Dezembro 2026</option>
+              </select>
+            </div>
+
+            {/* Quick Button: Ir para Hoje */}
+            {!isCurrentRealMonth ? (
+              <button
+                type="button"
+                onClick={() => setSelectedMonth(realMonthKey)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs transition active:scale-95 shadow-xs cursor-pointer"
+                title={`Ir para o mês atual (${todayFormatted})`}
+              >
+                <span className="material-symbols-outlined text-[16px]">today</span>
+                <span>Ir para Hoje ({String(realDay).padStart(2, '0')}/{String(realMonth).padStart(2, '0')})</span>
+              </button>
+            ) : (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-[#006c49] border border-emerald-200 text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#006c49] animate-pulse" />
+                <span>Hoje: {todayFormatted}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -688,6 +718,26 @@ export function SpreadsheetView({
             </span>
           </div>
 
+          {/* Banner when viewing another month */}
+          {!isCurrentRealMonth && (
+            <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 text-amber-900 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-700 text-xl">info</span>
+                <span className="text-xs font-medium">
+                  Você está visualizando a escala de <strong>{monthInfo.formattedMonth}</strong>. Hoje é <strong>{todayFormatted}</strong>.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedMonth(realMonthKey)}
+                className="px-3 py-1.5 bg-[#006c49] hover:bg-[#005236] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+              >
+                <span className="material-symbols-outlined text-sm">today</span>
+                <span>Ir para Hoje ({String(realDay).padStart(2, '0')}/{String(realMonth).padStart(2, '0')})</span>
+              </button>
+            </div>
+          )}
+
           {/* 7 Columns Weekday Header on Desktop PC */}
           <div className="hidden lg:grid grid-cols-7 gap-2.5">
             {BRAZILIAN_WEEKDAYS.map((w) => (
@@ -720,19 +770,26 @@ export function SpreadsheetView({
               const guardsOnDay = getGuardsOnDay(d)
               const totalDayHours = guardsOnDay.reduce((acc, curr) => acc + curr.hours, 0)
               const hasFolguista = guardsOnDay.some((item) => item.isFolguista)
+              const isToday = isCurrentRealMonth && d === realDay
 
               return (
                 <div
                   key={d}
                   onClick={() => handleOpenDayModal(d)}
                   className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 min-h-[140px] cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] group ${
-                    holiday
-                      ? 'bg-amber-50/70 border-amber-300 hover:border-amber-400'
+                    isToday
+                      ? 'bg-emerald-50/70 border-2 border-[#006c49] ring-2 ring-[#006c49]/30 shadow-md'
+                      : holiday
+                      ? 'bg-amber-50/40 border-amber-200/90 hover:border-amber-400'
                       : isWeekend
                       ? 'bg-[#fcfaff] border-[#dde9ff] hover:border-[#6cf8bb]'
                       : 'bg-white border-[#dde9ff] hover:border-[#006c49]'
                   }`}
-                  title={`Clique no dia ${d} para adicionar, trocar ou lançar folguista`}
+                  title={
+                    isToday
+                      ? `📍 HOJE - Dia ${d} (${weekday.full}) - Clique para gerenciar plantão`
+                      : `Clique no dia ${d} para adicionar, trocar ou lançar folguista`
+                  }
                 >
                   {/* Card Header (Day Number + Weekday + Badges) */}
                   <div>
@@ -740,8 +797,10 @@ export function SpreadsheetView({
                       <div className="flex items-center gap-1.5">
                         <div
                           className={`w-8 h-8 rounded-xl font-mono flex items-center justify-center font-black text-xs shadow-2xs ${
-                            holiday
-                              ? 'bg-amber-300 text-amber-950 border border-amber-400'
+                            isToday
+                              ? 'bg-[#006c49] text-white ring-2 ring-emerald-300 shadow-sm'
+                              : holiday
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
                               : isWeekend
                               ? 'bg-[#dde9ff] text-[#0d1c2f]'
                               : 'bg-[#eff4ff] text-[#006c49] group-hover:bg-[#006c49] group-hover:text-white transition-colors'
@@ -749,9 +808,17 @@ export function SpreadsheetView({
                         >
                           {String(d).padStart(2, '0')}
                         </div>
-                        <span className="font-bold text-xs text-[#0d1c2f] capitalize lg:hidden">
-                          {weekday.full}
-                        </span>
+
+                        {isToday ? (
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#006c49] text-white text-[9px] font-black uppercase tracking-wider shadow-2xs animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+                            HOJE
+                          </span>
+                        ) : (
+                          <span className="font-bold text-xs text-[#0d1c2f] capitalize lg:hidden">
+                            {weekday.full}
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-1">
@@ -761,14 +828,16 @@ export function SpreadsheetView({
                             title="Dia com folguista"
                           />
                         )}
-                        <span className="font-mono text-[11px] font-bold text-[#45464d] bg-[#eff4ff] px-1.5 py-0.5 rounded-md">
+                        <span className={`font-mono text-[11px] font-bold px-1.5 py-0.5 rounded-md ${
+                          isToday ? 'bg-[#006c49]/15 text-[#006c49]' : 'text-[#45464d] bg-[#eff4ff]'
+                        }`}>
                           {guardsOnDay.length > 0 ? `${totalDayHours}h` : '0h'}
                         </span>
                       </div>
                     </div>
 
                     {holiday && (
-                      <div className="mb-1 text-[10px] text-amber-900 font-bold bg-amber-100/80 px-1.5 py-0.5 rounded-md truncate">
+                      <div className="mb-1 text-[10px] text-amber-900 font-semibold bg-amber-100/70 border border-amber-200/60 px-1.5 py-0.5 rounded-md truncate" title={holiday.name}>
                         🇧🇷 {holiday.name}
                       </div>
                     )}
@@ -957,21 +1026,30 @@ export function SpreadsheetView({
                   {displayedDays.map((d) => {
                     const weekday = getWeekday(year, month, d)
                     const holiday = getHoliday(year, month, d)
+                    const isToday = isCurrentRealMonth && d === realDay
                     return (
                       <th
                         key={d}
                         onClick={() => handleOpenDayModal(d)}
                         className={`py-2 px-1 text-center min-w-[34px] cursor-pointer hover:bg-[#dde9ff] transition ${
-                          holiday
+                          isToday
+                            ? 'bg-[#006c49] text-white border-b-2 border-emerald-300 font-bold'
+                            : holiday
                             ? 'bg-amber-100 text-amber-900 border-b-2 border-amber-400'
                             : weekday.isWeekend
                             ? 'bg-[#e5eeff] text-[#2c3e50]'
                             : ''
                         }`}
-                        title={`Dia ${d} (${weekday.full}) - Clique para editar`}
+                        title={
+                          isToday
+                            ? `📍 HOJE - Dia ${d} (${weekday.full})`
+                            : `Dia ${d} (${weekday.full}) - Clique para editar`
+                        }
                       >
                         <div>{String(d).padStart(2, '0')}</div>
-                        <div className="text-[8px] opacity-75">{weekday.short}</div>
+                        <div className={`text-[8px] ${isToday ? 'font-black tracking-wide text-emerald-200' : 'opacity-75'}`}>
+                          {isToday ? 'HOJE' : weekday.short}
+                        </div>
                       </th>
                     )
                   })}
@@ -994,11 +1072,14 @@ export function SpreadsheetView({
                     {displayedDays.map((d) => {
                       const h = guardShifts[d]
                       const hasVal = h !== undefined && h !== null
+                      const isToday = isCurrentRealMonth && d === realDay
                       return (
                         <td
                           key={d}
                           onClick={() => handleOpenDayModal(d)}
-                          className="py-1 px-1 text-center font-mono text-[11px] cursor-pointer hover:bg-emerald-50 transition"
+                          className={`py-1 px-1 text-center font-mono text-[11px] cursor-pointer transition ${
+                            isToday ? 'bg-emerald-50/50 hover:bg-emerald-100/50 font-semibold' : 'hover:bg-emerald-50'
+                          }`}
                         >
                           {hasVal && Number(h) > 0 ? (
                             <span className="font-bold text-[#006c49] bg-emerald-50 px-1 py-0.5 rounded">
@@ -1077,6 +1158,12 @@ export function SpreadsheetView({
                     <span>
                       Dia {dayEditModal.day} de {monthInfo.monthName} ({getWeekday(year, month, dayEditModal.day).full})
                     </span>
+                    {isCurrentRealMonth && dayEditModal.day === realDay && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#006c49] text-white font-black text-[10px] flex items-center gap-1 border border-emerald-400 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+                        HOJE
+                      </span>
+                    )}
                     {getHoliday(year, month, dayEditModal.day) && (
                       <span className="px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 font-bold text-[10px]">
                         🇧🇷 {getHoliday(year, month, dayEditModal.day).name}

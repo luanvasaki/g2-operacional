@@ -67,7 +67,7 @@ export function Dashboard({
   const monthOptions = [
     { value: '2026-08', label: 'Agosto 2026' },
     { value: '2026-09', label: 'Setembro 2026' },
-    { value: '2026-10', label: 'Outubro 2026' },
+    { value: '2026-10', label: 'Outubro 2026 (Mês Atual)' },
     { value: '2026-11', label: 'Novembro 2026' },
     { value: '2026-12', label: 'Dezembro 2026' },
   ]
