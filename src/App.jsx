@@ -68,7 +68,7 @@ function MainContent() {
         onGoHome={() => setActiveTab('dashboard')}
       />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-20 pb-24 md:pb-12">
+      <main className="flex-1 w-full max-w-[1920px] 2xl:max-w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-20 pb-24 md:pb-12">
         {activeTab === 'dashboard' && (
           <Dashboard
             setActiveTab={setActiveTab}

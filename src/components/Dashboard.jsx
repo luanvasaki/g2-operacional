@@ -56,6 +56,11 @@ export function Dashboard({
     }
   })
 
+  totalHours = Math.round(totalHours * 100) / 100
+  totalAmount = Math.round(totalAmount * 100) / 100
+  paidAmount = Math.round(paidAmount * 100) / 100
+  pendingAmount = Math.round(pendingAmount * 100) / 100
+
   // Budget ceiling calculation
   const [year, month] = selectedMonth.split('-').map(Number)
   const monthInfo = getMonthInfo(year, month)
@@ -87,7 +92,7 @@ export function Dashboard({
   }
 
   return (
-    <div className="flex flex-col w-full gap-5 pb-8 max-w-7xl mx-auto">
+    <div className="flex flex-col w-full gap-5 pb-8 max-w-[1920px] 2xl:max-w-full mx-auto">
       {/* Central de Facilidades G2 - Banner de Ações em 1 Toque */}
       <div className="bg-gradient-to-r from-[#131b2e] via-[#1a243b] to-[#006c49] text-white p-4 rounded-3xl shadow-lg border border-white/10 relative overflow-hidden">
         <div className="flex items-center justify-between mb-3 relative z-10">

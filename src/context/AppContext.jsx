@@ -311,21 +311,25 @@ export function AppProvider({ children }) {
         setShiftNotes(nextNotes)
       }
       if (paymentsRes.data && paymentsRes.data.length > 0) {
-        const nextPayments = {}
-        paymentsRes.data.forEach((r) => {
-          nextPayments[r.key] = {
-            status: r.status || 'PAID',
-            paidAt: r.paid_at,
-            notes: r.notes || '',
-          }
+        setPayments((prev) => {
+          const merged = { ...prev }
+          paymentsRes.data.forEach((r) => {
+            merged[r.key] = {
+              status: r.status || 'PAID',
+              paidAt: r.paid_at,
+              notes: r.notes || '',
+            }
+          })
+          try {
+            localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(merged))
+          } catch {}
+          return merged
         })
-        setPayments(nextPayments)
       }
       if (settingsRes.data && settingsRes.data.length > 0) {
         settingsRes.data.forEach((r) => {
           if (r.key === 'hourly_rate') setDefaultHourlyRate(Number(r.value) || 40)
           if (r.key === 'budget_ceiling') setBudgetCeiling(Number(r.value) || 12000)
-          if (r.key === 'selected_month') setSelectedMonth(r.value)
           if (r.key === 'manager_password' && r.value) setManagerPassword(r.value)
         })
       }
@@ -614,7 +618,7 @@ export function AppProvider({ children }) {
     const monthData = shifts[selectedMonth] || {}
     const guardShifts = monthData[guardId] || {}
     const guard = guards.find((g) => g.id === guardId)
-    const rate = guard?.hourlyRate || defaultHourlyRate
+    const rate = Number(guard?.hourlyRate) > 0 ? Number(guard.hourlyRate) : (Number(defaultHourlyRate) || 40)
 
     let q1Hours = 0
     let q2Hours = 0
@@ -624,19 +628,23 @@ export function AppProvider({ children }) {
     const totalDaysInMonth = new Date(year, month, 0).getDate()
 
     for (let day = 1; day <= 15; day++) {
-      const h = Number(guardShifts[day]) || 0
-      q1Hours += h
+      const h = Number(guardShifts[day])
+      if (!isNaN(h) && h > 0) {
+        q1Hours += h
+      }
     }
 
     for (let day = 16; day <= totalDaysInMonth; day++) {
-      const h = Number(guardShifts[day]) || 0
-      q2Hours += h
+      const h = Number(guardShifts[day])
+      if (!isNaN(h) && h > 0) {
+        q2Hours += h
+      }
     }
 
-    const q1Total = q1Hours * rate
-    const q2Total = q2Hours * rate
-    const totalHours = q1Hours + q2Hours
-    const totalAmount = q1Total + q2Total
+    const q1Total = Math.round(q1Hours * rate * 100) / 100
+    const q2Total = Math.round(q2Hours * rate * 100) / 100
+    const totalHours = Math.round((q1Hours + q2Hours) * 100) / 100
+    const totalAmount = Math.round((q1Total + q2Total) * 100) / 100
 
     return {
       rate,
@@ -651,30 +659,40 @@ export function AppProvider({ children }) {
   }
 
   // Payment Tracking
-  const getPaymentStatus = (guardId, quinzenaKey) => {
-    const key = `${selectedMonth}_${guardId}_${quinzenaKey}`
+  const getPaymentStatus = (guardId, quinzenaKey, customMonth = null) => {
+    const m = customMonth || selectedMonth
+    const key = `${m}_${guardId}_${quinzenaKey}`
     return payments[key] || { status: 'PENDING', paidAt: null }
   }
 
-  const togglePaymentStatus = (guardId, quinzenaKey) => {
-    const key = `${selectedMonth}_${guardId}_${quinzenaKey}`
+  const togglePaymentStatus = (guardId, quinzenaKey, customMonth = null) => {
+    const m = customMonth || selectedMonth
+    const key = `${m}_${guardId}_${quinzenaKey}`
     setPayments((prev) => {
       const current = prev[key]
+      let next
       if (current && current.status === 'PAID') {
-        const next = { ...prev }
+        next = { ...prev }
         delete next[key]
-        syncPaymentCloud(key, selectedMonth, guardId, quinzenaKey, 'delete')
-        return next
+        syncPaymentCloud(key, m, guardId, quinzenaKey, 'delete')
       } else {
-        syncPaymentCloud(key, selectedMonth, guardId, quinzenaKey, 'upsert')
-        return {
+        const now = new Date().toISOString()
+        next = {
           ...prev,
           [key]: {
             status: 'PAID',
-            paidAt: new Date().toISOString(),
+            paidAt: now,
+            notes: 'PIX Realizado',
           },
         }
+        syncPaymentCloud(key, m, guardId, quinzenaKey, 'upsert')
       }
+      try {
+        localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(next))
+      } catch (err) {
+        console.warn('Erro ao persistir pagamentos:', err)
+      }
+      return next
     })
   }
 
@@ -807,7 +825,7 @@ export function AppProvider({ children }) {
       const next = { ...prev }
       guardIds.forEach((gid) => {
         const key = `${selectedMonth}_${gid}_${quinzenaKey}`
-        next[key] = { status: 'PAID', paidAt: now }
+        next[key] = { status: 'PAID', paidAt: now, notes: 'PIX em Lote' }
         rows.push({
           key,
           month: selectedMonth,
@@ -819,6 +837,11 @@ export function AppProvider({ children }) {
           updated_at: now,
         })
       })
+      try {
+        localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(next))
+      } catch (err) {
+        console.warn('Erro ao persistir lote no localStorage:', err)
+      }
       return next
     })
 

@@ -162,7 +162,10 @@ export function SpreadsheetView({
     totalAmount += gAmount
   })
 
-  const pendingAmount = Math.max(0, totalAmount - paidAmount)
+  totalHours = Math.round(totalHours * 100) / 100
+  totalAmount = Math.round(totalAmount * 100) / 100
+  paidAmount = Math.round(paidAmount * 100) / 100
+  const pendingAmount = Math.round(Math.max(0, totalAmount - paidAmount) * 100) / 100
 
   // Guard cards rows for cards view
   const guardRows = activeGuards.map((guard) => {
@@ -456,7 +459,7 @@ export function SpreadsheetView({
     : []
 
   return (
-    <div className="flex flex-col w-full pb-28 space-y-4 max-w-7xl mx-auto">
+    <div className="flex flex-col w-full pb-28 space-y-4 max-w-[1920px] 2xl:max-w-full mx-auto px-1 sm:px-2">
       {/* Control Header & Period Selection */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3.5">
         {/* Month Selector & Rate Info */}
@@ -509,11 +512,11 @@ export function SpreadsheetView({
             <button
               type="button"
               onClick={exportBackupJSON}
-              className="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-xl text-xs font-semibold border border-[#dde9ff] transition"
-              title="Baixar planilha/backup em JSON"
+              className="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-xl text-xs font-semibold border border-[#dde9ff] transition cursor-pointer"
+              title="Baixar cópia da planilha em formato JSON para o computador"
             >
               <span className="material-symbols-outlined text-[16px]">download</span>
-              <span>Backup</span>
+              <span>Salvar Cópia</span>
             </button>
           </div>
         </div>
@@ -739,12 +742,12 @@ export function SpreadsheetView({
           )}
 
           {/* 7 Columns Weekday Header on Desktop PC */}
-          <div className="hidden lg:grid grid-cols-7 gap-2.5">
+          <div className="hidden lg:grid grid-cols-7 gap-3">
             {BRAZILIAN_WEEKDAYS.map((w) => (
               <div
                 key={w.id}
-                className={`text-center py-2 px-1 rounded-xl text-xs font-bold uppercase tracking-wider ${
-                  w.isWeekend ? 'bg-[#dde9ff]/50 text-[#0d1c2f]' : 'bg-[#eff4ff] text-[#45464d]'
+                className={`text-center py-2.5 px-2 rounded-xl text-xs lg:text-sm font-black uppercase tracking-wider shadow-2xs ${
+                  w.isWeekend ? 'bg-[#dde9ff]/60 text-[#0d1c2f]' : 'bg-[#eff4ff] text-[#334155]'
                 }`}
               >
                 {w.full}
@@ -753,12 +756,12 @@ export function SpreadsheetView({
           </div>
 
           {/* Monthly Calendar Grid: 7 columns on Desktop, responsive on Mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 lg:gap-3.5">
             {/* Leading blanks for full month alignment */}
             {leadingBlanks.map((_, idx) => (
               <div
                 key={`blank-lead-${idx}`}
-                className="hidden lg:flex flex-col p-3 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[140px]"
+                className="hidden lg:flex flex-col p-3.5 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[160px] lg:min-h-[180px] xl:min-h-[195px]"
               />
             ))}
 
@@ -776,9 +779,9 @@ export function SpreadsheetView({
                 <div
                   key={d}
                   onClick={() => handleOpenDayModal(d)}
-                  className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2 min-h-[140px] cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] group ${
+                  className={`p-3.5 lg:p-4 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 min-h-[160px] lg:min-h-[180px] xl:min-h-[195px] cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.99] group ${
                     isToday
-                      ? 'bg-emerald-50/70 border-2 border-[#006c49] ring-2 ring-[#006c49]/30 shadow-md'
+                      ? 'bg-emerald-50/75 border-2 border-[#006c49] ring-2 ring-[#006c49]/40 shadow-md'
                       : holiday
                       ? 'bg-amber-50/40 border-amber-200/90 hover:border-amber-400'
                       : isWeekend
@@ -793,10 +796,10 @@ export function SpreadsheetView({
                 >
                   {/* Card Header (Day Number + Weekday + Badges) */}
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
                         <div
-                          className={`w-8 h-8 rounded-xl font-mono flex items-center justify-center font-black text-xs shadow-2xs ${
+                          className={`w-8 h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-xl font-mono flex items-center justify-center font-black text-xs lg:text-sm shadow-2xs ${
                             isToday
                               ? 'bg-[#006c49] text-white ring-2 ring-emerald-300 shadow-sm'
                               : holiday
@@ -810,7 +813,7 @@ export function SpreadsheetView({
                         </div>
 
                         {isToday ? (
-                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#006c49] text-white text-[9px] font-black uppercase tracking-wider shadow-2xs animate-pulse">
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#006c49] text-white text-[10px] lg:text-xs font-black uppercase tracking-wider shadow-2xs animate-pulse">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
                             HOJE
                           </span>
@@ -821,15 +824,15 @@ export function SpreadsheetView({
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         {hasFolguista && (
                           <span
-                            className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"
-                            title="Dia com folguista"
+                            className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"
+                            title="Dia com folguista cadastrado"
                           />
                         )}
-                        <span className={`font-mono text-[11px] font-bold px-1.5 py-0.5 rounded-md ${
-                          isToday ? 'bg-[#006c49]/15 text-[#006c49]' : 'text-[#45464d] bg-[#eff4ff]'
+                        <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md ${
+                          isToday ? 'bg-[#006c49]/15 text-[#006c49] font-black' : 'text-[#45464d] bg-[#eff4ff]'
                         }`}>
                           {guardsOnDay.length > 0 ? `${totalDayHours}h` : '0h'}
                         </span>
@@ -837,35 +840,35 @@ export function SpreadsheetView({
                     </div>
 
                     {holiday && (
-                      <div className="mb-1 text-[10px] text-amber-900 font-semibold bg-amber-100/70 border border-amber-200/60 px-1.5 py-0.5 rounded-md truncate" title={holiday.name}>
+                      <div className="mb-1 text-[11px] lg:text-xs text-amber-900 font-bold bg-amber-100/80 border border-amber-200/60 px-2 py-0.5 rounded-md truncate" title={holiday.name}>
                         🇧🇷 {holiday.name}
                       </div>
                     )}
                   </div>
 
                   {/* Scheduled Guards Pills */}
-                  <div className="space-y-1 my-auto">
+                  <div className="space-y-1.5 my-auto">
                     {guardsOnDay.slice(0, 4).map(({ guard, hours, post, isFolguista }) => {
                       const displayName = guard.name
                       const originalForDay = isFolguista ? getOriginalGuardForFolguista(d) : null
                       return (
                         <div
                           key={guard.id}
-                          className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] font-semibold transition ${
+                          className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs lg:text-[13px] font-bold transition ${
                             isFolguista
-                              ? 'bg-amber-100 text-amber-950 border border-amber-300 font-bold'
+                              ? 'bg-amber-100 text-amber-950 border border-amber-300 shadow-2xs'
                               : 'bg-[#eff4ff] group-hover:bg-white text-[#0d1c2f] border border-[#dde9ff]/80'
                           }`}
                         >
                           <div className="flex items-center gap-1.5 truncate">
                             <span
-                              className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              className={`w-2 h-2 rounded-full shrink-0 ${
                                 isFolguista ? 'bg-amber-600' : 'bg-[#006c49]'
                               }`}
                             />
                             <span className="truncate">{displayName}</span>
                             {post?.name && !isFolguista && (
-                              <span className="text-[9px] text-[#76777d] truncate">
+                              <span className="text-[10px] text-[#76777d] truncate font-medium">
                                 ({post.name.slice(0, 3)})
                               </span>
                             )}
@@ -878,18 +881,18 @@ export function SpreadsheetView({
                                   e.stopPropagation()
                                   handleUndoFolguista(d)
                                 }}
-                                className="px-1.5 py-0.5 rounded-md bg-amber-200 hover:bg-emerald-600 hover:text-white text-amber-950 flex items-center gap-0.5 text-[9px] font-black transition cursor-pointer shadow-2xs"
+                                className="px-1.5 py-0.5 rounded-md bg-amber-200 hover:bg-emerald-600 hover:text-white text-amber-950 flex items-center gap-0.5 text-[10px] font-black transition cursor-pointer shadow-2xs"
                                 title={
                                   originalForDay
                                     ? `Clique para desfazer e voltar para ${originalForDay.guard.name}`
                                     : 'Clique para desfazer folguista'
                                 }
                               >
-                                <span className="material-symbols-outlined text-[12px]">undo</span>
+                                <span className="material-symbols-outlined text-[13px]">undo</span>
                                 <span>Voltar</span>
                               </button>
                             )}
-                            <span className="font-mono text-[10px] font-bold ml-0.5">
+                            <span className="font-mono text-xs font-black ml-0.5 text-[#006c49]">
                               {hours}h
                             </span>
                           </div>
@@ -898,25 +901,25 @@ export function SpreadsheetView({
                     })}
 
                     {guardsOnDay.length > 4 && (
-                      <div className="text-[10px] text-center font-bold text-[#006c49]">
+                      <div className="text-xs text-center font-bold text-[#006c49]">
                         +{guardsOnDay.length - 4} outros...
                       </div>
                     )}
 
                     {guardsOnDay.length === 0 && (
-                      <div className="py-3 text-center text-[11px] text-[#76777d] italic bg-[#f8f9ff] rounded-xl border border-dashed border-[#dde9ff]">
-                        Sem plantão
+                      <div className="py-4 text-center text-xs text-[#76777d] italic bg-[#f8f9ff] rounded-xl border border-dashed border-[#dde9ff]">
+                        Sem plantão escalado
                       </div>
                     )}
                   </div>
 
                   {/* Day Footer Action */}
-                  <div className="pt-1.5 border-t border-[#eff4ff] flex items-center justify-between text-[11px]">
-                    <span className="text-[#76777d] text-[10px]">
+                  <div className="pt-2 border-t border-[#eff4ff] flex items-center justify-between text-xs lg:text-[13px]">
+                    <span className="text-[#76777d]">
                       {guardsOnDay.length} {guardsOnDay.length === 1 ? 'vigia' : 'vigias'}
                     </span>
                     <span className="font-bold text-[#006c49] group-hover:underline flex items-center gap-0.5">
-                      <span className="material-symbols-outlined text-[14px]">edit</span>
+                      <span className="material-symbols-outlined text-[15px]">edit</span>
                       <span>Editar</span>
                     </span>
                   </div>
@@ -928,7 +931,7 @@ export function SpreadsheetView({
             {trailingBlanks.map((_, idx) => (
               <div
                 key={`blank-trail-${idx}`}
-                className="hidden lg:flex flex-col p-3 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[140px]"
+                className="hidden lg:flex flex-col p-3.5 rounded-2xl border border-dashed border-[#dde9ff]/50 bg-[#f8f9ff]/40 min-h-[160px] lg:min-h-[180px] xl:min-h-[195px]"
               />
             ))}
           </div>
@@ -1108,7 +1111,7 @@ export function SpreadsheetView({
 
       {/* Floating Tactical Bottom Bar */}
       <div className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30 pointer-events-none">
-        <div className="max-w-7xl mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 backdrop-blur-md border border-white/10 pointer-events-auto">
+        <div className="max-w-[1920px] 2xl:max-w-full mx-auto bg-[#131b2e] text-white rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3 backdrop-blur-md border border-white/10 pointer-events-auto">
           <div className="flex flex-col min-w-0">
             <span className="font-mono text-[10px] text-[#bec6e0] flex items-center gap-1.5 font-semibold uppercase">
               <span className="inline-block w-2 h-2 rounded-full bg-[#6cf8bb]"></span>

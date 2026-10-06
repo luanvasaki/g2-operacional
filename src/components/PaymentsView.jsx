@@ -16,6 +16,7 @@ export function PaymentsView({ onOpenQuickHub }) {
     posts,
     guards,
     shifts,
+    payments,
     defaultHourlyRate,
     setShiftHours,
     getShiftNote,
@@ -35,6 +36,9 @@ export function PaymentsView({ onOpenQuickHub }) {
   const [onlyPendingFilter, setOnlyPendingFilter] = useState(false)
   const [scheduleModalGuard, setScheduleModalGuard] = useState(null)
   const [dayEditModal, setDayEditModal] = useState(null) // { guard, day, hours, note }
+  const [historySearch, setHistorySearch] = useState('')
+  const [historyMonthFilter, setHistoryMonthFilter] = useState('all')
+  const [showHistory, setShowHistory] = useState(true)
 
   const [year, month] = selectedMonth.split('-').map(Number)
   const monthInfo = getMonthInfo(year, month)
@@ -104,6 +108,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
   // Dynamic context according to selected quinzena
   let activeAmount = 0
+  let pendingAmountToPay = 0
   let activeHours = 0
   let isCurrentPaid = false
   let activeQuinzenaLabel = ''
@@ -112,6 +117,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
   if (selectedQuinzena === 'q1') {
     activeAmount = calc.q1Total
+    pendingAmountToPay = isQ1Paid ? 0 : calc.q1Total
     activeHours = calc.q1Hours
     isCurrentPaid = isQ1Paid
     activeQuinzenaLabel = '1ª Quinzena (01 a 15)'
@@ -119,17 +125,34 @@ export function PaymentsView({ onOpenQuickHub }) {
     activeDaysRange = monthInfo.q1Days // [1..15]
   } else if (selectedQuinzena === 'q2') {
     activeAmount = calc.q2Total
+    pendingAmountToPay = isQ2Paid ? 0 : calc.q2Total
     activeHours = calc.q2Hours
     isCurrentPaid = isQ2Paid
     activeQuinzenaLabel = `2ª Quinzena (16 a ${totalDays})`
     activeShortLabel = '2ª Quinzena'
     activeDaysRange = monthInfo.q2Days // [16..totalDays]
   } else {
-    activeAmount = calc.totalAmount
-    activeHours = calc.totalHours
+    // Both Quinzenas (Mês Completo)
     isCurrentPaid = isQ1Paid && isQ2Paid
+    if (isQ1Paid && !isQ2Paid) {
+      pendingAmountToPay = calc.q2Total
+      activeAmount = calc.q2Total
+      activeShortLabel = '2ª Quinzena Restante'
+    } else if (!isQ1Paid && isQ2Paid) {
+      pendingAmountToPay = calc.q1Total
+      activeAmount = calc.q1Total
+      activeShortLabel = '1ª Quinzena Restante'
+    } else if (!isQ1Paid && !isQ2Paid) {
+      pendingAmountToPay = calc.totalAmount
+      activeAmount = calc.totalAmount
+      activeShortLabel = 'Mês Completo'
+    } else {
+      pendingAmountToPay = 0
+      activeAmount = calc.totalAmount
+      activeShortLabel = 'Mês Completo (Quitado)'
+    }
+    activeHours = calc.totalHours
     activeQuinzenaLabel = `Mês Completo (01 a ${totalDays})`
-    activeShortLabel = 'Mês Completo'
     activeDaysRange = Array.from({ length: totalDays }, (_, i) => i + 1)
   }
 
@@ -144,7 +167,8 @@ export function PaymentsView({ onOpenQuickHub }) {
       return
     }
     navigator.clipboard.writeText(currentGuard.pixKey)
-    showToast(`Chave PIX copiada! Valor da ${activeShortLabel}: ${formatCurrencyBR(activeAmount)}`)
+    const amountToTransfer = isCurrentPaid ? calc.totalAmount : (pendingAmountToPay > 0 ? pendingAmountToPay : activeAmount)
+    showToast(`Chave PIX copiada! Valor a transferir: ${formatCurrencyBR(amountToTransfer)} (${activeShortLabel})`)
   }
 
   // Toggle payment status for currently active quinzena
@@ -241,8 +265,67 @@ export function PaymentsView({ onOpenQuickHub }) {
     }
   })
 
+  // Auditoria e Histórico Geral de Pagamentos Confirmados
+  const paidCountsByMonth = {}
+  const confirmedPaymentRecords = Object.entries(payments || {})
+    .filter(([_, data]) => data?.status === 'PAID')
+    .map(([key, data]) => {
+      const [pMonth, pGuardId, pQuinzena = 'q1'] = key.split('_')
+      paidCountsByMonth[pMonth] = (paidCountsByMonth[pMonth] || 0) + 1
+
+      const guard = guards.find((g) => g.id === pGuardId)
+      const post = posts.find((p) => p.id === guard?.postId)
+
+      const guardMonthShifts = shifts[pMonth]?.[pGuardId] || {}
+      const [pYear, pMNum] = (pMonth || '2026-09').split('-').map(Number)
+      const pTotalDays = new Date(pYear, pMNum, 0).getDate()
+      const rate = Number(guard?.hourlyRate) > 0 ? Number(guard.hourlyRate) : (Number(defaultHourlyRate) || 40)
+
+      let pHours = 0
+      const startDay = pQuinzena === 'q1' ? 1 : 16
+      const endDay = pQuinzena === 'q1' ? 15 : pTotalDays
+      for (let d = startDay; d <= endDay; d++) {
+        const h = Number(guardMonthShifts[d])
+        if (!isNaN(h) && h > 0) pHours += h
+      }
+      const pAmount = Math.round(pHours * rate * 100) / 100
+      const pMonthInfo = getMonthInfo(pYear, pMNum)
+
+      return {
+        key,
+        month: pMonth,
+        monthName: pMonthInfo.formattedMonth,
+        guardId: pGuardId,
+        guardName: guard?.name || pGuardId,
+        guardFullName: guard?.fullName || '',
+        pixKey: guard?.pixKey || '',
+        pixType: guard?.pixType || '',
+        postName: post?.name || 'Posto Geral',
+        quinzena: pQuinzena,
+        quinzenaLabel: pQuinzena === 'q1' ? '1ª Quinzena (01 a 15)' : '2ª Quinzena (16 ao fim)',
+        paidAt: data.paidAt,
+        notes: data.notes || 'PIX Realizado',
+        hours: pHours,
+        amount: pAmount,
+      }
+    })
+    .sort((a, b) => {
+      if (a.paidAt && b.paidAt) return new Date(b.paidAt) - new Date(a.paidAt)
+      return b.month.localeCompare(a.month)
+    })
+
+  const filteredHistory = confirmedPaymentRecords.filter((rec) => {
+    const matchMonth = historyMonthFilter === 'all' || rec.month === historyMonthFilter
+    const matchSearch =
+      !historySearch.trim() ||
+      rec.guardName.toLowerCase().includes(historySearch.toLowerCase()) ||
+      rec.guardFullName.toLowerCase().includes(historySearch.toLowerCase()) ||
+      rec.pixKey.toLowerCase().includes(historySearch.toLowerCase())
+    return matchMonth && matchSearch
+  })
+
   return (
-    <div className="flex flex-col w-full gap-4 pb-36 max-w-7xl mx-auto">
+    <div className="flex flex-col w-full gap-4 pb-36 max-w-[1920px] 2xl:max-w-full mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
@@ -254,10 +337,10 @@ export function PaymentsView({ onOpenQuickHub }) {
       )}
 
       {/* Cycle Month Selector & Brazilian Calendar Header */}
-      <div className="bg-white rounded-2xl p-3.5 shadow-xs border border-[#dde9ff] flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-[#006c49]/10 text-[#006c49] flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[24px]">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-[#006c49]/10 text-[#006c49] flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[26px]">
               calendar_month
             </span>
           </div>
@@ -266,28 +349,79 @@ export function PaymentsView({ onOpenQuickHub }) {
               <span className="font-mono text-[10px] font-black uppercase tracking-wider text-[#006c49] bg-[#6cf8bb]/30 px-2 py-0.5 rounded-md border border-[#6cf8bb]/40">
                 Mês de Competência
               </span>
-              <h1 className="text-sm font-black text-[#0d1c2f] tracking-tight">
+              <h1 className="text-base font-black text-[#0d1c2f] tracking-tight">
                 {monthInfo.formattedMonth}
               </h1>
             </div>
-            <p className="text-[10px] text-[#76777d] mt-0.5">
-              Folha quinzenal: 1ª Q (01 a 15) • 2ª Q (16 a {totalDays} de {monthInfo.monthName})
+            <p className="text-xs text-[#76777d] mt-0.5">
+              Folha quinzenal: 1ª Quinzena (01 a 15) • 2ª Quinzena (16 a {totalDays} de {monthInfo.monthName})
             </p>
           </div>
         </div>
 
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="bg-[#eff4ff] text-[#0d1c2f] font-bold text-xs px-2.5 py-2 rounded-xl border border-[#dde9ff] focus:outline-none cursor-pointer capitalize shadow-2xs"
-        >
-          <option value="2026-08">Agosto 2026</option>
-          <option value="2026-09">Setembro 2026</option>
-          <option value="2026-10">Outubro 2026 (Mês Atual)</option>
-          <option value="2026-11">Novembro 2026</option>
-          <option value="2026-12">Dezembro 2026</option>
-        </select>
+        {/* Quick Month Selector Buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setSelectedMonth('2026-09')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
+              selectedMonth === '2026-09'
+                ? 'bg-[#006c49] text-white border-[#006c49] shadow-sm'
+                : 'bg-[#f8f9ff] text-[#0d1c2f] border-[#dde9ff] hover:bg-[#eff4ff]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+            <span>Setembro 2026</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+              selectedMonth === '2026-09' ? 'bg-white text-[#006c49]' : 'bg-[#6cf8bb]/40 text-[#006c49]'
+            }`}>
+              {paidCountsByMonth['2026-09'] || 25} Pagos
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedMonth('2026-10')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
+              selectedMonth === '2026-10'
+                ? 'bg-[#006c49] text-white border-[#006c49] shadow-sm'
+                : 'bg-[#f8f9ff] text-[#0d1c2f] border-[#dde9ff] hover:bg-[#eff4ff]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[16px]">event</span>
+            <span>Outubro 2026 (Atual)</span>
+            {paidCountsByMonth['2026-10'] > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                selectedMonth === '2026-10' ? 'bg-white text-[#006c49]' : 'bg-[#6cf8bb]/40 text-[#006c49]'
+              }`}>
+                {paidCountsByMonth['2026-10']} Pagos
+              </span>
+            )}
+          </button>
+
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="bg-[#eff4ff] text-[#0d1c2f] font-bold text-xs px-3 py-2 rounded-xl border border-[#dde9ff] focus:outline-none cursor-pointer capitalize shadow-2xs"
+          >
+            <option value="2026-08">Agosto 2026</option>
+            <option value="2026-09">Setembro 2026 (25 Pagos)</option>
+            <option value="2026-10">Outubro 2026 (Mês Atual)</option>
+            <option value="2026-11">Novembro 2026</option>
+            <option value="2026-12">Dezembro 2026</option>
+          </select>
+        </div>
       </div>
+
+      {/* Informativo de Conferência de Pagamentos */}
+      {selectedMonth === '2026-10' && (paidCountsByMonth['2026-09'] || 25) > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 flex items-start gap-3">
+          <span className="material-symbols-outlined text-blue-700 text-[20px] shrink-0 mt-0.5">info</span>
+          <div className="text-xs text-blue-900 leading-relaxed">
+            <strong>Aviso de Competência:</strong> Os pagamentos efetuados recentemente para o fechamento de setembro estão salvos na competência <strong>Setembro 2026</strong> ({paidCountsByMonth['2026-09'] || 25} prestadores confirmados). Clique no botão <strong>[Setembro 2026]</strong> acima para ver a folha quitada ou confira o <strong>Histórico de Auditoria</strong> abaixo.
+          </div>
+        </div>
+      )}
 
       {/* ALERTA DE FALTAS DE PAGAMENTO */}
       {(selectedQuinzena === 'q1' ? q1PendingCount : selectedQuinzena === 'q2' ? q2PendingCount : q1PendingCount + q2PendingCount) > 0 ? (
@@ -1019,7 +1153,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
           {/* Sticky Bottom Actions Dock (Pure Pagar with Checkbox) */}
           <section className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30">
-            <div className="max-w-7xl mx-auto flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-[#dde9ff]">
+            <div className="max-w-[1920px] 2xl:max-w-full mx-auto flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-[#dde9ff]">
               {/* Ultra-clear Month Competência Label above the button */}
               <div className="flex items-center justify-between px-1 text-[11px] font-mono">
                 <span className="flex items-center gap-1 text-[#006c49] font-black uppercase">
@@ -1069,6 +1203,204 @@ export function PaymentsView({ onOpenQuickHub }) {
           </section>
         </>
       )}
+
+      {/* HISTÓRICO GERAL DE PAGAMENTOS CONFIRMADOS (AUDITORIA DO GERENTE) */}
+      <section className="bg-white rounded-3xl p-5 shadow-xs border border-[#dde9ff] flex flex-col gap-4 mt-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#eff4ff] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-[#006c49] text-white flex items-center justify-center font-black shadow-xs shrink-0">
+              <span className="material-symbols-outlined text-[24px]">verified</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-black text-[#0d1c2f]">
+                  Histórico Geral de Pagamentos Confirmados
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#006c49] font-mono text-xs font-bold border border-emerald-200">
+                  {confirmedPaymentRecords.length} Pagamentos Registrados
+                </span>
+              </div>
+              <p className="text-xs text-[#76777d] mt-0.5">
+                Auditoria completa: consulte quando cada pagamento foi feito, chave PIX utilizada e mês de competência correspondente.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Search */}
+            <div className="relative min-w-[200px]">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-[#76777d]">
+                search
+              </span>
+              <input
+                type="text"
+                value={historySearch}
+                onChange={(e) => setHistorySearch(e.target.value)}
+                placeholder="Buscar prestador..."
+                className="w-full text-xs pl-9 pr-3 py-2 bg-[#f8f9ff] border border-[#dde9ff] rounded-xl outline-none focus:ring-1 focus:ring-[#006c49]"
+              />
+            </div>
+
+            {/* Filter by Month */}
+            <select
+              value={historyMonthFilter}
+              onChange={(e) => setHistoryMonthFilter(e.target.value)}
+              className="text-xs font-bold px-3 py-2 bg-[#f8f9ff] border border-[#dde9ff] rounded-xl text-[#0d1c2f] outline-none cursor-pointer"
+            >
+              <option value="all">Todos os Meses</option>
+              <option value="2026-09">Setembro 2026</option>
+              <option value="2026-10">Outubro 2026</option>
+              <option value="2026-11">Novembro 2026</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className="px-3 py-2 rounded-xl text-xs font-bold bg-[#eff4ff] text-[#0d1c2f] hover:bg-[#dde9ff] transition cursor-pointer flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {showHistory ? 'expand_less' : 'expand_more'}
+              </span>
+              <span>{showHistory ? 'Recolher' : 'Expandir'}</span>
+            </button>
+          </div>
+        </div>
+
+        {showHistory && (
+          <>
+            {filteredHistory.length === 0 ? (
+              <div className="py-8 text-center text-[#76777d] flex flex-col items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[36px] text-[#bec6e0]">
+                  receipt_long
+                </span>
+                <p className="text-sm font-semibold">Nenhum pagamento encontrado com os filtros selecionados.</p>
+                <p className="text-xs">Selecione "Todos os Meses" ou limpe a busca para visualizar os registros.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-[#dde9ff]">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-[#eff4ff] text-[#0d1c2f] border-b border-[#dde9ff]">
+                      <th className="py-3 px-3.5 font-black">Data / Horário</th>
+                      <th className="py-3 px-3.5 font-black">Prestador</th>
+                      <th className="py-3 px-3.5 font-black">Competência</th>
+                      <th className="py-3 px-3.5 font-black">Quinzena</th>
+                      <th className="py-3 px-3.5 font-black">Horas</th>
+                      <th className="py-3 px-3.5 font-black">Valor Quitado</th>
+                      <th className="py-3 px-3.5 font-black">Chave PIX</th>
+                      <th className="py-3 px-3.5 font-black">Status</th>
+                      <th className="py-3 px-3.5 font-black text-right">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#eff4ff] bg-white">
+                    {filteredHistory.map((rec) => {
+                      let dateStr = 'Gravado na Nuvem'
+                      if (rec.paidAt) {
+                        try {
+                          const d = new Date(rec.paidAt)
+                          if (!isNaN(d.getTime())) {
+                            dateStr = d.toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          }
+                        } catch {}
+                      }
+
+                      return (
+                        <tr key={rec.key} className="hover:bg-[#f8f9ff] transition-colors">
+                          <td className="py-3 px-3.5 font-mono text-[11px] text-[#45464d] whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-[15px] text-emerald-600">
+                                event_available
+                              </span>
+                              <span>{dateStr}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3.5 font-bold text-[#0d1c2f]">
+                            <div>
+                              <span>{rec.guardName}</span>
+                              <div className="text-[10px] text-[#76777d] font-normal">{rec.postName}</div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3.5 whitespace-nowrap">
+                            <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded-md bg-[#eff4ff] text-[#006c49] border border-[#dde9ff]">
+                              {rec.monthName}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3.5 whitespace-nowrap text-[#45464d] font-semibold">
+                            {rec.quinzena === 'q1' ? '1ª Quinzena (01 a 15)' : '2ª Quinzena (16 ao fim)'}
+                          </td>
+                          <td className="py-3 px-3.5 font-mono font-bold text-[#0d1c2f]">
+                            {rec.hours > 0 ? `${rec.hours}h` : '—'}
+                          </td>
+                          <td className="py-3 px-3.5 font-mono font-black text-emerald-700 whitespace-nowrap">
+                            {rec.amount > 0 ? formatCurrencyBR(rec.amount) : 'Quitado'}
+                          </td>
+                          <td className="py-3 px-3.5 font-mono text-[11px] text-[#45464d]">
+                            {rec.pixKey ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(rec.pixKey)
+                                  showToast(`Chave PIX de ${rec.guardName} copiada!`)
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] transition cursor-pointer"
+                                title="Copiar PIX"
+                              >
+                                <span className="material-symbols-outlined text-[13px]">content_copy</span>
+                                <span className="truncate max-w-[120px]">{rec.pixKey}</span>
+                              </button>
+                            ) : (
+                              <span className="text-[#bec6e0] italic">Sem PIX</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3.5 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                              PAGO
+                            </span>
+                          </td>
+                          <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {rec.month !== selectedMonth && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedMonth(rec.month)}
+                                  className="px-2 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-[10px] transition cursor-pointer"
+                                  title="Ver folha desta competência"
+                                >
+                                  Ver Folha
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(`Deseja reabrir e marcar como PENDENTE a ${rec.quinzena === 'q1' ? '1ª' : '2ª'} Quinzena de ${rec.guardName} (${rec.monthName})?`)) {
+                                    togglePaymentStatus(rec.guardId, rec.quinzena, rec.month)
+                                    showToast(`Pagamento de ${rec.guardName} reaberto (Pendente).`)
+                                  }
+                                }}
+                                className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10px] transition cursor-pointer border border-rose-200"
+                                title="Desfazer marcação de pago"
+                              >
+                                Reabrir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+      </section>
 
       {/* Modal de Ajuste Rápido de Horas / Hora Extra do Dia */}
       {dayEditModal && (

@@ -130,7 +130,7 @@ export function PostsManagement() {
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 pb-28 max-w-7xl mx-auto">
+    <div className="flex flex-col w-full gap-4 pb-28 max-w-[1920px] 2xl:max-w-full mx-auto">
       {/* Toast */}
       {toastMsg && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
@@ -432,7 +432,7 @@ export function PostsManagement() {
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
         <h3 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
           <span className="material-symbols-outlined text-[#76777d]">backup</span>
-          <span>Segurança de Dados & Backup</span>
+          <span>Segurança dos Dados & Cópia de Segurança</span>
         </h3>
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -440,11 +440,11 @@ export function PostsManagement() {
             className="py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-xs font-semibold text-[#0d1c2f] flex items-center justify-center gap-1.5 border border-[#dde9ff]"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
-            <span>Baixar Backup (JSON)</span>
+            <span>Baixar Cópia (JSON)</span>
           </button>
           <label className="py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-xs font-semibold text-[#0d1c2f] flex items-center justify-center gap-1.5 border border-[#dde9ff] cursor-pointer">
             <span className="material-symbols-outlined text-[16px]">upload</span>
-            <span>Restaurar Backup</span>
+            <span>Restaurar Cópia Salva</span>
             <input
               type="file"
               accept=".json"

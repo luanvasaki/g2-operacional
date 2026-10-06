@@ -17,9 +17,9 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
   const getTabTitle = (tab) => {
     switch (tab) {
       case 'dashboard':
-        return 'Dashboard'
+        return 'Painel Geral'
       case 'quinzena-horas':
-        return 'Horas'
+        return 'Escala & Horas'
       case 'prestadores':
         return 'Prestadores'
       case 'pagamentos':
@@ -34,7 +34,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
 
   return (
     <header className="fixed top-0 w-full z-40 bg-[#f8f9ff]/90 backdrop-blur-xl border-b border-[#dde9ff]/80 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-      <div className="max-w-7xl mx-auto h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+      <div className="max-w-[1920px] 2xl:max-w-full mx-auto h-16 px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-3">
         {/* Brand & Page Info - Click to go Home/Dashboard */}
         <button
           type="button"
@@ -50,11 +50,11 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
               </span>
               {isSupabaseConfigured && (
                 <span
-                  title={isSyncing ? 'Sincronizando com Supabase...' : 'Conectado à nuvem Supabase'}
+                  title={isSyncing ? 'Sincronizando com a nuvem...' : 'Conectado à nuvem'}
                   className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
                 >
                   <span className={`w-1 h-1 rounded-full bg-emerald-500 ${isSyncing ? 'animate-ping' : ''}`} />
-                  {isSyncing ? 'Sync' : 'Nuvem'}
+                  {isSyncing ? 'Sincronizando...' : 'Nuvem Conectada'}
                 </span>
               )}
             </div>
