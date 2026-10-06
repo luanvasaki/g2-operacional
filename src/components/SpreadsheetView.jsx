@@ -4,6 +4,7 @@ import { MultiDayAssignModal } from './MultiDayAssignModal'
 import { GuardScheduleEditModal } from './GuardScheduleEditModal'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
 import { getHoliday, getWeekday, getMonthInfo, BRAZILIAN_WEEKDAYS } from '../utils/brazilianCalendar'
+import { INITIAL_SHIFTS } from '../data/initialData'
 
 export function SpreadsheetView({
   onOpenNewGuardModal,
@@ -40,6 +41,36 @@ export function SpreadsheetView({
   // Other modals
   const [scheduleModalGuard, setScheduleModalGuard] = useState(null)
   const [multiDayModal, setMultiDayModal] = useState({ isOpen: false, guardId: null })
+
+  // Persistent substitution history for instant undo
+  const [substitutionHistory, setSubstitutionHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('g2_substitution_history')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('g2_substitution_history', JSON.stringify(substitutionHistory))
+    } catch (e) {
+      console.warn(e)
+    }
+  }, [substitutionHistory])
+
+  // Floating Undo Toast
+  const [undoToast, setUndoToast] = useState(null)
+  const undoToastTimerRef = useRef(null)
+
+  const showUndoToast = ({ message, onUndo }) => {
+    if (undoToastTimerRef.current) clearTimeout(undoToastTimerRef.current)
+    setUndoToast({ message, onUndo })
+    undoToastTimerRef.current = setTimeout(() => {
+      setUndoToast(null)
+    }, 8000)
+  }
 
   // Focus search input when modal opens
   useEffect(() => {
@@ -215,23 +246,191 @@ export function SpreadsheetView({
     searchInputRef.current?.focus()
   }
 
+  // Helper to identify who was substituted by Folguista on day d
+  const getOriginalGuardForFolguista = (d) => {
+    if (!d) return null
+    const key = `${selectedMonth}_${d}`
+
+    // 1. Check substitutionHistory (in-memory & localStorage)
+    if (substitutionHistory[key]?.origGuardId) {
+      const found = guards.find((g) => g.id === substitutionHistory[key].origGuardId)
+      if (found) {
+        return {
+          guard: found,
+          hours: substitutionHistory[key].origHours || found.defaultShiftHours || 3,
+        }
+      }
+    }
+
+    // 2. Check shift note of folguista on this day
+    const note = getShiftNote ? getShiftNote('g-folguista', d) : ''
+    if (note && note.includes('orig:')) {
+      const match = note.match(/orig:([^:|]+):?(\d+)?/)
+      if (match) {
+        const origId = match[1]
+        const origHours = match[2] ? Number(match[2]) : null
+        const found = guards.find((g) => g.id === origId)
+        if (found) {
+          return {
+            guard: found,
+            hours: origHours || found.defaultShiftHours || 3,
+          }
+        }
+      }
+    }
+
+    // 3. Fallback: Check INITIAL_SHIFTS for this month & day
+    // Find guard in INITIAL_SHIFTS that had hours on day d, but now has 0 / null
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-09'] || {}
+    for (const [gid, dayMap] of Object.entries(initialMonthShifts)) {
+      if (gid === 'g-folguista') continue
+      const initHours = dayMap[d]
+      if (initHours && initHours > 0) {
+        const currentHours = shifts[selectedMonth]?.[gid]?.[d]
+        if (!currentHours || Number(currentHours) === 0) {
+          const found = guards.find((g) => g.id === gid)
+          if (found) {
+            return {
+              guard: found,
+              hours: initHours,
+            }
+          }
+        }
+      }
+    }
+
+    // 4. Fallback: Any guard configured in INITIAL_SHIFTS on this day
+    for (const [gid, dayMap] of Object.entries(initialMonthShifts)) {
+      if (gid === 'g-folguista') continue
+      const initHours = dayMap[d]
+      if (initHours && initHours > 0) {
+        const found = guards.find((g) => g.id === gid)
+        if (found) {
+          return {
+            guard: found,
+            hours: initHours,
+          }
+        }
+      }
+    }
+
+    return null
+  }
+
+  // Undo Folguista and restore original guard schedule
+  const handleUndoFolguista = (d) => {
+    if (!d) return
+    const original = getOriginalGuardForFolguista(d)
+
+    // Remove folguista
+    setShiftHours('g-folguista', d, null, '')
+
+    // Restore original guard if found
+    if (original?.guard) {
+      setShiftHours(original.guard.id, d, original.hours || 3, '')
+      showUndoToast({
+        message: `✓ Escala restaurada! ${original.guard.name} voltou ao dia ${d} (${original.hours}h).`,
+        onUndo: null,
+      })
+    } else {
+      showUndoToast({
+        message: `✓ Folguista removido do dia ${d}.`,
+        onUndo: null,
+      })
+    }
+
+    // Remove from substitution history
+    setSubstitutionHistory((prev) => {
+      const next = { ...prev }
+      delete next[`${selectedMonth}_${d}`]
+      return next
+    })
+  }
+
   // Quick "+ Preencher com Folguista"
   const handleAddFolguistaToDay = (d) => {
     if (!d) return
-    setShiftHours('g-folguista', d, 3, 'Substituto')
-    setDaySearchQuery('')
+    const currentDayGuards = getGuardsOnDay(d)
+    const existingRegularGuard = currentDayGuards.find((item) => !item.isFolguista)
+
+    if (existingRegularGuard) {
+      handleReplaceWithFolguista(existingRegularGuard.guard.id, d, existingRegularGuard.hours)
+    } else {
+      setShiftHours('g-folguista', d, 3, 'Substituto')
+      setDaySearchQuery('')
+      showUndoToast({
+        message: `Folguista adicionado ao dia ${d} (3h).`,
+        onUndo: () => handleUndoFolguista(d),
+      })
+    }
   }
 
   // Replace a specific regular guard with Folguista
   const handleReplaceWithFolguista = (guardId, d, currentHours = 3) => {
     if (!d || !guardId) return
+    const origGuard = guards.find((g) => g.id === guardId)
+    const origName = origGuard?.name || 'Vigilante'
+    const hours = currentHours || origGuard?.defaultShiftHours || 3
+
+    // Record in substitution history
+    const key = `${selectedMonth}_${d}`
+    setSubstitutionHistory((prev) => ({
+      ...prev,
+      [key]: {
+        origGuardId: guardId,
+        origHours: hours,
+        origGuardName: origName,
+        timestamp: Date.now(),
+      },
+    }))
+
+    // Save substitution in shifts
     setShiftHours(guardId, d, null)
-    setShiftHours('g-folguista', d, currentHours || 3, 'Substituto')
+    setShiftHours('g-folguista', d, hours, `Substituindo ${origName}|orig:${guardId}:${hours}`)
+
+    // Show toast with immediate 1-click Undo
+    showUndoToast({
+      message: `${origName} substituído por Folguista no dia ${d}.`,
+      onUndo: () => handleUndoFolguista(d),
+    })
+  }
+
+  // Restore the day's original schedule from INITIAL_SHIFTS
+  const handleRestoreDayDefault = (d) => {
+    if (!d) return
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-09'] || {}
+
+    // Remove folguista
+    setShiftHours('g-folguista', d, null, '')
+
+    // Restore guards from template
+    activeGuards.forEach((g) => {
+      const initHours = initialMonthShifts[g.id]?.[d]
+      if (initHours !== undefined && initHours !== null && initHours > 0) {
+        setShiftHours(g.id, d, initHours, '')
+      } else {
+        setShiftHours(g.id, d, null, '')
+      }
+    })
+
+    // Clean substitution history for this day
+    setSubstitutionHistory((prev) => {
+      const next = { ...prev }
+      delete next[`${selectedMonth}_${d}`]
+      return next
+    })
+
+    showUndoToast({
+      message: `✓ Escala original do dia ${d} restaurada com sucesso!`,
+      onUndo: null,
+    })
   }
 
   // Current day guards in open modal
   const modalDayGuards = dayEditModal.isOpen && dayEditModal.day ? getGuardsOnDay(dayEditModal.day) : []
   const modalDayTotalHours = modalDayGuards.reduce((acc, curr) => acc + curr.hours, 0)
+  const modalDayHasFolguista = modalDayGuards.some((item) => item.isFolguista)
+  const modalDayOriginalGuard = dayEditModal.isOpen && dayEditModal.day ? getOriginalGuardForFolguista(dayEditModal.day) : null
 
   // Matching guards for autocomplete (excluding those already scheduled on this day)
   const scheduledGuardIds = modalDayGuards.map((item) => item.guard.id)
@@ -579,6 +778,7 @@ export function SpreadsheetView({
                   <div className="space-y-1 my-auto">
                     {guardsOnDay.slice(0, 4).map(({ guard, hours, post, isFolguista }) => {
                       const displayName = guard.name
+                      const originalForDay = isFolguista ? getOriginalGuardForFolguista(d) : null
                       return (
                         <div
                           key={guard.id}
@@ -601,9 +801,29 @@ export function SpreadsheetView({
                               </span>
                             )}
                           </div>
-                          <span className="font-mono text-[10px] font-bold shrink-0 ml-1">
-                            {hours}h
-                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {isFolguista && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleUndoFolguista(d)
+                                }}
+                                className="px-1.5 py-0.5 rounded-md bg-amber-200 hover:bg-emerald-600 hover:text-white text-amber-950 flex items-center gap-0.5 text-[9px] font-black transition cursor-pointer shadow-2xs"
+                                title={
+                                  originalForDay
+                                    ? `Clique para desfazer e voltar para ${originalForDay.guard.name}`
+                                    : 'Clique para desfazer folguista'
+                                }
+                              >
+                                <span className="material-symbols-outlined text-[12px]">undo</span>
+                                <span>Voltar</span>
+                              </button>
+                            )}
+                            <span className="font-mono text-[10px] font-bold ml-0.5">
+                              {hours}h
+                            </span>
+                          </div>
                         </div>
                       )
                     })}
@@ -881,16 +1101,35 @@ export function SpreadsheetView({
             <div className="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
               {/* Quick Actions Row */}
               <div className="flex items-center gap-2.5">
-                {/* 1-Click Folguista Button */}
-                <button
-                  type="button"
-                  onClick={() => handleAddFolguistaToDay(dayEditModal.day)}
-                  className="w-full py-3 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
-                  title="Adiciona um substituto/folguista nesta data sem precisar saber o nome"
-                >
-                  <span className="material-symbols-outlined text-[20px]">person_pin</span>
-                  <span>+ Preencher com Folguista (Substituto)</span>
-                </button>
+                {modalDayHasFolguista ? (
+                  <button
+                    type="button"
+                    onClick={() => handleUndoFolguista(dayEditModal.day)}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95 cursor-pointer border border-emerald-500"
+                    title={
+                      modalDayOriginalGuard
+                        ? `Clique para desfazer substituição e restaurar ${modalDayOriginalGuard.guard.name}`
+                        : 'Clique para desfazer e remover o folguista'
+                    }
+                  >
+                    <span className="material-symbols-outlined text-[22px]">undo</span>
+                    <span>
+                      {modalDayOriginalGuard
+                        ? `↩️ Desfazer: Restaurar ${modalDayOriginalGuard.guard.name} (${modalDayOriginalGuard.hours}h)`
+                        : '↩️ Desfazer: Remover Folguista'}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleAddFolguistaToDay(dayEditModal.day)}
+                    className="w-full py-3 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95 cursor-pointer"
+                    title="Adiciona um substituto/folguista nesta data sem precisar saber o nome"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">person_pin</span>
+                    <span>+ Preencher com Folguista (Substituto)</span>
+                  </button>
+                )}
               </div>
 
               {/* Autocomplete Input (Start typing and it auto-completes) */}
@@ -1048,8 +1287,16 @@ export function SpreadsheetView({
                                 )}
                               </div>
                               <span className="text-[10px] text-[#76777d]">
-                                {isFolguista ? 'Substituto do plantão' : `📍 ${post?.name || 'Posto Geral'}`}
-                                {note ? ` • 📝 ${note}` : ''}
+                                {isFolguista ? (
+                                  <span className="text-amber-800 font-semibold block">
+                                    {modalDayOriginalGuard
+                                      ? `🔄 Substituindo ${modalDayOriginalGuard.guard.name} (${modalDayOriginalGuard.hours}h original)`
+                                      : '🔄 Substituto do plantão'}
+                                  </span>
+                                ) : (
+                                  `📍 ${post?.name || 'Posto Geral'}`
+                                )}
+                                {note && !note.includes('orig:') ? ` • 📝 ${note}` : ''}
                               </span>
                             </div>
                           </div>
@@ -1082,8 +1329,26 @@ export function SpreadsheetView({
                               </button>
                             </div>
 
-                            {/* "Virou Folguista" button for regular guards */}
-                            {!isFolguista && (
+                            {/* "Virou Folguista" button for regular guards OR "Voltar / Desfazer" button for Folguista */}
+                            {isFolguista ? (
+                              <button
+                                type="button"
+                                onClick={() => handleUndoFolguista(dayEditModal.day)}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-95 cursor-pointer"
+                                title={
+                                  modalDayOriginalGuard
+                                    ? `Desfazer e restaurar a escala de ${modalDayOriginalGuard.guard.name}`
+                                    : 'Remover folguista e desfazer'
+                                }
+                              >
+                                <span className="material-symbols-outlined text-[16px]">undo</span>
+                                <span>
+                                  {modalDayOriginalGuard
+                                    ? `Voltar para ${modalDayOriginalGuard.guard.name}`
+                                    : 'Desfazer'}
+                                </span>
+                              </button>
+                            ) : (
                               <button
                                 type="button"
                                 onClick={() => handleReplaceWithFolguista(guard.id, dayEditModal.day, hours)}
@@ -1114,12 +1379,18 @@ export function SpreadsheetView({
                               <span>{isBeingSwapped ? 'Trocando...' : 'Trocar'}</span>
                             </button>
 
-                            {/* Delete button */}
+                            {/* Delete button (or undo for Folguista) */}
                             <button
                               type="button"
-                              onClick={() => setShiftHours(guard.id, dayEditModal.day, null)}
+                              onClick={() => {
+                                if (isFolguista) {
+                                  handleUndoFolguista(dayEditModal.day)
+                                } else {
+                                  setShiftHours(guard.id, dayEditModal.day, null)
+                                }
+                              }}
                               className="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition cursor-pointer"
-                              title="Remover deste dia"
+                              title={isFolguista ? 'Desfazer e restaurar escala' : 'Remover deste dia'}
                             >
                               <span className="material-symbols-outlined text-[16px]">delete</span>
                             </button>
@@ -1133,10 +1404,25 @@ export function SpreadsheetView({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-3.5 sm:p-4 bg-[#f8f9ff] border-t border-[#eff4ff] flex items-center justify-between">
-              <span className="text-[11px] text-[#76777d]">
-                ✓ Salvo automaticamente em tempo real
-              </span>
+            <div className="p-3.5 sm:p-4 bg-[#f8f9ff] border-t border-[#eff4ff] flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] text-[#76777d] hidden sm:inline">
+                  ✓ Salvo automaticamente em tempo real
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Deseja restaurar a escala padrão original para o dia ${dayEditModal.day}?`)) {
+                      handleRestoreDayDefault(dayEditModal.day)
+                    }
+                  }}
+                  className="text-xs text-[#76777d] hover:text-[#006c49] font-bold flex items-center gap-1 transition cursor-pointer hover:underline"
+                  title="Restaura a escala padrão deste dia conforme o planejamento original"
+                >
+                  <span className="material-symbols-outlined text-[16px]">restart_alt</span>
+                  <span>Restaurar Escala Original do Dia</span>
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => setDayEditModal({ isOpen: false, day: null })}
@@ -1165,6 +1451,41 @@ export function SpreadsheetView({
           guard={scheduleModalGuard}
           onClose={() => setScheduleModalGuard(null)}
         />
+      )}
+
+      {/* Floating Instant Undo Toast */}
+      {undoToast && (
+        <div className="fixed bottom-20 md:bottom-6 right-4 z-50 max-w-md bg-[#131b2e] text-white p-3.5 rounded-2xl shadow-2xl border border-[#6cf8bb]/40 flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-[#6cf8bb] text-[20px]">
+              check_circle
+            </span>
+            <span className="text-xs font-semibold leading-tight">{undoToast.message}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {undoToast.onUndo && (
+              <button
+                type="button"
+                onClick={() => {
+                  undoToast.onUndo()
+                  setUndoToast(null)
+                }}
+                className="px-3 py-1.5 rounded-xl bg-[#6cf8bb] hover:bg-[#52e5a4] text-[#003823] font-black text-xs flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-xs"
+              >
+                <span className="material-symbols-outlined text-[16px]">undo</span>
+                <span>Desfazer</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setUndoToast(null)}
+              className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer text-xs"
+              title="Fechar aviso"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
