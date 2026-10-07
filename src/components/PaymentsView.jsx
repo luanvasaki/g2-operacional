@@ -163,7 +163,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
   const handleCopyPix = () => {
     if (!currentGuard?.pixKey) {
-      showToast('Nenhuma chave PIX cadastrada para este segurança.')
+      showToast('Nenhuma chave PIX cadastrada para este colaborador.')
       return
     }
     navigator.clipboard.writeText(currentGuard.pixKey)
@@ -709,19 +709,11 @@ export function PaymentsView({ onOpenQuickHub }) {
                   {currentGuard.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <h2 className="text-sm font-bold text-[#0d1c2f] truncate">
-                      {currentGuard.fullName || currentGuard.name}
-                    </h2>
-                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#eff4ff] text-[#45464d] font-semibold">
-                      ({currentGuard.name})
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#76777d] flex items-center gap-1 mt-0.5 truncate">
-                    <span className="material-symbols-outlined text-[15px] text-[#76777d]">
-                      security
-                    </span>
-                    <span>Posto {currentPost?.name || 'Geral'}</span>
+                  <h2 className="text-sm font-bold text-[#0d1c2f] truncate">
+                    {currentGuard.name}
+                  </h2>
+                  <p className="text-xs text-[#76777d] mt-0.5">
+                    Colaborador
                   </p>
                 </div>
               </div>
@@ -1063,7 +1055,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                         </div>
 
                         <span className="text-[10px] text-[#76777d] mt-0.5">
-                          Posto: {currentPost?.name || 'Geral'} • {item.hours} horas cumpridas
+                          {item.hours} horas cumpridas
                         </span>
                         {item.note && (
                           <span className="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-md font-mono mt-1 inline-block w-fit">
@@ -1321,10 +1313,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                             </div>
                           </td>
                           <td className="py-3 px-3.5 font-bold text-[#0d1c2f]">
-                            <div>
-                              <span>{rec.guardName}</span>
-                              <div className="text-[10px] text-[#76777d] font-normal">{rec.postName}</div>
-                            </div>
+                            <span>{rec.guardName}</span>
                           </td>
                           <td className="py-3 px-3.5 whitespace-nowrap">
                             <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded-md bg-[#eff4ff] text-[#006c49] border border-[#dde9ff]">

@@ -317,9 +317,8 @@ export function PostsManagement() {
                 <div>
                   <h4 className="text-sm font-bold text-[#0d1c2f]">{post.name}</h4>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-mono text-[10px] text-[#76777d]">
-                      {postGuards.length}{' '}
-                      {postGuards.length === 1 ? 'segurança' : 'seguranças'}
+                    <span className="text-[10px] text-[#76777d]">
+                      {post.address || 'Unidade Operacional'}
                     </span>
                     <span className="text-[#dde9ff]">•</span>
                     <span className="font-mono text-[10px] text-[#006c49] font-bold">

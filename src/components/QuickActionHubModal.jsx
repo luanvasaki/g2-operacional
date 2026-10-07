@@ -39,7 +39,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
   const [quickGuard, setQuickGuard] = useState({
     name: '',
     fullName: '',
-    postId: posts[0]?.id || 'diadema',
+    postId: null,
     phone: '',
     pixKey: '',
     pixType: 'CPF',
@@ -53,8 +53,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
     addGuard({
       name: quickGuard.name.trim(),
-      fullName: quickGuard.fullName.trim() || quickGuard.name.trim(),
-      postId: quickGuard.postId,
+      fullName: quickGuard.name.trim(),
+      postId: null,
       phone: quickGuard.phone.trim(),
       pixKey: quickGuard.pixKey.trim(),
       pixType: quickGuard.pixType,
@@ -63,11 +63,11 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
       active: true,
     })
 
-    showToast(`Segurança ${quickGuard.name} cadastrado e pronto para a escala!`)
+    showToast(`${quickGuard.name} cadastrado e pronto para a escala!`)
     setQuickGuard({
       name: '',
       fullName: '',
-      postId: posts[0]?.id || 'diadema',
+      postId: null,
       phone: '',
       pixKey: '',
       pixType: 'CPF',
@@ -111,7 +111,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
       customDays,
     })
 
-    const guardName = guards.find((g) => g.id === scheduleTargetGuard)?.name || 'Segurança'
+    const guardName = guards.find((g) => g.id === scheduleTargetGuard)?.name || 'Colaborador'
     showToast(`Escala de ${guardName} gerada com sucesso!`)
   }
 
@@ -199,7 +199,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
   const handlePayAllQuinzena = () => {
     const qLabel = payQuinzena === 'q1' ? '1ª Quinzena' : '2ª Quinzena'
-    if (window.confirm(`Deseja marcar TODOS os seguranças da ${qLabel} (${monthInfo.formattedMonth}) como pagos?`)) {
+    if (window.confirm(`Deseja marcar TODOS os colaboradores da ${qLabel} (${monthInfo.formattedMonth}) como pagos?`)) {
       const gids = activeGuards.map((g) => g.id)
       batchMarkPaid(payQuinzena, gids)
       showToast(`Todos os pagamentos da ${qLabel} (${monthInfo.formattedMonth}) foram quitados com sucesso!`)
@@ -308,7 +308,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             <div className="bg-[#eff4ff] p-3 rounded-2xl border border-[#dde9ff]/60">
               <span className="text-[11px] font-bold text-[#006c49] flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">info</span>
-                Cadastro em 10 segundos: digite apenas o nome e posto!
+                Cadastro em 10 segundos: digite apenas o nome do colaborador!
               </span>
             </div>
 
@@ -324,35 +324,6 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                 onChange={(e) => setQuickGuard({ ...quickGuard, name: e.target.value })}
                 className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] font-semibold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]"
               />
-            </div>
-
-            {/* Posto com 1 Toque */}
-            <div>
-              <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
-                Selecione o Posto do Bico *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                {posts.map((p) => {
-                  const isSelected = quickGuard.postId === p.id
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setQuickGuard({ ...quickGuard, postId: p.id })}
-                      className={`p-2.5 rounded-xl font-mono text-xs font-bold transition flex items-center gap-1.5 border ${
-                        isSelected
-                          ? 'bg-[#131b2e] text-white border-[#131b2e] shadow-xs'
-                          : 'bg-[#eff4ff] text-[#45464d] border-[#dde9ff] hover:bg-[#dde9ff]'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[15px] text-[#6cf8bb]">
-                        location_on
-                      </span>
-                      <span className="truncate">{p.name}</span>
-                    </button>
-                  )
-                })}
-              </div>
             </div>
 
             {/* Chave PIX e Telefone */}
@@ -440,10 +411,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               </span>
             </div>
 
-            {/* Segurança Alvo */}
+            {/* Colaborador Alvo */}
             <div>
               <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
-                Para qual segurança? *
+                Para qual colaborador? *
               </label>
               <select
                 value={scheduleTargetGuard}
@@ -452,7 +423,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               >
                 {guards.filter((g) => g.active).map((g) => (
                   <option key={g.id} value={g.id}>
-                    {g.name} ({posts.find((p) => p.id === g.postId)?.name || 'Geral'})
+                    {g.name}
                   </option>
                 ))}
               </select>
@@ -607,7 +578,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     showToast('Todos os plantões definidos para 3h!')
                   }}
                   className="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] font-bold text-[10px] border border-[#006c49]/30 transition"
-                  title="Definir 3 horas para todos os seguranças"
+                  title="Definir 3 horas para todos os colaboradores"
                 >
                   Todos 3h
                 </button>
@@ -622,7 +593,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     showToast('Todos definidos com folga (0h)!')
                   }}
                   className="px-2 py-0.5 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#76777d] font-bold text-[10px] border border-[#dde9ff] transition"
-                  title="Zerar horas de todos os seguranças"
+                  title="Zerar horas de todos os colaboradores"
                 >
                   Zerar (0h)
                 </button>
@@ -659,7 +630,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                         )}
                       </div>
                       <span className="text-[10px] text-[#76777d] block truncate">
-                        📍 {post?.name || 'Posto'} • <strong className="text-[#006c49] font-mono font-bold">R$ {dailyTotal.toFixed(2).replace('.', ',')}</strong>
+                        <strong className="text-[#006c49] font-mono font-bold">R$ {dailyTotal.toFixed(2).replace('.', ',')}</strong> ({currentH}h)
                       </span>
                     </div>
 

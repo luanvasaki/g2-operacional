@@ -24,13 +24,24 @@ const STORAGE_KEYS = {
   MANAGER_PASSWORD: 'g2_manager_password',
 }
 
+// Helper to remove any appended roles, addresses, or extraneous text, keeping purely the name
+function cleanGuardName(str) {
+  if (!str) return ''
+  return str
+    .replace(/\s+(segurança|seguranca|vigilância|vigilancia|vigia|vigilante|substituto operacional)\b/gi, '')
+    .replace(/\s+(diadema|confiança|confianca|penha|santo andré|santo andre|zona norte)\b/gi, '')
+    .replace(/\s*\(.*?\)/g, '')
+    .trim()
+}
+
 // Helpers for Supabase mapping
 function guardFromDb(row) {
+  const clean = cleanGuardName(row.name) || row.name
   return {
     id: row.id,
-    name: row.name,
-    fullName: row.full_name || '',
-    postId: row.post_id || null,
+    name: clean,
+    fullName: clean,
+    postId: null,
     phone: row.phone || '',
     pixKey: row.pix_key || '',
     pixType: row.pix_type || '',
@@ -41,11 +52,12 @@ function guardFromDb(row) {
 }
 
 function guardToDb(guard) {
+  const clean = cleanGuardName(guard.name) || guard.name
   return {
     id: guard.id,
-    name: guard.name,
-    full_name: guard.fullName || '',
-    post_id: guard.postId || null,
+    name: clean,
+    full_name: clean,
+    post_id: null,
     phone: guard.phone || '',
     pix_key: guard.pixKey || '',
     pix_type: guard.pixType || '',
@@ -149,12 +161,18 @@ export function AppProvider({ children }) {
   const [guards, setGuards] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUARDS)
-      let list = saved ? JSON.parse(saved) : INITIAL_GUARDS
-      // Ensure defaultShiftHours defaults to 3h for standard consistency
-      list = list.map((g) => ({
-        ...g,
-        defaultShiftHours: g.defaultShiftHours === 4 ? 3 : (g.defaultShiftHours || 3),
-      }))
+      let list = saved ? JSON.parse(saved) : [...INITIAL_GUARDS]
+      // Clean names and ensure guards are not tied to any specific post
+      list = list.map((g) => {
+        const clean = cleanGuardName(g.name) || g.name
+        return {
+          ...g,
+          name: clean,
+          fullName: clean,
+          postId: null,
+          defaultShiftHours: g.defaultShiftHours === 4 ? 3 : (g.defaultShiftHours || 3),
+        }
+      })
       // Ensure Folguista is always present
       if (!list.some((g) => g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista')) {
         const folguista = INITIAL_GUARDS.find((g) => g.id === 'g-folguista')
@@ -503,12 +521,16 @@ export function AppProvider({ children }) {
 
   // Guard Actions (Incluir / Editar / Inativar / Excluir)
   const addGuard = (guardData) => {
+    const clean = cleanGuardName(guardData.name) || guardData.name
     const newGuard = {
       id: `g-${Date.now()}`,
       active: true,
       hourlyRate: defaultHourlyRate,
       defaultShiftHours: 3,
       ...guardData,
+      name: clean,
+      fullName: clean,
+      postId: null,
     }
     setGuards((prev) => [...prev, newGuard])
     syncGuardCloud(newGuard, 'upsert')
@@ -517,7 +539,17 @@ export function AppProvider({ children }) {
 
   const updateGuard = (id, updates) => {
     setGuards((prev) => {
-      const next = prev.map((g) => (g.id === id ? { ...g, ...updates } : g))
+      const next = prev.map((g) => {
+        if (g.id !== id) return g
+        const nextName = updates.name ? (cleanGuardName(updates.name) || updates.name) : g.name
+        return {
+          ...g,
+          ...updates,
+          name: nextName,
+          fullName: nextName,
+          postId: null,
+        }
+      })
       const updated = next.find((g) => g.id === id)
       if (updated) syncGuardCloud(updated, 'upsert')
       return next

@@ -123,12 +123,7 @@ export function SpreadsheetView({
   const trailingBlanks = Array.from({ length: trailingBlanksCount })
 
   const activeGuards = guards.filter((g) => g.active)
-
-  // Filter guards by post if selected
-  const filteredGuards =
-    selectedPostFilter === 'all'
-      ? activeGuards
-      : activeGuards.filter((g) => g.postId === selectedPostFilter || g.id === 'g-folguista')
+  const filteredGuards = activeGuards
 
   // Calculate totals for active range
   let totalHours = 0
@@ -226,16 +221,12 @@ export function SpreadsheetView({
   const getGuardsOnDay = (d) => {
     return activeGuards
       .filter((g) => {
-        if (selectedPostFilter !== 'all' && g.postId !== selectedPostFilter && g.id !== 'g-folguista') {
-          return false
-        }
         const h = shifts[selectedMonth]?.[g.id]?.[d]
         return h !== undefined && h !== null && Number(h) > 0
       })
       .map((g) => ({
         guard: g,
         hours: Number(shifts[selectedMonth]?.[g.id]?.[d]),
-        post: posts.find((p) => p.id === g.postId),
         note: getShiftNote ? getShiftNote(g.id, d) : '',
         isFolguista: g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista',
       }))
@@ -382,7 +373,7 @@ export function SpreadsheetView({
   const handleReplaceWithFolguista = (guardId, d, currentHours = 3) => {
     if (!d || !guardId) return
     const origGuard = guards.find((g) => g.id === guardId)
-    const origName = origGuard?.name || 'Vigilante'
+    const origName = origGuard?.name || 'Colaborador'
     const hours = currentHours || origGuard?.defaultShiftHours || 3
 
     // Record in substitution history
@@ -566,33 +557,12 @@ export function SpreadsheetView({
         {/* Filters and View Mode Controls */}
         <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
           {/* Post Filter */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-bold text-[#45464d] mr-1 hidden sm:inline">Posto:</span>
-            <button
-              type="button"
-              onClick={() => setSelectedPostFilter('all')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
-                selectedPostFilter === 'all'
-                  ? 'bg-[#0d1c2f] text-white shadow-2xs'
-                  : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
-              }`}
-            >
-              Todos ({posts.length})
-            </button>
-            {posts.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setSelectedPostFilter(p.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
-                  selectedPostFilter === p.id
-                    ? 'bg-[#0d1c2f] text-white shadow-2xs'
-                    : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
+          {/* Equipe Completa Indicator */}
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#006c49]" />
+            <span className="text-xs font-bold text-[#0d1c2f]">
+              Equipe Operacional ({activeGuards.length} Colaboradores)
+            </span>
           </div>
 
           {/* Quick Actions & View Mode Toggle */}
@@ -867,11 +837,6 @@ export function SpreadsheetView({
                               }`}
                             />
                             <span className="truncate">{displayName}</span>
-                            {post?.name && !isFolguista && (
-                              <span className="text-[10px] text-[#76777d] truncate font-medium">
-                                ({post.name.slice(0, 3)})
-                              </span>
-                            )}
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
                             {isFolguista && (
@@ -916,7 +881,7 @@ export function SpreadsheetView({
                   {/* Day Footer Action */}
                   <div className="pt-2 border-t border-[#eff4ff] flex items-center justify-between text-xs lg:text-[13px]">
                     <span className="text-[#76777d]">
-                      {guardsOnDay.length} {guardsOnDay.length === 1 ? 'vigia' : 'vigias'}
+                      {guardsOnDay.length} {guardsOnDay.length === 1 ? 'colaborador' : 'colaboradores'}
                     </span>
                     <span className="font-bold text-[#006c49] group-hover:underline flex items-center gap-0.5">
                       <span className="material-symbols-outlined text-[15px]">edit</span>
@@ -976,9 +941,11 @@ export function SpreadsheetView({
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-[#76777d]">
-                          {isFolguista ? 'Plantões de Substituição' : `📍 ${post?.name || 'Geral'}`}
-                        </span>
+                        {isFolguista && (
+                          <span className="text-xs text-amber-800 font-medium">
+                            Plantões de Substituição
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1066,9 +1033,6 @@ export function SpreadsheetView({
                     <td className="py-2 px-3 font-semibold text-[#0d1c2f] sticky left-0 bg-white shadow-[1px_0_4px_rgba(0,0,0,0.05)]">
                       <div className="flex items-center gap-1.5">
                         <span className="truncate max-w-[140px]">{guard.name}</span>
-                        {post?.name && (
-                          <span className="text-[9px] text-[#76777d]">({post.name.slice(0, 3)})</span>
-                        )}
                       </div>
                     </td>
 
@@ -1229,7 +1193,7 @@ export function SpreadsheetView({
                     <span className="material-symbols-outlined text-[18px] text-[#006c49]">person_search</span>
                     <span>
                       {swappingGuardId
-                        ? 'Selecione quem vai substituir este vigilante:'
+                        ? 'Selecione quem vai substituir:'
                         : 'Adicionar funcionário (digite para autocompletar):'}
                     </span>
                   </span>
@@ -1297,10 +1261,7 @@ export function SpreadsheetView({
                               </div>
                               <div>
                                 <span className="text-xs font-bold text-[#0d1c2f] block group-hover:text-[#006c49]">
-                                  {g.fullName || g.name}
-                                </span>
-                                <span className="text-[10px] text-[#76777d]">
-                                  {isFolguista ? '🔄 Substituto Geral' : `📍 ${post?.name || 'Posto Geral'}`}
+                                  {g.name}
                                 </span>
                               </div>
                             </div>
@@ -1341,7 +1302,7 @@ export function SpreadsheetView({
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    {modalDayGuards.map(({ guard, hours, post, note, isFolguista }) => {
+                    {modalDayGuards.map(({ guard, hours, note, isFolguista }) => {
                       const isBeingSwapped = swappingGuardId === guard.id
 
                       return (
@@ -1368,7 +1329,7 @@ export function SpreadsheetView({
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-bold text-[#0d1c2f]">
-                                  {guard.fullName || guard.name}
+                                  {guard.name}
                                 </span>
                                 {isFolguista && (
                                   <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[9px] font-black uppercase">
@@ -1376,18 +1337,18 @@ export function SpreadsheetView({
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[10px] text-[#76777d]">
-                                {isFolguista ? (
-                                  <span className="text-amber-800 font-semibold block">
-                                    {modalDayOriginalGuard
-                                      ? `🔄 Substituindo ${modalDayOriginalGuard.guard.name} (${modalDayOriginalGuard.hours}h original)`
-                                      : '🔄 Substituto do plantão'}
-                                  </span>
-                                ) : (
-                                  `📍 ${post?.name || 'Posto Geral'}`
-                                )}
-                                {note && !note.includes('orig:') ? ` • 📝 ${note}` : ''}
-                              </span>
+                              {isFolguista && (
+                                <span className="text-[10px] text-amber-800 font-semibold block">
+                                  {modalDayOriginalGuard
+                                    ? `🔄 Substituindo ${modalDayOriginalGuard.guard.name} (${modalDayOriginalGuard.hours}h original)`
+                                    : '🔄 Substituto do plantão'}
+                                </span>
+                              )}
+                              {note && !note.includes('orig:') && (
+                                <span className="text-[10px] text-[#76777d] block">
+                                  📝 {note}
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -1443,7 +1404,7 @@ export function SpreadsheetView({
                                 type="button"
                                 onClick={() => handleReplaceWithFolguista(guard.id, dayEditModal.day, hours)}
                                 className="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-                                title="Substituir este vigilante por um Folguista"
+                                title="Substituir por um Folguista"
                               >
                                 <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
                                 <span>Virou Folguista</span>

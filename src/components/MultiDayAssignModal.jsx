@@ -212,7 +212,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[17px] text-[#006c49]">person</span>
-                <span>Colaborador / Segurança</span>
+                <span>Colaborador</span>
               </label>
 
               <button
@@ -223,7 +223,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                 <span className="material-symbols-outlined text-[15px]">
                   {isMultiGuardMode ? 'person' : 'group_add'}
                 </span>
-                <span>{isMultiGuardMode ? 'Modo 1 Segurança' : 'Múltiplos Seguranças'}</span>
+                <span>{isMultiGuardMode ? 'Modo 1 Colaborador' : 'Múltiplos Colaboradores'}</span>
               </button>
             </div>
 
@@ -237,14 +237,11 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                 }}
                 className="w-full bg-white text-[#0d1c2f] font-bold text-xs p-2.5 rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49]"
               >
-                {activeGuards.map((g) => {
-                  const post = posts.find((p) => p.id === g.postId)
-                  return (
-                    <option key={g.id} value={g.id}>
-                      {g.name} — Posto {post?.name || 'Geral'} ({g.defaultShiftHours || 3}h padrão)
-                    </option>
-                  )
-                })}
+                {activeGuards.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name} ({g.defaultShiftHours || 3}h padrão)
+                  </option>
+                ))}
               </select>
             ) : (
               <div className="space-y-2">
@@ -312,7 +309,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             <div className="grid grid-cols-4 gap-2">
               {[
                 { h: 3, label: '3 Horas', sub: 'Noturno' },
-                { h: 4, label: '4 Horas', sub: 'Diadema' },
+                { h: 4, label: '4 Horas', sub: 'Reforço' },
                 { h: 7, label: '7 Horas', sub: 'Plantão' },
                 { h: 0, label: '0h (Folga)', sub: 'Limpar' },
               ].map((opt) => (

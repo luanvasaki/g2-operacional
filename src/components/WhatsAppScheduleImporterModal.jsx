@@ -147,16 +147,8 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
 
         // Try exact match or substring
         if (!matchedGuard) {
-          // Prioritize guards of the detected post if available
-          const postGuards = activePost ? guards.filter((g) => g.postId === activePost.id) : []
           matchedGuard =
-            postGuards.find((g) => normalizeStr(g.name) === rawNorm) ||
             guards.find((g) => normalizeStr(g.name) === rawNorm) ||
-            postGuards.find(
-              (g) =>
-                normalizeStr(g.name).includes(rawNorm) ||
-                normalizeStr(g.fullName).includes(rawNorm)
-            ) ||
             guards.find(
               (g) =>
                 normalizeStr(g.name).includes(rawNorm) ||
@@ -257,8 +249,8 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
   const handleCreateGuardFromName = (unmatchedName) => {
     const newGuard = {
       name: unmatchedName,
-      fullName: `${unmatchedName} Segurança`,
-      postId: currentPost?.id || 'confianca',
+      fullName: unmatchedName,
+      postId: null,
       phone: '',
       pixKey: '',
       pixType: 'CPF',
@@ -476,7 +468,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                     className="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition"
                   >
                     <span className="material-symbols-outlined text-[14px]">person_add</span>
-                    <span>Cadastrar "{name}" no Posto {currentPost.name}</span>
+                    <span>Cadastrar "{name}" na Equipe</span>
                   </button>
                 ))}
               </div>

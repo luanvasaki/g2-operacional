@@ -176,11 +176,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold text-white">
-                  Editar Escala: {guard.fullName || guard.name}
+                  Editar Escala: {guard.name}
                 </h2>
-                <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-[#6cf8bb]">
-                  📍 {post?.name || 'Geral'}
-                </span>
               </div>
               <p className="text-[11px] text-[#bec6e0]">
                 Ajuste os plantões, horas trabalhadas e valor em reais (R$)

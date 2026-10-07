@@ -33,7 +33,7 @@ export function GuardsManagement({
   const [formData, setFormData] = useState({
     name: '',
     fullName: '',
-    postId: posts[0]?.id || 'diadema',
+    postId: null,
     phone: '',
     pixKey: '',
     pixType: 'CPF',
@@ -51,7 +51,7 @@ export function GuardsManagement({
     setFormData({
       name: '',
       fullName: '',
-      postId: posts[0]?.id || 'diadema',
+      postId: null,
       phone: '',
       pixKey: '',
       pixType: 'CPF',
@@ -66,7 +66,7 @@ export function GuardsManagement({
     setFormData({
       name: guard.name || '',
       fullName: guard.fullName || '',
-      postId: guard.postId || posts[0]?.id || 'diadema',
+      postId: null,
       phone: guard.phone || '',
       pixKey: guard.pixKey || '',
       pixType: guard.pixType || 'CPF',
@@ -315,7 +315,7 @@ export function GuardsManagement({
                       </span>
                     </div>
                     <span className="text-xs text-[#76777d] truncate">
-                      📍 Local: {post?.name || 'Posto Geral'}
+                      Colaborador Operacional
                     </span>
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export function GuardsManagement({
                 <button
                   onClick={() => setHistoryModalGuard(guard)}
                   className="py-2 px-2.5 bg-[#eff4ff] hover:bg-[#dde9ff] rounded-xl text-xs font-semibold text-[#0d1c2f] flex items-center justify-center gap-1 transition-colors"
-                  title="Ver histórico de plantões deste segurança"
+                  title="Ver histórico de plantões deste colaborador"
                 >
                   <span className="material-symbols-outlined text-[16px] text-[#76777d]">
                     history
@@ -448,7 +448,7 @@ export function GuardsManagement({
             </div>
 
             <p className="text-xs text-[#76777d] mt-2 mb-4">
-              Cadastre o profissional de segurança para escalas, plantões e repasse quinzenal.
+              Cadastre o colaborador para escalas, plantões e repasse quinzenal.
             </p>
 
             <form onSubmit={handleSubmitForm} className="flex flex-col gap-4">
@@ -484,35 +484,6 @@ export function GuardsManagement({
                     placeholder="Ex: Carvalho"
                     className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
                   />
-                </div>
-              </div>
-
-              {/* Local / Posto Selection Pills */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#0d1c2f]">
-                  Local / Posto de Alocação *
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {posts.map((p) => {
-                    const isSelected = formData.postId === p.id
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, postId: p.id })}
-                        className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition flex items-center gap-1 ${
-                          isSelected
-                            ? 'bg-[#131b2e] text-white shadow-xs'
-                            : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[14px]">
-                          location_on
-                        </span>
-                        <span>{p.name}</span>
-                      </button>
-                    )
-                  })}
                 </div>
               </div>
 
@@ -691,8 +662,7 @@ export function GuardsManagement({
             </div>
 
             <span className="text-xs text-[#76777d] mb-3">
-              {posts.find((p) => p.id === historyModalGuard.postId)?.name || 'Geral'} • R${' '}
-              {historyModalGuard.hourlyRate || defaultHourlyRate}/h
+              R$ {historyModalGuard.hourlyRate || defaultHourlyRate}/h
             </span>
 
             {/* Quick calculations */}
@@ -730,7 +700,7 @@ export function GuardsManagement({
         </div>
       )}
 
-      {/* Modal: Editar Escala & Valores do Segurança */}
+      {/* Modal: Editar Escala & Valores do Colaborador */}
       {scheduleEditGuard && (
         <GuardScheduleEditModal
           guard={scheduleEditGuard}

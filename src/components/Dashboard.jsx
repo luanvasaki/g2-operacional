@@ -449,7 +449,7 @@ export function Dashboard({
                       {guard.name}
                     </span>
                     <span className="text-xs text-[#76777d] truncate">
-                      📍 {post?.name || 'Posto Geral'}
+                      Colaborador
                     </span>
                   </div>
                 </div>
@@ -545,7 +545,7 @@ export function Dashboard({
                 <div>
                   <span className="text-xs font-bold text-[#0d1c2f] block">{p.name}</span>
                   <span className="text-[10px] text-[#76777d]">
-                    {postGuards.length} segurança(s) alocado(s)
+                    {p.address || 'Unidade Operacional'}
                   </span>
                 </div>
                 <span className="font-mono text-xs font-bold text-[#006c49] bg-white px-2.5 py-1 rounded-lg border border-[#dde9ff] shadow-2xs">
