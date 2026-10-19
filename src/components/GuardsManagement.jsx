@@ -115,8 +115,12 @@ export function GuardsManagement({
     }
   }
 
-  // Filter logic
-  const filteredGuards = guards.filter((g) => {
+  // Filter logic (Folguista é substituto avulso de fora, não faz parte do cadastro fixo)
+  const regularGuards = guards.filter(
+    (g) => g.id !== 'g-folguista' && g.name?.toLowerCase() !== 'folguista'
+  )
+
+  const filteredGuards = regularGuards.filter((g) => {
     const q = searchTerm.toLowerCase().trim()
     const matchesSearch =
       !q ||
@@ -133,8 +137,8 @@ export function GuardsManagement({
     return matchesSearch && matchesStatus
   })
 
-  const activeCount = guards.filter((g) => g.active).length
-  const inactiveCount = guards.filter((g) => !g.active).length
+  const activeCount = regularGuards.filter((g) => g.active).length
+  const inactiveCount = regularGuards.filter((g) => !g.active).length
 
   return (
     <div className="flex flex-col w-full gap-4 pb-28 max-w-[1920px] 2xl:max-w-full mx-auto">

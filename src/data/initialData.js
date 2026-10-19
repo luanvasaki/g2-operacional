@@ -151,7 +151,7 @@ export const INITIAL_GUARDS = [
     hourlyRate: 40,
     active: true,
   },
-  // Folguista
+  // Folguista (Substituto externo - não gera horas na folha de pagamento)
   {
     id: 'g-folguista',
     name: 'Folguista',
@@ -160,8 +160,8 @@ export const INITIAL_GUARDS = [
     phone: '',
     pixKey: 'A Definir',
     pixType: 'Chave Aleatória',
-    defaultShiftHours: 3,
-    hourlyRate: 40,
+    defaultShiftHours: 0,
+    hourlyRate: 0,
     active: true,
   },
 ]

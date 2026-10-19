@@ -26,7 +26,9 @@ export function PaymentsView({ onOpenQuickHub }) {
     batchMarkPaid,
   } = useApp()
 
-  const activeGuards = guards.filter((g) => g.active)
+  const activeGuards = guards.filter(
+    (g) => g.active && g.id !== 'g-folguista' && g.name?.toLowerCase() !== 'folguista'
+  )
   const [selectedGuardId, setSelectedGuardId] = useState(
     activeGuards[0]?.id || ''
   )

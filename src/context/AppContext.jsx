@@ -647,9 +647,36 @@ export function AppProvider({ children }) {
 
   // Calculations for a guard in a quinzena (1 or 2)
   const getGuardCalculations = (guardId, _quinzena = 'both') => {
+    // Folguista é um substituto externo avulso; não gera horas nem pagamentos na folha
+    if (guardId === 'g-folguista' || guardId?.toLowerCase()?.includes('folguista')) {
+      return {
+        rate: 0,
+        q1Hours: 0,
+        q1Total: 0,
+        q2Hours: 0,
+        q2Total: 0,
+        totalHours: 0,
+        totalAmount: 0,
+        totalDaysInMonth: 31,
+      }
+    }
+
     const monthData = shifts[selectedMonth] || {}
     const guardShifts = monthData[guardId] || {}
     const guard = guards.find((g) => g.id === guardId)
+    if (guard?.name?.toLowerCase() === 'folguista') {
+      return {
+        rate: 0,
+        q1Hours: 0,
+        q1Total: 0,
+        q2Hours: 0,
+        q2Total: 0,
+        totalHours: 0,
+        totalAmount: 0,
+        totalDaysInMonth: 31,
+      }
+    }
+
     const rate = Number(guard?.hourlyRate) > 0 ? Number(guard.hourlyRate) : (Number(defaultHourlyRate) || 40)
 
     let q1Hours = 0
@@ -734,7 +761,9 @@ export function AppProvider({ children }) {
     let pendingAmount = 0
     let paidCount = 0
     let paidAmount = 0
-    const activeGuardsList = guards.filter((g) => g.active)
+    const activeGuardsList = guards.filter(
+      (g) => g.active && g.id !== 'g-folguista' && g.name?.toLowerCase() !== 'folguista'
+    )
 
     activeGuardsList.forEach((g) => {
       const calc = getGuardCalculations(g.id)

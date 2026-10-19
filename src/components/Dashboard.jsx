@@ -32,7 +32,9 @@ export function Dashboard({
   const [showBudgetModal, setShowBudgetModal] = useState(false)
   const [tempBudget, setTempBudget] = useState(budgetCeiling || 12000)
 
-  const activeGuards = guards.filter((g) => g.active)
+  const activeGuards = guards.filter(
+    (g) => g.active && g.id !== 'g-folguista' && g.name?.toLowerCase() !== 'folguista'
+  )
 
   // Calculations for active quinzena
   let totalHours = 0

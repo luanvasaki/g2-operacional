@@ -122,7 +122,9 @@ export function SpreadsheetView({
   const trailingBlanksCount = (7 - ((firstDayOfWeek + displayedDays.length) % 7)) % 7
   const trailingBlanks = Array.from({ length: trailingBlanksCount })
 
-  const activeGuards = guards.filter((g) => g.active)
+  const activeGuards = guards.filter(
+    (g) => g.active && g.id !== 'g-folguista' && g.name?.toLowerCase() !== 'folguista'
+  )
   const filteredGuards = activeGuards
 
   // Calculate totals for active range
@@ -219,8 +221,10 @@ export function SpreadsheetView({
 
   // Get guards on a specific day
   const getGuardsOnDay = (d) => {
-    return activeGuards
+    // 1. Colaboradores regulares que trabalharam no dia (horas > 0)
+    const regular = activeGuards
       .filter((g) => {
+        if (g.id === 'g-folguista' || g.name?.toLowerCase() === 'folguista') return false
         const h = shifts[selectedMonth]?.[g.id]?.[d]
         return h !== undefined && h !== null && Number(h) > 0
       })
@@ -228,8 +232,31 @@ export function SpreadsheetView({
         guard: g,
         hours: Number(shifts[selectedMonth]?.[g.id]?.[d]),
         note: getShiftNote ? getShiftNote(g.id, d) : '',
-        isFolguista: g.id === 'g-folguista' || g.name.toLowerCase() === 'folguista',
+        isFolguista: false,
       }))
+
+    // 2. Verifica se houve substituição por Folguista de fora nesta data
+    const folguistaShift = shifts[selectedMonth]?.['g-folguista']?.[d]
+    const key = `${selectedMonth}_${d}`
+    const hasFolguista =
+      (folguistaShift !== undefined && folguistaShift !== null) ||
+      Boolean(substitutionHistory[key]?.origGuardId)
+
+    if (hasFolguista) {
+      const folguistaGuard = guards.find((g) => g.id === 'g-folguista') || {
+        id: 'g-folguista',
+        name: 'Folguista',
+        active: true,
+      }
+      regular.push({
+        guard: folguistaGuard,
+        hours: 0, // Substituto de fora: somente é contado zero naquele dia
+        note: getShiftNote ? getShiftNote('g-folguista', d) : '',
+        isFolguista: true,
+      })
+    }
+
+    return regular
   }
 
   // Add guard via autocomplete to current day
@@ -360,10 +387,10 @@ export function SpreadsheetView({
     if (existingRegularGuard) {
       handleReplaceWithFolguista(existingRegularGuard.guard.id, d, existingRegularGuard.hours)
     } else {
-      setShiftHours('g-folguista', d, 3, 'Substituto')
+      setShiftHours('g-folguista', d, 0, 'Substituto')
       setDaySearchQuery('')
       showUndoToast({
-        message: `Folguista adicionado ao dia ${d} (3h).`,
+        message: `Folguista externo cobriu o dia ${d} (contado 0h).`,
         onUndo: () => handleUndoFolguista(d),
       })
     }
@@ -388,13 +415,15 @@ export function SpreadsheetView({
       },
     }))
 
-    // Save substitution in shifts
+    // Save substitution in shifts:
+    // O colaborador fixo não trabalhou -> horas zeradas (não recebe)
     setShiftHours(guardId, d, null)
-    setShiftHours('g-folguista', d, hours, `Substituindo ${origName}|orig:${guardId}:${hours}`)
+    // Substituto externo cobriu -> contado 0h (não gera custo na folha)
+    setShiftHours('g-folguista', d, 0, `Substituindo ${origName}|orig:${guardId}:${hours}`)
 
     // Show toast with immediate 1-click Undo
     showUndoToast({
-      message: `${origName} substituído por Folguista no dia ${d}.`,
+      message: `${origName} não trabalhou no dia ${d} (trocado por folguista de fora • 0h).`,
       onUndo: () => handleUndoFolguista(d),
     })
   }
@@ -837,6 +866,11 @@ export function SpreadsheetView({
                               }`}
                             />
                             <span className="truncate">{displayName}</span>
+                            {isFolguista && originalForDay && (
+                              <span className="text-[10px] text-amber-900/80 font-bold truncate">
+                                ({originalForDay.guard.name})
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
                             {isFolguista && (
@@ -857,7 +891,7 @@ export function SpreadsheetView({
                                 <span>Voltar</span>
                               </button>
                             )}
-                            <span className="font-mono text-xs font-black ml-0.5 text-[#006c49]">
+                            <span className={`font-mono text-xs font-black ml-0.5 ${isFolguista ? 'text-amber-900' : 'text-[#006c49]'}`}>
                               {hours}h
                             </span>
                           </div>
@@ -1334,8 +1368,8 @@ export function SpreadsheetView({
                               {isFolguista && (
                                 <span className="text-[10px] text-amber-800 font-semibold block">
                                   {modalDayOriginalGuard
-                                    ? `🔄 Substituindo ${modalDayOriginalGuard.guard.name} (${modalDayOriginalGuard.hours}h original)`
-                                    : '🔄 Substituto do plantão'}
+                                    ? `🔄 Substituindo ${modalDayOriginalGuard.guard.name} • Não trabalhou (contado 0h)`
+                                    : '🔄 Substituto externo (contado 0h)'}
                                 </span>
                               )}
                               {note && !note.includes('orig:') && (
@@ -1348,31 +1382,37 @@ export function SpreadsheetView({
 
                           {/* Hours Controls and Quick Actions */}
                           <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
-                            {/* Hours Increment/Decrement */}
-                            <div className="flex items-center gap-1 bg-[#eff4ff] p-1 rounded-xl border border-[#dde9ff]">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShiftHours(guard.id, dayEditModal.day, Math.max(1, hours - 1), note)
-                                }
-                                className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
-                                title="Diminuir 1h"
-                              >
-                                -
-                              </button>
-                              <span className="font-mono text-xs font-bold px-1.5 text-[#0d1c2f]">
-                                {hours}h
+                            {/* Hours Controls: regular guards have stepper, Folguista has 0h indicator */}
+                            {isFolguista ? (
+                              <span className="font-mono text-xs font-black px-2.5 py-1.5 rounded-xl bg-amber-100 text-amber-900 border border-amber-300">
+                                0h (Não pago)
                               </span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShiftHours(guard.id, dayEditModal.day, hours + 1, note)
-                                }
-                                className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
-                              >
-                                +
-                              </button>
-                            </div>
+                            ) : (
+                              <div className="flex items-center gap-1 bg-[#eff4ff] p-1 rounded-xl border border-[#dde9ff]">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShiftHours(guard.id, dayEditModal.day, Math.max(1, hours - 1), note)
+                                  }
+                                  className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
+                                  title="Diminuir 1h"
+                                >
+                                  -
+                                </button>
+                                <span className="font-mono text-xs font-bold px-1.5 text-[#0d1c2f]">
+                                  {hours}h
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShiftHours(guard.id, dayEditModal.day, hours + 1, note)
+                                  }
+                                  className="w-6 h-6 rounded-lg bg-white text-[#0d1c2f] font-bold text-xs flex items-center justify-center hover:bg-[#dde9ff] cursor-pointer"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            )}
 
                             {/* "Virou Folguista" button for regular guards OR "Voltar / Desfazer" button for Folguista */}
                             {isFolguista ? (
@@ -1398,7 +1438,7 @@ export function SpreadsheetView({
                                 type="button"
                                 onClick={() => handleReplaceWithFolguista(guard.id, dayEditModal.day, hours)}
                                 className="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-                                title="Substituir por um Folguista"
+                                title="Marca que não trabalhou e foi substituído por folguista de fora (contado 0h)"
                               >
                                 <span className="material-symbols-outlined text-[15px]">swap_horiz</span>
                                 <span>Virou Folguista</span>
