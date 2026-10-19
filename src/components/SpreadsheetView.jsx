@@ -816,9 +816,9 @@ export function SpreadsheetView({
                     )}
                   </div>
 
-                  {/* Scheduled Guards Pills */}
-                  <div className="space-y-1.5 my-auto">
-                    {guardsOnDay.slice(0, 4).map(({ guard, hours, post, isFolguista }) => {
+                  {/* Scheduled Guards Pills - Exibe todos os colaboradores escalados */}
+                  <div className="space-y-1 my-auto">
+                    {guardsOnDay.map(({ guard, hours, post, isFolguista }) => {
                       const displayName = guard.name
                       const originalForDay = isFolguista ? getOriginalGuardForFolguista(d) : null
                       return (
@@ -864,12 +864,6 @@ export function SpreadsheetView({
                         </div>
                       )
                     })}
-
-                    {guardsOnDay.length > 4 && (
-                      <div className="text-xs text-center font-bold text-[#006c49]">
-                        +{guardsOnDay.length - 4} outros...
-                      </div>
-                    )}
 
                     {guardsOnDay.length === 0 && (
                       <div className="py-4 text-center text-xs text-[#76777d] italic bg-[#f8f9ff] rounded-xl border border-dashed border-[#dde9ff]">
