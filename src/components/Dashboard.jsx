@@ -16,6 +16,7 @@ export function Dashboard({
     setSelectedMonth,
     guards,
     posts,
+    shifts,
     defaultHourlyRate,
     setDefaultHourlyRate,
     budgetCeiling,
@@ -139,15 +140,15 @@ export function Dashboard({
 
           <button
             type="button"
-            onClick={() => (onOpenMultiDay ? onOpenMultiDay() : onOpenQuickHub && onOpenQuickHub('escala'))}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center"
-            title="Lançar múltiplos dias no calendário manual"
+            onClick={() => setActiveTab('quinzena-horas')}
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
+            title="Acessar a tela de Escala e Horas (Grande Calendário do Mês)"
           >
             <span className="material-symbols-outlined text-[22px] text-[#ffb95f] mb-1">
-              calendar_add_on
+              calendar_month
             </span>
-            <span className="text-[11px] font-bold leading-tight text-white">Vários Dias</span>
-            <span className="text-[9px] text-white/70 font-mono">Grade Manual</span>
+            <span className="text-[11px] font-bold leading-tight text-white">Escala & Horas</span>
+            <span className="text-[9px] text-white/70 font-mono">Grade do Mês</span>
           </button>
 
           <button
@@ -511,49 +512,98 @@ export function Dashboard({
       </div>
     </div>
 
-    {/* Right Column: Postos, Atalhos & Cobertura */}
+    {/* Right Column: Escala & Horas e Atalhos */}
     <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
-      {/* Postos de Serviço e Horas */}
+      {/* Card da Escala & Horas do Mês */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col gap-3">
         <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#006c49] text-[20px]">location_on</span>
-            <h3 className="text-sm font-bold text-[#0d1c2f]">Postos e Cobertura</h3>
+            <span className="material-symbols-outlined text-[#006c49] text-[20px]">calendar_month</span>
+            <h3 className="text-sm font-bold text-[#0d1c2f]">Escala & Horas</h3>
           </div>
           <button
             type="button"
-            onClick={() => setActiveTab('configuracoes')}
-            className="text-[11px] text-[#006c49] font-bold hover:underline cursor-pointer"
+            onClick={() => setActiveTab('quinzena-horas')}
+            className="text-[11px] text-[#006c49] font-bold hover:underline cursor-pointer flex items-center gap-0.5"
           >
-            Gerenciar
+            <span>Ver Grade</span>
+            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
           </button>
         </div>
 
-        <div className="flex flex-col gap-2">
-          {posts.map((p) => {
-            const postGuards = guards.filter((g) => g.postId === p.id && g.active)
-            let postHours = 0
-            postGuards.forEach((g) => {
-              const c = getGuardCalculations(g.id)
-              postHours += activeQuinzena === 1 ? c.q1Hours : c.q2Hours
-            })
-            return (
-              <div
-                key={p.id}
-                className="p-2.5 rounded-xl bg-[#eff4ff]/60 border border-[#dde9ff]/60 flex items-center justify-between hover:bg-[#eff4ff] transition-colors"
-              >
-                <div>
-                  <span className="text-xs font-bold text-[#0d1c2f] block">{p.name}</span>
-                  <span className="text-[10px] text-[#76777d]">
-                    {p.address || 'Unidade Operacional'}
-                  </span>
-                </div>
-                <span className="font-mono text-xs font-bold text-[#006c49] bg-white px-2.5 py-1 rounded-lg border border-[#dde9ff] shadow-2xs">
-                  {postHours}h
+        <div className="flex flex-col gap-2.5">
+          {/* Resumo do Mês Selecionado */}
+          <div className="p-3 rounded-xl bg-[#eff4ff]/60 border border-[#dde9ff]/60 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-[#006c49] border border-[#dde9ff] shadow-2xs shrink-0">
+                <span className="material-symbols-outlined text-[18px]">event</span>
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-[#0d1c2f] block truncate">
+                  {monthInfo.formattedMonth}
+                </span>
+                <span className="text-[10px] text-[#76777d]">
+                  {activeQuinzena === 1 ? '1ª Quinzena (Dias 01 a 15)' : `2ª Quinzena (Dias 16 a ${totalDaysInMonth})`}
                 </span>
               </div>
+            </div>
+            <span className="font-mono text-xs font-bold text-[#006c49] bg-white px-2.5 py-1 rounded-lg border border-[#dde9ff] shadow-2xs shrink-0">
+              {totalHours}h
+            </span>
+          </div>
+
+          {/* Plantão de Hoje */}
+          {(() => {
+            const todayDay = new Date().getDate()
+            const todayPlantao = activeGuards
+              .map((g) => ({
+                guard: g,
+                hours: shifts?.[selectedMonth]?.[g.id]?.[todayDay] || 0,
+              }))
+              .filter((x) => x.hours > 0)
+
+            return (
+              <div className="p-3 rounded-xl bg-white border border-[#dde9ff] flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#0d1c2f] flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#006c49]" />
+                    <span>Plantão de Hoje (Dia {todayDay})</span>
+                  </span>
+                  <span className="font-mono text-[10px] text-[#76777d] font-semibold">
+                    {todayPlantao.length} {todayPlantao.length === 1 ? 'colaborador' : 'colaboradores'}
+                  </span>
+                </div>
+
+                {todayPlantao.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {todayPlantao.map(({ guard, hours }) => (
+                      <span
+                        key={guard.id}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#eff4ff] text-[#0d1c2f] text-xs font-bold border border-[#dde9ff]"
+                      >
+                        <span>{guard.name}</span>
+                        <span className="font-mono text-[10px] text-[#006c49] font-black">({hours}h)</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[11px] text-[#76777d] italic">
+                    Nenhum colaborador com horas lançadas hoje.
+                  </span>
+                )}
+              </div>
             )
-          })}
+          })()}
+
+          {/* Botão Acessar Tela da Escala e Horas */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('quinzena-horas')}
+            className="w-full py-2.5 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-98"
+          >
+            <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+            <span>Acessar Grade Completa (Escala & Horas)</span>
+          </button>
         </div>
       </div>
 
@@ -579,23 +629,11 @@ export function Dashboard({
 
           <button
             type="button"
-            onClick={() => setActiveTab('quinzena-horas')}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-xs flex items-center justify-between border border-[#dde9ff] transition cursor-pointer active:scale-98"
-          >
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px] text-[#006c49]">calendar_month</span>
-              <span>Ver Grade & Calendário Geral</span>
-            </div>
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab('pagamentos')}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs flex items-center justify-between shadow-xs transition cursor-pointer active:scale-98"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#131b2e] hover:bg-[#1a243b] text-white font-bold text-xs flex items-center justify-between shadow-xs transition cursor-pointer active:scale-98"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">payments</span>
+              <span className="material-symbols-outlined text-[18px] text-[#6cf8bb]">payments</span>
               <span>Extrato & Pagamentos PIX</span>
             </div>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
