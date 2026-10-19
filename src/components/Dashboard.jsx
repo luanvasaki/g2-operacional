@@ -112,30 +112,17 @@ export function Dashboard({
           O que você deseja fazer agora?
         </h3>
 
-        {/* 5 Easy Shortcut Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 relative z-10">
+        {/* 4 Easy Shortcut Buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 relative z-10">
           <button
             type="button"
             onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#25D366]/20 hover:bg-[#25D366]/30 transition-all border border-[#25D366]/40 active:scale-95 text-center shadow-xs"
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#25D366]/20 hover:bg-[#25D366]/30 transition-all border border-[#25D366]/40 active:scale-95 text-center shadow-xs cursor-pointer"
             title="Importar lista de escala copiada do WhatsApp"
           >
             <WhatsAppIcon className="w-5 h-5 fill-[#25D366] mb-1" />
             <span className="text-[11px] font-bold leading-tight text-white">Colar WhatsApp</span>
             <span className="text-[9px] text-[#6cf8bb] font-mono">Importar Lista</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onOpenQuickHub && onOpenQuickHub('escala')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center"
-            title="Gerar escala automática por dias pares, ímpares ou 12x36"
-          >
-            <span className="material-symbols-outlined text-[22px] text-[#38bdf8] mb-1">
-              auto_fix_high
-            </span>
-            <span className="text-[11px] font-bold leading-tight">Auto Escala</span>
-            <span className="text-[9px] text-white/70 font-mono">Pares / Ímpares</span>
           </button>
 
           <button
@@ -154,7 +141,7 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => onOpenQuickHub && onOpenQuickHub('cadastro')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center"
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
             title="Cadastrar novo colaborador em 10s"
           >
             <span className="material-symbols-outlined text-[22px] text-[#6cf8bb] mb-1">
@@ -167,7 +154,7 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => onOpenQuickHub && onOpenQuickHub('pagamento')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#006c49] hover:bg-[#005236] transition-all border border-[#6cf8bb]/40 active:scale-95 text-center col-span-2 sm:col-span-1 shadow-xs"
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#006c49] hover:bg-[#005236] transition-all border border-[#6cf8bb]/40 active:scale-95 text-center shadow-xs cursor-pointer"
             title="Calcular e liquidar pagamentos por quinzena"
           >
             <span className="material-symbols-outlined text-[22px] text-[#6cf8bb] mb-1">
