@@ -6,6 +6,7 @@ import {
   INITIAL_PAYMENTS,
 } from '../data/initialData'
 import { getCurrentMonthKey, isValidMonthKey } from '../utils/months'
+import { clampHours, isSafeKey } from '../utils/safety'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const AppContext = createContext(null)
@@ -62,7 +63,7 @@ function guardToDb(guard) {
     phone: guard.phone || '',
     pix_key: guard.pixKey || '',
     pix_type: guard.pixType || '',
-    default_shift_hours: Number(guard.defaultShiftHours) || 3,
+    default_shift_hours: clampHours(guard.defaultShiftHours) || 3,
     hourly_rate: Number(guard.hourlyRate) || 40,
     active: guard.active !== false,
   }
@@ -335,15 +336,17 @@ export function AppProvider({ children }) {
       if (shiftsRes.data && shiftsRes.data.length > 0) {
         const nextShifts = {}
         shiftsRes.data.forEach((r) => {
+          if (![r.month, r.guard_id, r.day].every(isSafeKey)) return
           if (!nextShifts[r.month]) nextShifts[r.month] = {}
           if (!nextShifts[r.month][r.guard_id]) nextShifts[r.month][r.guard_id] = {}
-          nextShifts[r.month][r.guard_id][r.day] = Number(r.hours)
+          nextShifts[r.month][r.guard_id][r.day] = clampHours(r.hours)
         })
         setShifts(nextShifts)
       }
       if (notesRes.data && notesRes.data.length > 0) {
         const nextNotes = {}
         notesRes.data.forEach((r) => {
+          if (![r.month, r.guard_id, r.day].every(isSafeKey)) return
           if (!nextNotes[r.month]) nextNotes[r.month] = {}
           if (!nextNotes[r.month][r.guard_id]) nextNotes[r.month][r.guard_id] = {}
           nextNotes[r.month][r.guard_id][r.day] = r.note
@@ -354,6 +357,7 @@ export function AppProvider({ children }) {
         setPayments((prev) => {
           const merged = { ...prev }
           paymentsRes.data.forEach((r) => {
+            if (!isSafeKey(r.key)) return
             merged[r.key] = {
               status: r.status || 'PAID',
               paidAt: r.paid_at,
@@ -427,7 +431,7 @@ export function AppProvider({ children }) {
           month,
           guard_id: guardId,
           day: Number(day),
-          hours: Number(hours),
+          hours: clampHours(hours),
           updated_at: new Date().toISOString(),
         })
       }
@@ -628,7 +632,7 @@ export function AppProvider({ children }) {
       if (hours === null || hours === undefined || hours === '') {
         delete updatedGuardData[day]
       } else {
-        updatedGuardData[day] = Number(hours)
+        updatedGuardData[day] = clampHours(hours)
       }
 
       return {
@@ -847,12 +851,12 @@ export function AppProvider({ children }) {
         else if (pattern === 'custom' && customDays.includes(d)) shouldApply = true
 
         if (shouldApply) {
-          guardData[d] = Number(hours)
+          guardData[d] = clampHours(hours)
           rowsToSync.push({
             month: selectedMonth,
             guard_id: guardId,
             day: d,
-            hours: Number(hours),
+            hours: clampHours(hours),
             updated_at: new Date().toISOString(),
           })
         }
@@ -888,7 +892,7 @@ export function AppProvider({ children }) {
             month: toMonth,
             guard_id: gid,
             day: Number(d),
-            hours: Number(h),
+            hours: clampHours(h),
             updated_at: new Date().toISOString(),
           })
         })
@@ -944,7 +948,7 @@ export function AppProvider({ children }) {
           delete guardData[day]
           syncShiftCloud(selectedMonth, guardId, day, null)
         } else {
-          guardData[day] = Number(hours)
+          guardData[day] = clampHours(hours)
           syncShiftCloud(selectedMonth, guardId, day, hours)
         }
         newMonthData[guardId] = guardData
@@ -973,12 +977,12 @@ export function AppProvider({ children }) {
             delete guardData[d]
             deleteMatches.push({ month: selectedMonth, guard_id: gid, day: d })
           } else {
-            guardData[d] = Number(hours)
+            guardData[d] = clampHours(hours)
             upsertRows.push({
               month: selectedMonth,
               guard_id: gid,
               day: Number(d),
-              hours: Number(hours),
+              hours: clampHours(hours),
               updated_at: new Date().toISOString(),
             })
           }
@@ -1022,12 +1026,12 @@ export function AppProvider({ children }) {
         if (hours === null || hours === undefined || Number(hours) === 0) {
           delete guardData[day]
         } else {
-          guardData[day] = Number(hours)
+          guardData[day] = clampHours(hours)
           rowsToUpsert.push({
             month: monthKey,
             guard_id: guardId,
             day: Number(day),
-            hours: Number(hours),
+            hours: clampHours(hours),
             updated_at: new Date().toISOString(),
           })
         }

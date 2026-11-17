@@ -1,5 +1,6 @@
 import React from 'react'
 import { useApp } from '../../context/AppContext'
+import { clampHours } from '../../utils/safety'
 
 /** Modal de ajuste rápido de horas / hora extra de um dia. */
 export function DayHoursModal({ dayEditModal, setDayEditModal, rate }) {
@@ -49,12 +50,12 @@ export function DayHoursModal({ dayEditModal, setDayEditModal, rate }) {
                   min="0"
                   max="24"
                   value={dayEditModal.hours}
-                  onChange={(e) => setDayEditModal({ ...dayEditModal, hours: Math.max(0, Number(e.target.value) || 0) })}
+                  onChange={(e) => setDayEditModal({ ...dayEditModal, hours: clampHours(e.target.value) })}
                   className="flex-1 h-10 bg-white border border-line rounded-xl text-center font-mono font-bold text-base outline-none focus:ring-1 focus:ring-brand"
                 />
                 <button
                   type="button"
-                  onClick={() => setDayEditModal({ ...dayEditModal, hours: dayEditModal.hours + 1 })}
+                  onClick={() => setDayEditModal({ ...dayEditModal, hours: clampHours(dayEditModal.hours + 1) })}
                   className="w-10 h-10 rounded-xl bg-brand text-white font-bold text-lg flex items-center justify-center cursor-pointer"
                 >
                   +
