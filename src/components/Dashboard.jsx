@@ -109,56 +109,32 @@ export function Dashboard({
           O que você deseja fazer agora?
         </h3>
 
-        {/* 4 Easy Shortcut Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 relative z-10">
-          <button
-            type="button"
-            onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-whatsapp/20 hover:bg-whatsapp/30 transition-all border border-whatsapp/40 active:scale-95 text-center shadow-xs cursor-pointer"
-            title="Importar lista de escala copiada do WhatsApp"
-          >
-            <WhatsAppIcon className="w-5 h-5 fill-whatsapp mb-1" />
-            <span className="text-[11px] font-bold leading-tight text-white">Colar WhatsApp</span>
-            <span className="text-[9px] text-mint font-mono">Importar Lista</span>
-          </button>
-
+        {/* 2 atalhos principais (grandes, fáceis de tocar no celular) */}
+        <div className="grid grid-cols-2 gap-3 relative z-10">
           <button
             type="button"
             onClick={() => setActiveTab('quinzena-horas')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
-            title="Acessar a tela de Escala e Horas (Grande Calendário do Mês)"
+            className="flex flex-col items-center justify-center gap-1.5 min-h-[120px] p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
+            title="Acessar a tela de Escala e Horas (Grade do Mês)"
           >
-            <span className="material-symbols-outlined text-[22px] text-warn-light mb-1">
+            <span className="material-symbols-outlined text-[36px] text-warn-light">
               calendar_month
             </span>
-            <span className="text-[11px] font-bold leading-tight text-white">Escala & Horas</span>
-            <span className="text-[9px] text-white/70 font-mono">Grade do Mês</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onOpenQuickHub && onOpenQuickHub('cadastro')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
-            title="Cadastrar novo colaborador em 10s"
-          >
-            <span className="material-symbols-outlined text-[22px] text-mint mb-1">
-              person_add
-            </span>
-            <span className="text-[11px] font-bold leading-tight">Novo Bico</span>
-            <span className="text-[9px] text-white/70 font-mono">Cadastrar</span>
+            <span className="text-base font-bold leading-tight text-white">Escala & Horas</span>
+            <span className="text-xs text-white/70">Grade do Mês</span>
           </button>
 
           <button
             type="button"
             onClick={() => onOpenQuickHub && onOpenQuickHub('pagamento')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-brand hover:bg-brand-hover transition-all border border-mint/40 active:scale-95 text-center shadow-xs cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1.5 min-h-[120px] p-4 rounded-2xl bg-brand hover:bg-brand-hover transition-all border border-mint/40 active:scale-95 text-center shadow-xs cursor-pointer"
             title="Calcular e liquidar pagamentos por quinzena"
           >
-            <span className="material-symbols-outlined text-[22px] text-mint mb-1">
+            <span className="material-symbols-outlined text-[36px] text-mint">
               payments
             </span>
-            <span className="text-[11px] font-bold leading-tight text-white">Pagar PIX</span>
-            <span className="text-[9px] text-on-navy font-mono">Quinzena</span>
+            <span className="text-base font-bold leading-tight text-white">Pagar PIX</span>
+            <span className="text-xs text-on-navy">Quinzena</span>
           </button>
         </div>
       </div>
