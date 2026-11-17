@@ -20,9 +20,9 @@ export function PostsManagement() {
     isSyncing,
     lastSyncTime,
     refreshFromSupabase,
-    managerPassword,
-    updateManagerPassword,
+    changeOwnPassword,
     currentUser,
+    isDirector,
     logout,
   } = useApp()
 
@@ -31,7 +31,10 @@ export function PostsManagement() {
   const [postToDelete, setPostToDelete] = useState(null)
   const [rateInput, setRateInput] = useState(defaultHourlyRate)
   const [budgetInput, setBudgetInput] = useState(budgetCeiling || 12000)
-  const [passInput, setPassInput] = useState(managerPassword || 'G2barreto$')
+  const [newPass, setNewPass] = useState('')
+  const [newPassConfirm, setNewPassConfirm] = useState('')
+  const [passError, setPassError] = useState('')
+  const [isSavingPass, setIsSavingPass] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
 
   const [formData, setFormData] = useState({
@@ -83,21 +86,36 @@ export function PostsManagement() {
 
   const handleSaveRate = (e) => {
     e.preventDefault()
-    setDefaultHourlyRate(Number(rateInput))
+    const rate = Number(rateInput)
+    if (!isDirector || !Number.isFinite(rate) || rate <= 0) return
+    setDefaultHourlyRate(rate)
     showToast('Taxa padrão por hora atualizada!')
   }
 
   const handleSaveBudget = (e) => {
     e.preventDefault()
+    if (!isDirector) return
     setBudgetCeiling(Number(budgetInput) || 12000)
     showToast('Teto orçado operacional atualizado!')
   }
 
-  const handleSavePassword = (e) => {
+  const handleSavePassword = async (e) => {
     e.preventDefault()
-    if (!passInput.trim()) return
-    updateManagerPassword(passInput.trim())
-    showToast('Senha oficial de acesso dos gerentes atualizada!')
+    setPassError('')
+    if (newPass !== newPassConfirm) {
+      setPassError('As senhas não conferem.')
+      return
+    }
+    setIsSavingPass(true)
+    const { error } = await changeOwnPassword(newPass)
+    setIsSavingPass(false)
+    if (error) {
+      setPassError(error)
+      return
+    }
+    setNewPass('')
+    setNewPassConfirm('')
+    showToast('Sua senha pessoal foi alterada!')
   }
 
   const handleReset = () => {
@@ -177,14 +195,18 @@ export function PostsManagement() {
               type="number"
               step="0.5"
               min="1"
+              required
+              disabled={!isDirector}
               value={rateInput}
               onChange={(e) => setRateInput(e.target.value)}
-              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
+              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60 disabled:opacity-60"
             />
           </div>
           <button
             type="submit"
-            className="h-11 px-4 bg-black text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition"
+            disabled={!isDirector}
+            title={isDirector ? '' : 'Somente o diretor pode alterar'}
+            className="h-11 px-4 bg-black text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition disabled:opacity-50"
           >
             Atualizar Taxa
           </button>
@@ -209,14 +231,17 @@ export function PostsManagement() {
               type="number"
               min="0"
               step="500"
+              disabled={!isDirector}
               value={budgetInput}
               onChange={(e) => setBudgetInput(e.target.value)}
-              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
+              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60 disabled:opacity-60"
             />
           </div>
           <button
             type="submit"
-            className="h-11 px-4 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-xl transition"
+            disabled={!isDirector}
+            title={isDirector ? '' : 'Somente o diretor pode alterar'}
+            className="h-11 px-4 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-xl transition disabled:opacity-50"
           >
             Salvar Teto
           </button>
@@ -226,39 +251,55 @@ export function PostsManagement() {
         </p>
       </div>
 
-      {/* Manager Access Password Card */}
+      {/* Personal Password Card (Supabase Auth) */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-brand">vpn_key</span>
-            <h3 className="text-xs font-bold text-ink">Senha Oficial de Acesso dos Gerentes</h3>
+            <h3 className="text-xs font-bold text-ink">Alterar Minha Senha</h3>
           </div>
           <span className="font-mono text-[11px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-md">
-            G2 Acesso
+            Pessoal
           </span>
         </div>
-        <form onSubmit={handleSavePassword} className="flex items-center gap-3">
-          <div className="relative flex items-center flex-1">
-            <span className="absolute left-3 text-ink-muted">
-              <span className="material-symbols-outlined text-[18px]">lock</span>
-            </span>
-            <input
-              type="text"
-              value={passInput}
-              onChange={(e) => setPassInput(e.target.value)}
-              placeholder="Digite a nova senha oficial..."
-              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
-            />
+        {passError && (
+          <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+            {passError}
           </div>
-          <button
-            type="submit"
-            className="h-11 px-4 bg-ink hover:bg-navy-hover text-white text-xs font-bold rounded-xl transition cursor-pointer"
-          >
-            Salvar Senha
-          </button>
+        )}
+        <form onSubmit={handleSavePassword} className="flex flex-col gap-2.5">
+          <input
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={10}
+            value={newPass}
+            onChange={(e) => setNewPass(e.target.value)}
+            placeholder="Nova senha (mínimo 10 caracteres)"
+            className="w-full h-11 px-3 bg-field text-ink font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
+          />
+          <div className="flex items-center gap-3">
+            <input
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={10}
+              value={newPassConfirm}
+              onChange={(e) => setNewPassConfirm(e.target.value)}
+              placeholder="Repita a nova senha"
+              className="flex-1 h-11 px-3 bg-field text-ink font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
+            />
+            <button
+              type="submit"
+              disabled={isSavingPass}
+              className="h-11 px-4 bg-ink hover:bg-navy-hover text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-70"
+            >
+              {isSavingPass ? 'Salvando...' : 'Salvar Senha'}
+            </button>
+          </div>
         </form>
         <p className="text-xs text-ink-muted">
-          Esta é a senha que os gerentes usam para entrar na plataforma. Ao salvar, atualiza na nuvem para todos.
+          Cada gestor tem login próprio. Novos gestores são cadastrados pelo administrador no painel do Supabase.
         </p>
       </div>
 
@@ -270,7 +311,7 @@ export function PostsManagement() {
             <span>Sessão Atual ({currentUser?.name || 'Gestor'})</span>
           </h3>
           <p className="text-xs text-ink-muted mt-0.5">
-            Navegador autenticado com credenciais G2
+            {currentUser?.email} • {currentUser?.roleLabel}
           </p>
         </div>
         <button

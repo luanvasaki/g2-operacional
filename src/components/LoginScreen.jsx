@@ -3,66 +3,35 @@ import { G2Logo } from './G2Logo'
 import { useApp } from '../context/AppContext'
 
 export function LoginScreen() {
-  const { login, managerPassword } = useApp()
-  const [username, setUsername] = useState(() => {
-    try {
-      return localStorage.getItem('g2_last_manager_name') || 'luanbarreto'
-    } catch {
-      return 'luanbarreto'
-    }
-  })
+  const { login, authError, isSupabaseConfigured } = useApp()
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(true)
+  const [rememberMe, setRememberMe] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
     setErrorMsg('')
-
-    const trimmedUser = username.trim().toLowerCase()
-    const trimmedPass = password.trim()
-    const effectivePass = managerPassword || 'G2barreto$'
-
-    // Validates credentials
-    const isMasterUser =
-      trimmedUser === 'luanbarreto' ||
-      trimmedUser === 'luan barreto' ||
-      trimmedUser === 'luan'
-
-    const isPasswordCorrect =
-      trimmedPass === effectivePass ||
-      trimmedPass === 'G2barreto$'
-
-    if (!isPasswordCorrect) {
-      setErrorMsg('Senha incorreta! Digite a senha oficial da G2.')
-      return
-    }
-
     setIsSubmitting(true)
 
-    const displayName = isMasterUser ? 'Luan Barreto' : (username.trim() || 'Gestor Operacional')
-    const userRole = isMasterUser ? 'Diretor / Gestor Geral' : 'Supervisor Operacional'
-
-    if (rememberMe) {
-      try {
-        localStorage.setItem('g2_last_manager_name', username.trim())
-      } catch (err) {
-        console.warn(err)
-      }
+    // Autenticação feita no servidor (Supabase Auth). Nenhuma senha é conferida no navegador.
+    const { error } = await login(email, password, rememberMe)
+    if (error) {
+      setErrorMsg(error)
+      setIsSubmitting(false)
     }
-
-    const userData = {
-      id: isMasterUser ? 'usr-luan' : `usr-${Date.now()}`,
-      name: displayName,
-      role: userRole,
-      email: `${trimmedUser.replace(/\s+/g, '.')}@g2operacional.com`,
-    }
-
-    // Call login with trustBrowser boolean
-    login(userData, rememberMe)
+    // Em caso de sucesso, o AppContext carrega o perfil e troca de tela.
   }
+
+  const shownError =
+    errorMsg ||
+    authError ||
+    (!isSupabaseConfigured
+      ? 'Sistema sem conexão configurada com o servidor. Contate o administrador.'
+      : '')
 
   return (
     <div className="bg-page text-ink min-h-screen flex flex-col justify-center items-center px-4 py-8 relative">
@@ -94,45 +63,40 @@ export function LoginScreen() {
             <div className="flex items-center justify-between pb-2 border-b border-field">
               <div>
                 <h2 className="text-sm font-bold text-ink">Acesso de Gerência</h2>
-                <p className="text-xs text-ink-muted">Digite suas credenciais para entrar</p>
+                <p className="text-xs text-ink-muted">Entre com seu e-mail e senha pessoais</p>
               </div>
               <span className="material-symbols-outlined text-brand text-[24px]">
                 admin_panel_settings
               </span>
             </div>
 
-            {errorMsg && (
+            {shownError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2 animate-in fade-in">
                 <span className="material-symbols-outlined text-[18px] shrink-0 text-red-600">
                   error
                 </span>
-                <span>{errorMsg}</span>
+                <span>{shownError}</span>
               </div>
             )}
 
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              {/* Username */}
+              {/* E-mail */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  className="text-xs font-semibold text-ink flex items-center justify-between"
-                  htmlFor="login-username"
-                >
-                  <span>Usuário</span>
-                  <span className="text-xs text-brand font-bold">
-                    luanbarreto
-                  </span>
+                <label className="text-xs font-semibold text-ink" htmlFor="login-email">
+                  E-mail
                 </label>
                 <div className="relative flex items-center bg-field rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-brand transition-all">
                   <span className="material-symbols-outlined text-ink-muted ml-3.5 mr-2 text-[20px]">
                     account_circle
                   </span>
                   <input
-                    id="login-username"
-                    type="text"
+                    id="login-email"
+                    type="email"
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="luanbarreto"
+                    autoComplete="username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu.email@empresa.com"
                     className="w-full h-12 bg-transparent pr-4 text-sm text-ink placeholder:text-ink-muted focus:outline-none font-medium"
                   />
                 </div>
@@ -140,11 +104,8 @@ export function LoginScreen() {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  className="text-xs font-semibold text-ink"
-                  htmlFor="login-password"
-                >
-                  Senha de Acesso
+                <label className="text-xs font-semibold text-ink" htmlFor="login-password">
+                  Senha
                 </label>
                 <div className="relative flex items-center bg-field rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-brand transition-all">
                   <span className="material-symbols-outlined text-ink-muted ml-3.5 mr-2 text-[20px]">
@@ -154,6 +115,7 @@ export function LoginScreen() {
                     id="login-password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Digite sua senha"
@@ -172,7 +134,7 @@ export function LoginScreen() {
                 </div>
               </div>
 
-              {/* Remember Me / Trust Browser */}
+              {/* Remember Me */}
               <div className="bg-field/60 border border-line rounded-xl p-3 flex flex-col gap-1">
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
@@ -182,18 +144,18 @@ export function LoginScreen() {
                     className="w-4 h-4 rounded text-brand accent-brand cursor-pointer shrink-0"
                   />
                   <span className="text-xs font-semibold text-ink">
-                    Confiar neste navegador (manter conectado)
+                    Manter conectado neste dispositivo
                   </span>
                 </label>
                 <span className="text-xs text-ink-muted pl-6.5 leading-tight">
-                  Não pedirá senha novamente ao reabrir o app neste dispositivo.
+                  Use apenas em dispositivo pessoal. Sem esta opção, a sessão termina ao fechar o navegador.
                 </span>
               </div>
 
               {/* Login Button */}
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isSupabaseConfigured}
                 className="w-full h-12 mt-1 rounded-xl bg-ink hover:bg-navy-hover text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer disabled:opacity-70"
               >
                 {isSubmitting ? (

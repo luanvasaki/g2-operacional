@@ -129,10 +129,10 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
           {/* User profile & Sair button */}
           <div className="flex items-center gap-1.5 bg-field border border-line rounded-full p-1 pl-2.5 shadow-2xs">
             <span className="text-xs font-bold text-ink hidden sm:inline">
-              {currentUser?.name?.split(' ')[0] || 'Luan'}
+              {currentUser?.name?.split(' ')[0] || 'Gestor'}
             </span>
             <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              {currentUser?.name?.charAt(0) || 'L'}
+              {currentUser?.name?.charAt(0) || 'G'}
             </div>
             <button
               type="button"

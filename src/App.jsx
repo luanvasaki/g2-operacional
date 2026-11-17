@@ -13,7 +13,7 @@ import { MultiDayAssignModal } from './components/MultiDayAssignModal'
 import { WhatsAppScheduleImporterModal } from './components/WhatsAppScheduleImporterModal'
 
 function MainContent() {
-  const { currentUser } = useApp()
+  const { currentUser, authLoading } = useApp()
   const [activeTab, setActiveTab] = useState('dashboard')
 
   // Shared state for guard creation modal
@@ -53,6 +53,15 @@ function MainContent() {
 
   const handleOpenFastEditFromDashboard = () => {
     openQuickHub('hoje')
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-page flex items-center justify-center text-ink-soft gap-2 text-sm">
+        <span className="material-symbols-outlined animate-spin text-brand">progress_activity</span>
+        <span>Verificando acesso...</span>
+      </div>
+    )
   }
 
   if (!currentUser) {

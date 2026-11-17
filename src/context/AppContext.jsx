@@ -7,13 +7,39 @@ import {
 } from '../data/initialData'
 import { getCurrentMonthKey, isValidMonthKey } from '../utils/months'
 import { clampHours, isSafeKey } from '../utils/safety'
-import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { supabase, isSupabaseConfigured, REMEMBER_KEY } from '../lib/supabase'
 
 const AppContext = createContext(null)
 
+const ROLE_LABELS = {
+  diretor: 'Diretor / Gestor Geral',
+  supervisor: 'Supervisor Operacional',
+}
+
+// Chaves antigas do login local (inseguro) — removidas do navegador ao carregar
+const LEGACY_KEYS = ['g2_user', 'g2_session_user', 'g2_trusted_device', 'g2_manager_password']
+
+function removeLegacyKeys() {
+  try {
+    LEGACY_KEYS.forEach((k) => {
+      localStorage.removeItem(k)
+      sessionStorage.removeItem(k)
+    })
+  } catch {}
+}
+
+// Apaga todos os dados do app guardados no navegador (PIX, telefones, escalas, pagamentos)
+function clearLocalAppData() {
+  try {
+    ;[localStorage, sessionStorage].forEach((store) => {
+      Object.keys(store)
+        .filter((k) => k.startsWith('g2_') && k !== REMEMBER_KEY)
+        .forEach((k) => store.removeItem(k))
+    })
+  } catch {}
+}
+
 const STORAGE_KEYS = {
-  USER: 'g2_session_user',
-  TRUSTED_BROWSER: 'g2_trusted_device',
   POSTS: 'g2_posts',
   GUARDS: 'g2_guards',
   SHIFTS: 'g2_shifts',
@@ -23,7 +49,6 @@ const STORAGE_KEYS = {
   SELECTED_MONTH: 'g2_selected_month',
   SELECTED_MONTH_AT: 'g2_selected_month_at', // mês real em que a escolha foi feita
   SHIFT_NOTES: 'g2_shift_notes',
-  MANAGER_PASSWORD: 'g2_manager_password',
 }
 
 // Helper to remove any appended roles, addresses, or extraneous text, keeping purely the name
@@ -95,30 +120,10 @@ export function AppProvider({ children }) {
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncTime, setLastSyncTime] = useState(null)
 
-  // Authentication - Checks trusted browser or active session
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      // Clear legacy prototype key so user sees login screen unless trusted
-      if (localStorage.getItem('g2_user')) {
-        localStorage.removeItem('g2_user')
-      }
-
-      // Check if browser was explicitly trusted ("Lembrar/Confiar neste navegador")
-      const isTrusted = localStorage.getItem(STORAGE_KEYS.TRUSTED_BROWSER) === 'true'
-      if (isTrusted) {
-        const saved = localStorage.getItem(STORAGE_KEYS.USER)
-        if (saved) return JSON.parse(saved)
-      }
-
-      // Check active tab session
-      const sessionSaved = sessionStorage.getItem(STORAGE_KEYS.USER)
-      if (sessionSaved) return JSON.parse(sessionSaved)
-
-      return null
-    } catch {
-      return null
-    }
-  })
+  // Authentication - Supabase Auth (sessão JWT validada pelo servidor)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [authError, setAuthError] = useState('')
 
   // Hourly Rate (default 40 as in spreadsheet)
   const [defaultHourlyRate, setDefaultHourlyRate] = useState(() => {
@@ -247,33 +252,75 @@ export function AppProvider({ children }) {
     }
   })
 
-  // Official G2 Manager Access Password
-  const [managerPassword, setManagerPassword] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEYS.MANAGER_PASSWORD) || 'G2barreto$'
-    } catch {
-      return 'G2barreto$'
+  // Resolve the Supabase session into a manager profile (name + role from public.managers)
+  useEffect(() => {
+    removeLegacyKeys()
+
+    if (!isSupabaseConfigured || !supabase) {
+      setAuthLoading(false)
+      return
     }
-  })
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.MANAGER_PASSWORD, managerPassword)
-  }, [managerPassword])
+    let active = true
 
-  // Sync currentUser changes to whichever storage it was saved to
-  useEffect(() => {
-    if (!currentUser) return
-    try {
-      const isTrusted = localStorage.getItem(STORAGE_KEYS.TRUSTED_BROWSER) === 'true'
-      if (isTrusted) {
-        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser))
-      } else if (sessionStorage.getItem(STORAGE_KEYS.USER)) {
-        sessionStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(currentUser))
+    const applySession = async (session) => {
+      if (!session?.user) {
+        if (!active) return
+        setCurrentUser(null)
+        // Sem sessão válida: não manter dados pessoais em cache no navegador
+        clearLocalAppData()
+        setAuthLoading(false)
+        return
       }
-    } catch (e) {
-      console.warn('Storage sync error:', e)
+
+      const { data, error } = await supabase
+        .from('managers')
+        .select('name, role')
+        .eq('user_id', session.user.id)
+        .maybeSingle()
+
+      if (!active) return
+
+      if (error || !data) {
+        setAuthError(
+          error
+            ? 'Não foi possível validar seu acesso. Tente novamente.'
+            : 'Este usuário não está autorizado como gestor da G2.'
+        )
+        setCurrentUser(null)
+        await supabase.auth.signOut()
+        clearLocalAppData()
+        setAuthLoading(false)
+        return
+      }
+
+      setAuthError('')
+      setCurrentUser({
+        id: session.user.id,
+        email: session.user.email,
+        name: data.name,
+        role: data.role,
+        roleLabel: ROLE_LABELS[data.role] || data.role,
+      })
+      setAuthLoading(false)
     }
-  }, [currentUser])
+
+    supabase.auth.getSession().then(({ data }) => applySession(data.session))
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      // Evita deadlock do supabase-js: não aguardar chamadas dentro do callback
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+        setTimeout(() => applySession(session), 0)
+      }
+    })
+
+    return () => {
+      active = false
+      listener?.subscription?.unsubscribe()
+    }
+  }, [])
+
+  const isDirector = currentUser?.role === 'diretor'
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.HOURLY_RATE, String(defaultHourlyRate))
@@ -377,7 +424,6 @@ export function AppProvider({ children }) {
         settingsRes.data.forEach((r) => {
           if (r.key === 'hourly_rate') setDefaultHourlyRate(Number(r.value) || 40)
           if (r.key === 'budget_ceiling') setBudgetCeiling(Number(r.value) || 12000)
-          if (r.key === 'manager_password' && r.value) setManagerPassword(r.value)
         })
       }
       setLastSyncTime(new Date())
@@ -390,12 +436,13 @@ export function AppProvider({ children }) {
     }
   }, [])
 
-  // Initial fetch on mount if Supabase is configured
+  // Busca os dados da nuvem somente depois que o gestor estiver autenticado
+  const currentUserId = currentUser?.id
   useEffect(() => {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && currentUserId) {
       refreshFromSupabase()
     }
-  }, [refreshFromSupabase])
+  }, [refreshFromSupabase, currentUserId])
 
   // Background Cloud Sync Helpers (Fail-safe, non-blocking)
   const syncGuardCloud = async (guard, action = 'upsert') => {
@@ -497,55 +544,73 @@ export function AppProvider({ children }) {
     }
   }
 
-  // Login & Logout
-  const login = (userData, trustBrowser = true) => {
-    setCurrentUser(userData)
-    try {
-      if (trustBrowser) {
-        localStorage.setItem(STORAGE_KEYS.TRUSTED_BROWSER, 'true')
-        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
-        sessionStorage.removeItem(STORAGE_KEYS.USER)
-      } else {
-        localStorage.removeItem(STORAGE_KEYS.TRUSTED_BROWSER)
-        localStorage.removeItem(STORAGE_KEYS.USER)
-        sessionStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
-      }
-    } catch (e) {
-      console.warn('Storage error during login:', e)
+  // Login & Logout (Supabase Auth)
+  const login = async (email, password, rememberMe = false) => {
+    if (!isSupabaseConfigured || !supabase) {
+      return { error: 'Sistema sem conexão configurada com o servidor. Contate o administrador.' }
     }
+    setAuthError('')
+    try {
+      if (rememberMe) localStorage.setItem(REMEMBER_KEY, 'true')
+      else localStorage.removeItem(REMEMBER_KEY)
+    } catch {}
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    })
+    if (error) {
+      const msg = /invalid login credentials/i.test(error.message)
+        ? 'E-mail ou senha incorretos.'
+        : /rate limit|too many/i.test(error.message)
+          ? 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+          : 'Não foi possível entrar. Tente novamente.'
+      return { error: msg }
+    }
+    // O perfil (nome/papel) é carregado pelo onAuthStateChange
+    return { error: null }
   }
 
-  const logout = () => {
-    setCurrentUser(null)
+  const logout = async () => {
     try {
-      localStorage.removeItem(STORAGE_KEYS.USER)
-      localStorage.removeItem(STORAGE_KEYS.TRUSTED_BROWSER)
-      sessionStorage.removeItem(STORAGE_KEYS.USER)
-      localStorage.removeItem('g2_user')
+      if (supabase) await supabase.auth.signOut()
     } catch (e) {
-      console.warn('Storage error during logout:', e)
+      console.warn('Erro ao encerrar sessão:', e)
     }
+    clearLocalAppData()
+    try {
+      localStorage.removeItem(REMEMBER_KEY)
+    } catch {}
+    // Recarrega para descartar da memória todos os dados da sessão anterior
+    window.location.reload()
+  }
+
+  const changeOwnPassword = async (newPassword) => {
+    if (!supabase || !currentUser) return { error: 'Sessão inválida.' }
+    if (!newPassword || newPassword.length < 10) {
+      return { error: 'A nova senha precisa ter pelo menos 10 caracteres.' }
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    return { error: error ? 'Não foi possível alterar a senha: ' + error.message : null }
   }
 
   // Update Rate & Budget with cloud sync
+  // Somente o diretor altera parâmetros globais (também garantido pela RLS no servidor)
   const updateDefaultHourlyRate = (rate) => {
+    if (!isDirector) return
     setDefaultHourlyRate(rate)
     syncSettingCloud('hourly_rate', rate)
   }
 
   const updateBudgetCeiling = (budget) => {
+    if (!isDirector) return
     setBudgetCeiling(budget)
     syncSettingCloud('budget_ceiling', budget)
   }
 
+  // Mês selecionado é preferência de cada navegador (não altera a tela dos outros gestores)
   const updateSelectedMonth = (month) => {
     setSelectedMonth(month)
-    syncSettingCloud('selected_month', month)
-  }
-
-  const updateManagerPassword = (pass) => {
-    setManagerPassword(pass)
-    syncSettingCloud('manager_password', pass)
   }
 
   // Guard Actions (Incluir / Editar / Inativar / Excluir)
@@ -1114,8 +1179,12 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         currentUser,
+        authLoading,
+        authError,
+        isDirector,
         login,
         logout,
+        changeOwnPassword,
         selectedMonth,
         setSelectedMonth: updateSelectedMonth,
         defaultHourlyRate,
@@ -1149,9 +1218,6 @@ export function AppProvider({ children }) {
         resetToTemplateData,
         exportBackupJSON,
         importBackupJSON,
-        // Manager Password
-        managerPassword,
-        updateManagerPassword,
         // Supabase Cloud State & Methods
         isSupabaseConfigured,
         isSyncing,

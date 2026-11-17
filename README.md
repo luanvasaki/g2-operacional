@@ -38,12 +38,17 @@ Sistema de Gestão Operacional de Diárias, Escalas de Prestadores de Serviço e
 1. Crie uma conta ou acesse [supabase.com](https://supabase.com) e crie um novo projeto.
 2. No menu **SQL Editor**, crie uma nova consulta e cole o conteúdo de [`supabase-schema.sql`](./supabase-schema.sql). Clique em **Run**.
 3. (Recomendado) Em outra consulta, cole e rode [`supabase-hardening.sql`](./supabase-hardening.sql): adiciona validações dos dados e um registro de todas as alterações (pagamentos, chaves PIX, escala). Pode ser rodado com o app em uso.
-4. Em **Project Settings > API**, copie a **Project URL** e a chave **anon public**.
-5. Crie um arquivo `.env` localmente (ou configure as variáveis no Vercel):
+4. Em **Authentication > Sign In / Providers**, desative **Allow new users to sign up**.
+5. Em **Authentication > Users > Add user**, crie a conta de cada gestor (e-mail + senha forte, marque *Auto Confirm User*).
+6. No **SQL Editor**, rode [`supabase-security.sql`](./supabase-security.sql) e depois cadastre os gestores na tabela `managers` (exemplo no final do arquivo; papéis: `diretor` ou `supervisor`).
+7. Em **Project Settings > API**, copie a **Project URL** e a chave **anon public**.
+8. Crie um arquivo `.env` localmente (ou configure as variáveis no Vercel):
    ```env
    VITE_SUPABASE_URL=https://seu-projeto.supabase.co
    VITE_SUPABASE_ANON_KEY=sua-chave-anon-publica
    ```
+
+> 🔒 O acesso aos dados exige login (Supabase Auth). Somente usuários cadastrados em `managers` leem ou gravam dados; apenas o `diretor` altera taxa padrão e teto orçado.
 
 ---
 

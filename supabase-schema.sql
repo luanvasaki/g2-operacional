@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 -- ==============================================================================
 -- HABILITAR SEGURANÇA POR LINHA (ROW LEVEL SECURITY - RLS)
--- Permite leitura e gravação pelo client anônimo da aplicação web
+-- Sem políticas, nenhum acesso é permitido. As políticas de acesso (somente
+-- gestores autenticados) ficam em supabase-security.sql — execute-o em seguida.
 -- ==============================================================================
 
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
@@ -77,25 +78,6 @@ ALTER TABLE shifts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shift_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
-
--- Políticas de acesso irrestrito para anon (chave pública do app)
-DROP POLICY IF EXISTS "Allow all access on posts" ON posts;
-CREATE POLICY "Allow all access on posts" ON posts FOR ALL USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow all access on guards" ON guards;
-CREATE POLICY "Allow all access on guards" ON guards FOR ALL USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow all access on shifts" ON shifts;
-CREATE POLICY "Allow all access on shifts" ON shifts FOR ALL USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow all access on shift_notes" ON shift_notes;
-CREATE POLICY "Allow all access on shift_notes" ON shift_notes FOR ALL USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow all access on payments" ON payments;
-CREATE POLICY "Allow all access on payments" ON payments FOR ALL USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow all access on app_settings" ON app_settings;
-CREATE POLICY "Allow all access on app_settings" ON app_settings FOR ALL USING (true) WITH CHECK (true);
 
 -- ==============================================================================
 -- DADOS INICIAIS (SEED DATA)
@@ -130,8 +112,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Configurações Gerais
 INSERT INTO app_settings (key, value) VALUES
 ('hourly_rate', '40'),
-('budget_ceiling', '12000'),
-('selected_month', '2026-09')
+('budget_ceiling', '12000')
 ON CONFLICT (key) DO NOTHING;
 
 -- Pagamento Inicial de Exemplo
