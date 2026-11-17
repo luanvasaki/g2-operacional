@@ -638,7 +638,12 @@ export function AppProvider({ children }) {
         const nextName = updates.name ? (cleanGuardName(updates.name) || updates.name) : g.name
         // Troca de PIX: mostra o aviso já neste aparelho (o banco grava a data oficial)
         const oldPix = (g.pixKey || '').trim()
-        const newPix = updates.pixKey !== undefined ? String(updates.pixKey).trim() : oldPix
+        let newPix = updates.pixKey !== undefined ? String(updates.pixKey).trim() : oldPix
+        // Só o diretor troca uma chave já cadastrada (o banco também recusa)
+        if (!isDirector && oldPix && newPix !== oldPix) {
+          updates = { ...updates, pixKey: g.pixKey, pixType: g.pixType }
+          newPix = oldPix
+        }
         const pixChange =
           oldPix && newPix !== oldPix
             ? { pixChangedAt: new Date().toISOString(), pixPreviousKey: oldPix }
@@ -667,7 +672,9 @@ export function AppProvider({ children }) {
     })
   }
 
+  // Excluir prestador: só o diretor (supervisor pode desativar)
   const deleteGuard = (id) => {
+    if (!isDirector) return
     setGuards((prev) => prev.filter((g) => g.id !== id))
     syncGuardCloud({ id }, 'delete')
   }
@@ -1126,7 +1133,9 @@ export function AppProvider({ children }) {
   }
 
   // Reset to default spreadsheet data
+  // Restaurar modelo e importar backup trocam dados (inclusive PIX) neste aparelho: só o diretor
   const resetToTemplateData = () => {
+    if (!isDirector) return
     setPosts(INITIAL_POSTS)
     setGuards(INITIAL_GUARDS)
     setShifts(INITIAL_SHIFTS)
@@ -1160,6 +1169,7 @@ export function AppProvider({ children }) {
   }
 
   const importBackupJSON = (jsonString) => {
+    if (!isDirector) return { success: false, error: 'somente o diretor pode restaurar uma cópia.' }
     try {
       const data = JSON.parse(jsonString)
       if (data.posts) setPosts(data.posts)

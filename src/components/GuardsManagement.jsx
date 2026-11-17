@@ -20,6 +20,7 @@ export function GuardsManagement({
     deleteGuard,
     toggleGuardActive,
     getGuardCalculations,
+    isDirector,
   } = useApp()
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -107,7 +108,11 @@ export function GuardsManagement({
     }
   }
 
+  // Supervisor não troca uma chave PIX já cadastrada (só o diretor)
+  const isPixLocked = Boolean(!isDirector && editingGuard?.pixKey?.trim())
+
   const confirmHardDelete = () => {
+    if (!isDirector) return
     if (deleteConfirmGuard) {
       deleteGuard(deleteConfirmGuard.id)
       showToast(`${deleteConfirmGuard.name} excluído do apontamento.`)
@@ -547,10 +552,16 @@ export function GuardsManagement({
                     onChange={(e) =>
                       setFormData({ ...formData, pixKey: e.target.value })
                     }
+                    disabled={isPixLocked}
                     placeholder="CPF, Celular, E-mail ou Aleatória"
-                    className="w-full h-11 pl-10 pr-3 bg-field text-ink font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
+                    className="w-full h-11 pl-10 pr-3 bg-field text-ink font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60 disabled:opacity-60"
                   />
                 </div>
+                {isPixLocked && (
+                  <p className="text-xs text-ink-muted">
+                    Só o diretor pode trocar uma chave PIX já cadastrada.
+                  </p>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -616,7 +627,8 @@ export function GuardsManagement({
               <button
                 type="button"
                 onClick={confirmHardDelete}
-                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 hover:bg-red-100 text-left transition-colors border border-red-200"
+                disabled={!isDirector}
+                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 hover:bg-red-100 text-left transition-colors border border-red-200 disabled:opacity-50 disabled:hover:bg-red-50 disabled:cursor-not-allowed"
               >
                 <span className="material-symbols-outlined text-red-600 text-[22px] shrink-0 mt-0.5">
                   delete_forever
@@ -626,7 +638,9 @@ export function GuardsManagement({
                     Excluir Registro Permanentemente
                   </h4>
                   <p className="text-xs text-red-600/80 mt-0.5 leading-snug">
-                    Remove este prestador do apontamento atual. Indicado apenas se cadastrado por engano.
+                    {isDirector
+                      ? 'Remove este prestador do apontamento atual. Indicado apenas se cadastrado por engano.'
+                      : 'Somente o diretor pode excluir. Use "Desativar" acima.'}
                   </p>
                 </div>
               </button>

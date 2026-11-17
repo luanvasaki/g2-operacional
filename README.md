@@ -48,7 +48,7 @@ Sistema de Gestão Operacional de Diárias, Escalas de Prestadores de Serviço e
    VITE_SUPABASE_ANON_KEY=sua-chave-anon-publica
    ```
 
-> 🔒 O acesso aos dados exige login (Supabase Auth). Somente usuários cadastrados em `managers` leem ou gravam dados; apenas o `diretor` altera taxa padrão e teto orçado.
+> 🔒 O acesso aos dados exige login (Supabase Auth). Somente usuários cadastrados em `managers` leem ou gravam dados; apenas o `diretor` altera taxa padrão e teto orçado, troca uma chave PIX já cadastrada, exclui prestadores e restaura cópias de segurança. O supervisor pode cadastrar o primeiro PIX de um prestador e desativar prestadores.
 
 ---
 

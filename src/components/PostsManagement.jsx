@@ -474,7 +474,7 @@ export function PostsManagement() {
           <span className="material-symbols-outlined text-ink-muted">backup</span>
           <span>Segurança dos Dados & Cópia de Segurança</span>
         </h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className={`grid gap-2 ${isDirector ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <button
             onClick={exportBackupJSON}
             className="py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 border border-line"
@@ -482,6 +482,7 @@ export function PostsManagement() {
             <span className="material-symbols-outlined text-[16px]">download</span>
             <span>Baixar Cópia (JSON)</span>
           </button>
+          {isDirector && (
           <label className="py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 border border-line cursor-pointer">
             <span className="material-symbols-outlined text-[16px]">upload</span>
             <span>Restaurar Cópia Salva</span>
@@ -492,14 +493,17 @@ export function PostsManagement() {
               className="hidden"
             />
           </label>
+          )}
         </div>
 
-        <button
-          onClick={handleReset}
-          className="w-full py-2.5 text-xs text-ink-muted hover:text-red-600 font-semibold hover:bg-red-50 rounded-xl transition"
-        >
-          Restaurar Dados Originais da Planilha Modelo
-        </button>
+        {isDirector && (
+          <button
+            onClick={handleReset}
+            className="w-full py-2.5 text-xs text-ink-muted hover:text-red-600 font-semibold hover:bg-red-50 rounded-xl transition"
+          >
+            Restaurar Dados Originais da Planilha Modelo
+          </button>
+        )}
       </div>
     </div>
   </div>

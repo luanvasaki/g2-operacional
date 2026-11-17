@@ -66,9 +66,24 @@ DROP POLICY IF EXISTS "Managers full access on posts" ON public.posts;
 CREATE POLICY "Managers full access on posts" ON public.posts
     FOR ALL TO authenticated USING (public.is_manager()) WITH CHECK (public.is_manager());
 
+-- Prestadores: gestores leem, incluem e alteram; só o diretor exclui
+-- (excluir e recriar seria um jeito de trocar o PIX sem deixar o aviso).
 DROP POLICY IF EXISTS "Managers full access on guards" ON public.guards;
-CREATE POLICY "Managers full access on guards" ON public.guards
-    FOR ALL TO authenticated USING (public.is_manager()) WITH CHECK (public.is_manager());
+DROP POLICY IF EXISTS "Managers read guards" ON public.guards;
+CREATE POLICY "Managers read guards" ON public.guards
+    FOR SELECT TO authenticated USING (public.is_manager());
+
+DROP POLICY IF EXISTS "Managers insert guards" ON public.guards;
+CREATE POLICY "Managers insert guards" ON public.guards
+    FOR INSERT TO authenticated WITH CHECK (public.is_manager());
+
+DROP POLICY IF EXISTS "Managers update guards" ON public.guards;
+CREATE POLICY "Managers update guards" ON public.guards
+    FOR UPDATE TO authenticated USING (public.is_manager()) WITH CHECK (public.is_manager());
+
+DROP POLICY IF EXISTS "Director deletes guards" ON public.guards;
+CREATE POLICY "Director deletes guards" ON public.guards
+    FOR DELETE TO authenticated USING (public.is_director());
 
 DROP POLICY IF EXISTS "Managers full access on shifts" ON public.shifts;
 CREATE POLICY "Managers full access on shifts" ON public.shifts
@@ -96,6 +111,31 @@ CREATE POLICY "Director writes app_settings" ON public.app_settings
 DROP POLICY IF EXISTS "Managers read managers" ON public.managers;
 CREATE POLICY "Managers read managers" ON public.managers
     FOR SELECT TO authenticated USING (user_id = auth.uid() OR public.is_director());
+
+-- 5b. SÓ O DIRETOR TROCA UMA CHAVE PIX JÁ CADASTRADA
+-- Cadastrar a primeira chave (campo vazio) continua liberado para qualquer gestor.
+-- Alterações feitas pelo SQL Editor (sem usuário logado) não são bloqueadas.
+CREATE OR REPLACE FUNCTION public.enforce_pix_change_by_director()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+    IF auth.uid() IS NOT NULL
+       AND COALESCE(btrim(OLD.pix_key), '') <> ''
+       AND COALESCE(btrim(NEW.pix_key), '') IS DISTINCT FROM COALESCE(btrim(OLD.pix_key), '')
+       AND NOT public.is_director() THEN
+        RAISE EXCEPTION 'Somente o diretor pode trocar a chave PIX de um prestador.'
+            USING ERRCODE = '42501';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.enforce_pix_change_by_director() FROM PUBLIC, anon, authenticated;
+
+DROP TRIGGER IF EXISTS enforce_pix_change_by_director ON public.guards;
+CREATE TRIGGER enforce_pix_change_by_director BEFORE UPDATE ON public.guards
+    FOR EACH ROW EXECUTE FUNCTION public.enforce_pix_change_by_director();
 
 -- 6. REMOVER A SENHA ANTIGA GUARDADA EM TEXTO CLARO
 DELETE FROM public.app_settings WHERE key IN ('manager_password', 'selected_month');
