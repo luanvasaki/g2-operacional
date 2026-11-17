@@ -12,6 +12,7 @@ import { buildMonthOptions, getCurrentMonthKey, shiftMonthKey, formatMonthLabel 
 import { buildPaidRecords } from '../utils/paymentHistory'
 import { PaymentHistory } from './payments/PaymentHistory'
 import { DayHoursModal } from './payments/DayHoursModal'
+import { PixChangeWarning } from './payments/PixChangeWarning'
 
 export function PaymentsView({ onOpenQuickHub }) {
   const {
@@ -687,6 +688,8 @@ export function PaymentsView({ onOpenQuickHub }) {
                 </button>
               </div>
             </div>
+
+            <PixChangeWarning guard={currentGuard} />
 
             {/* Bank Details Chip Grid */}
             <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-field text-ink border border-line/60">

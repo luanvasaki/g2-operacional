@@ -47,6 +47,9 @@ function guardFromDb(row) {
     phone: row.phone || '',
     pixKey: row.pix_key || '',
     pixType: row.pix_type || '',
+    // preenchidos pelo banco quando a chave PIX muda (supabase-hardening.sql)
+    pixChangedAt: row.pix_changed_at || null,
+    pixPreviousKey: row.pix_previous_key || '',
     defaultShiftHours: Number(row.default_shift_hours) === 4 ? 3 : (Number(row.default_shift_hours) || 3),
     hourlyRate: Number(row.hourly_rate) || 40,
     active: row.active !== false,
@@ -568,9 +571,17 @@ export function AppProvider({ children }) {
       const next = prev.map((g) => {
         if (g.id !== id) return g
         const nextName = updates.name ? (cleanGuardName(updates.name) || updates.name) : g.name
+        // Troca de PIX: mostra o aviso já neste aparelho (o banco grava a data oficial)
+        const oldPix = (g.pixKey || '').trim()
+        const newPix = updates.pixKey !== undefined ? String(updates.pixKey).trim() : oldPix
+        const pixChange =
+          oldPix && newPix !== oldPix
+            ? { pixChangedAt: new Date().toISOString(), pixPreviousKey: oldPix }
+            : {}
         return {
           ...g,
           ...updates,
+          ...pixChange,
           name: nextName,
           fullName: nextName,
           postId: null,

@@ -147,6 +147,41 @@ BEGIN
 END $$;
 
 
+-- ------------------------------------------------------------------------------
+-- 3. AVISO DE TROCA DE CHAVE PIX
+-- Quando a chave PIX de um prestador muda, o banco grava a data e a chave
+-- anterior. O app mostra um alerta na tela de pagamento por 30 dias.
+-- Só o banco preenche esses campos: o app não consegue apagar nem forjar a data.
+-- ------------------------------------------------------------------------------
+
+ALTER TABLE guards ADD COLUMN IF NOT EXISTS pix_changed_at TIMESTAMPTZ;
+ALTER TABLE guards ADD COLUMN IF NOT EXISTS pix_previous_key TEXT;
+
+CREATE OR REPLACE FUNCTION public.track_pix_change()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    NEW.pix_changed_at := NULL;
+    NEW.pix_previous_key := NULL;
+  ELSIF COALESCE(btrim(NEW.pix_key), '') IS DISTINCT FROM COALESCE(btrim(OLD.pix_key), '')
+        AND COALESCE(btrim(OLD.pix_key), '') <> '' THEN
+    NEW.pix_changed_at := NOW();
+    NEW.pix_previous_key := OLD.pix_key;
+  ELSE
+    NEW.pix_changed_at := OLD.pix_changed_at;
+    NEW.pix_previous_key := OLD.pix_previous_key;
+  END IF;
+  RETURN NEW;
+END $$;
+
+DROP TRIGGER IF EXISTS track_pix_change ON guards;
+CREATE TRIGGER track_pix_change BEFORE INSERT OR UPDATE ON guards
+  FOR EACH ROW EXECUTE FUNCTION public.track_pix_change();
+
+
 -- ==============================================================================
 -- CONSULTAS ÚTEIS (rode separadamente quando precisar)
 -- ==============================================================================

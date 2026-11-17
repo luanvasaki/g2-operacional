@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
+import { PixChangeWarning } from './payments/PixChangeWarning'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
 import { getMonthInfo } from '../utils/brazilianCalendar'
 import { shiftMonthKey, formatMonthLabel } from '../utils/months'
@@ -875,6 +876,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                           </button>
                         )}
                       </div>
+                      {!isPaid && <PixChangeWarning guard={guard} compact />}
                       <span className={`font-mono text-xs font-bold block mt-0.5 ${isPaid ? 'text-brand' : 'text-warn'}`}>
                         {isPaid ? 'Pago: ' : 'A Pagar: '}R$ {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({hours}h)
                       </span>
