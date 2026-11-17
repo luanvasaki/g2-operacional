@@ -5,6 +5,7 @@ import { GuardScheduleEditModal } from './GuardScheduleEditModal'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
 import { getHoliday, getWeekday, getMonthInfo, BRAZILIAN_WEEKDAYS } from '../utils/brazilianCalendar'
 import { INITIAL_SHIFTS } from '../data/initialData'
+import { buildMonthOptions } from '../utils/months'
 
 export function SpreadsheetView({
   onOpenNewGuardModal,
@@ -312,7 +313,8 @@ export function SpreadsheetView({
 
     // 3. Fallback: Check INITIAL_SHIFTS for this month & day
     // Find guard in INITIAL_SHIFTS that had hours on day d, but now has 0 / null
-    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-10'] || INITIAL_SHIFTS['2026-09'] || {}
+    // Só usa a escala-modelo do PRÓPRIO mês (nunca a de outro mês)
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || {}
     for (const [gid, dayMap] of Object.entries(initialMonthShifts)) {
       if (gid === 'g-folguista') continue
       const initHours = dayMap[d]
@@ -431,7 +433,14 @@ export function SpreadsheetView({
   // Restore the day's original schedule from INITIAL_SHIFTS
   const handleRestoreDayDefault = (d) => {
     if (!d) return
-    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth] || INITIAL_SHIFTS['2026-10'] || INITIAL_SHIFTS['2026-09'] || {}
+    const initialMonthShifts = INITIAL_SHIFTS[selectedMonth]
+
+    // Mês sem escala-modelo: não apagar a escala real do dia.
+    // Apenas desfaz a substituição (devolve o colaborador original, se houver).
+    if (!initialMonthShifts) {
+      handleUndoFolguista(d)
+      return
+    }
 
     // Remove folguista
     setShiftHours('g-folguista', d, null, '')
@@ -494,11 +503,11 @@ export function SpreadsheetView({
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-transparent font-bold text-xs sm:text-sm text-ink outline-none cursor-pointer capitalize"
               >
-                <option value="2026-08">Agosto 2026</option>
-                <option value="2026-09">Setembro 2026</option>
-                <option value="2026-10">Outubro 2026 (Mês Atual)</option>
-                <option value="2026-11">Novembro 2026</option>
-                <option value="2026-12">Dezembro 2026</option>
+                {buildMonthOptions({ selected: selectedMonth }).map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 

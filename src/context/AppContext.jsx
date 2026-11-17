@@ -4,8 +4,8 @@ import {
   INITIAL_GUARDS,
   INITIAL_SHIFTS,
   INITIAL_PAYMENTS,
-  CURRENT_MONTH_KEY,
 } from '../data/initialData'
+import { getCurrentMonthKey, isValidMonthKey } from '../utils/months'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
 const AppContext = createContext(null)
@@ -20,6 +20,7 @@ const STORAGE_KEYS = {
   HOURLY_RATE: 'g2_hourly_rate',
   BUDGET_CEILING: 'g2_budget_ceiling',
   SELECTED_MONTH: 'g2_selected_month',
+  SELECTED_MONTH_AT: 'g2_selected_month_at', // mês real em que a escolha foi feita
   SHIFT_NOTES: 'g2_shift_notes',
   MANAGER_PASSWORD: 'g2_manager_password',
 }
@@ -135,17 +136,37 @@ export function AppProvider({ children }) {
     }
   })
 
-  // Selected Month (Format: YYYY-MM)
+  // Mês selecionado (YYYY-MM). A escolha do usuário vale só dentro do mesmo mês real:
+  // quando o mês vira, o app abre automaticamente no mês atual.
   const [selectedMonth, setSelectedMonth] = useState(() => {
+    const current = getCurrentMonthKey()
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_MONTH)
-      // If user had previous default 2026-09 cached, upgrade to CURRENT_MONTH_KEY (2026-10)
-      if (saved && saved !== '2026-09') return saved
-      return CURRENT_MONTH_KEY
-    } catch {
-      return CURRENT_MONTH_KEY
-    }
+      const savedAt = localStorage.getItem(STORAGE_KEYS.SELECTED_MONTH_AT)
+      if (isValidMonthKey(saved) && savedAt === current) return saved
+    } catch {}
+    return current
   })
+
+  // Aba aberta durante a virada do mês: ao voltar para o app, acompanha o mês novo
+  useEffect(() => {
+    let lastSeen = getCurrentMonthKey()
+    const checkRollover = () => {
+      const now = getCurrentMonthKey()
+      if (now === lastSeen) return
+      setSelectedMonth((sel) => (sel === lastSeen ? now : sel))
+      lastSeen = now
+    }
+    const onVisible = () => document.visibilityState === 'visible' && checkRollover()
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', checkRollover)
+    const timer = setInterval(checkRollover, 60 * 1000)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', checkRollover)
+      clearInterval(timer)
+    }
+  }, [])
 
   // Posts
   const [posts, setPosts] = useState(() => {
@@ -260,6 +281,7 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SELECTED_MONTH, selectedMonth)
+    localStorage.setItem(STORAGE_KEYS.SELECTED_MONTH_AT, getCurrentMonthKey())
   }, [selectedMonth])
 
   useEffect(() => {
@@ -1030,7 +1052,7 @@ export function AppProvider({ children }) {
     setShifts(INITIAL_SHIFTS)
     setPayments(INITIAL_PAYMENTS)
     setDefaultHourlyRate(40)
-    setSelectedMonth(CURRENT_MONTH_KEY)
+    setSelectedMonth(getCurrentMonthKey())
   }
 
   // Export & Import Backup

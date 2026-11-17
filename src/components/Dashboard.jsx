@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
 import { getMonthInfo } from '../utils/brazilianCalendar'
+import { buildMonthOptions, getCurrentMonthKey } from '../utils/months'
 
 export function Dashboard({
   setActiveTab,
@@ -72,13 +73,7 @@ export function Dashboard({
   const budgetPercent = Math.min(100, (totalAmount / currentBudgetCeiling) * 100)
   const budgetRemaining = Math.max(0, currentBudgetCeiling - totalAmount)
 
-  const monthOptions = [
-    { value: '2026-08', label: 'Agosto 2026' },
-    { value: '2026-09', label: 'Setembro 2026' },
-    { value: '2026-10', label: 'Outubro 2026 (Mês Atual)' },
-    { value: '2026-11', label: 'Novembro 2026' },
-    { value: '2026-12', label: 'Dezembro 2026' },
-  ]
+  const monthOptions = buildMonthOptions({ selected: selectedMonth })
 
   const sampleTodayGuards = activeGuards.slice(0, 4)
 
@@ -543,11 +538,13 @@ export function Dashboard({
 
           {/* Plantão de Hoje */}
           {(() => {
+            // "Hoje" é sempre o dia real, no mês real (independe do mês selecionado)
             const todayDay = new Date().getDate()
+            const todayMonth = getCurrentMonthKey()
             const todayPlantao = activeGuards
               .map((g) => ({
                 guard: g,
-                hours: shifts?.[selectedMonth]?.[g.id]?.[todayDay] || 0,
+                hours: shifts?.[todayMonth]?.[g.id]?.[todayDay] || 0,
               }))
               .filter((x) => x.hours > 0)
 

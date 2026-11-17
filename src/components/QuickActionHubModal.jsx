@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { WhatsAppIcon } from './icons/WhatsAppIcon'
 import { getMonthInfo } from '../utils/brazilianCalendar'
+import { shiftMonthKey, formatMonthLabel } from '../utils/months'
 
 export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }) {
   const {
@@ -82,7 +83,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
   const [scheduleHours, setScheduleHours] = useState(3)
   const [scheduleQuinzena, setScheduleQuinzena] = useState('both') // 'both', 'q1', 'q2'
   const [customDays, setCustomDays] = useState([])
-  const [copySourceMonth, setCopySourceMonth] = useState('2026-08')
+  // Duplicar escala: sempre a partir do mês anterior ao selecionado
+  const copySourceMonth = shiftMonthKey(selectedMonth, -1)
 
   // Keep schedule hours synced to guard's default (always 3h unless custom)
   useEffect(() => {
@@ -116,9 +118,9 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
   }
 
   const handleCopyMonth = () => {
-    if (window.confirm(`Deseja duplicar a escala completa de ${copySourceMonth} para ${selectedMonth}?`)) {
+    if (window.confirm(`Deseja duplicar a escala completa de ${formatMonthLabel(copySourceMonth)} para ${formatMonthLabel(selectedMonth)}?`)) {
       copyMonthShifts(copySourceMonth, selectedMonth)
-      showToast(`Escala duplicada com sucesso para ${selectedMonth}!`)
+      showToast(`Escala duplicada com sucesso para ${formatMonthLabel(selectedMonth)}!`)
     }
   }
 

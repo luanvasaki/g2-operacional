@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { WhatsAppBadgeIcon } from './icons/WhatsAppIcon'
+import { buildMonthOptions } from '../utils/months'
 
 function normalizeStr(str = '') {
   return str
@@ -341,14 +342,11 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 onChange={(e) => setTargetMonth(e.target.value)}
                 className="bg-white text-ink font-bold text-xs px-3.5 py-2.5 rounded-xl border border-line focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer shadow-xs capitalize"
               >
-                <option value="2026-08">Agosto 2026</option>
-                <option value="2026-09">Setembro 2026</option>
-                <option value="2026-10">Outubro 2026 (Mês Atual)</option>
-                <option value="2026-11">Novembro 2026</option>
-                <option value="2026-12">Dezembro 2026</option>
-                <option value="2027-01">Janeiro 2027</option>
-                <option value="2027-02">Fevereiro 2027</option>
-                <option value="2027-03">Março 2027</option>
+                {buildMonthOptions({ selected: targetMonth, back: 3, ahead: 4 }).map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

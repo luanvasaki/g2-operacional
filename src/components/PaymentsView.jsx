@@ -8,6 +8,7 @@ import {
   getWeekday,
   formatCurrencyBR,
 } from '../utils/brazilianCalendar'
+import { buildMonthOptions, getCurrentMonthKey, shiftMonthKey, formatMonthLabel } from '../utils/months'
 
 export function PaymentsView({ onOpenQuickHub }) {
   const {
@@ -268,6 +269,8 @@ export function PaymentsView({ onOpenQuickHub }) {
   })
 
   // Auditoria e Histórico Geral de Pagamentos Confirmados
+  const currentMonthKey = getCurrentMonthKey()
+  const prevMonthKey = shiftMonthKey(currentMonthKey, -1)
   const paidCountsByMonth = {}
   const confirmedPaymentRecords = Object.entries(payments || {})
     .filter(([_, data]) => data?.status === 'PAID')
@@ -279,7 +282,7 @@ export function PaymentsView({ onOpenQuickHub }) {
       const post = posts.find((p) => p.id === guard?.postId)
 
       const guardMonthShifts = shifts[pMonth]?.[pGuardId] || {}
-      const [pYear, pMNum] = (pMonth || '2026-09').split('-').map(Number)
+      const [pYear, pMNum] = (pMonth || currentMonthKey).split('-').map(Number)
       const pTotalDays = new Date(pYear, pMNum, 0).getDate()
       const rate = Number(guard?.hourlyRate) > 0 ? Number(guard.hourlyRate) : (Number(defaultHourlyRate) || 40)
 
@@ -363,64 +366,53 @@ export function PaymentsView({ onOpenQuickHub }) {
 
         {/* Quick Month Selector Buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('2026-09')}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
-              selectedMonth === '2026-09'
-                ? 'bg-brand text-white border-brand shadow-sm'
-                : 'bg-page text-ink border-line hover:bg-field'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">check_circle</span>
-            <span>Setembro 2026</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-              selectedMonth === '2026-09' ? 'bg-white text-brand' : 'bg-mint/40 text-brand'
-            }`}>
-              {paidCountsByMonth['2026-09'] || 25} Pagos
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('2026-10')}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
-              selectedMonth === '2026-10'
-                ? 'bg-brand text-white border-brand shadow-sm'
-                : 'bg-page text-ink border-line hover:bg-field'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">event</span>
-            <span>Outubro 2026 (Atual)</span>
-            {paidCountsByMonth['2026-10'] > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                selectedMonth === '2026-10' ? 'bg-white text-brand' : 'bg-mint/40 text-brand'
-              }`}>
-                {paidCountsByMonth['2026-10']} Pagos
-              </span>
-            )}
-          </button>
+          {[
+            { key: prevMonthKey, icon: 'check_circle', label: formatMonthLabel(prevMonthKey) },
+            { key: currentMonthKey, icon: 'event', label: `${formatMonthLabel(currentMonthKey)} (Atual)` },
+          ].map(({ key, icon, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSelectedMonth(key)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                selectedMonth === key
+                  ? 'bg-brand text-white border-brand shadow-sm'
+                  : 'bg-page text-ink border-line hover:bg-field'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">{icon}</span>
+              <span>{label}</span>
+              {paidCountsByMonth[key] > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                  selectedMonth === key ? 'bg-white text-brand' : 'bg-mint/40 text-brand'
+                }`}>
+                  {paidCountsByMonth[key]} Pagos
+                </span>
+              )}
+            </button>
+          ))}
 
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
             className="bg-field text-ink font-bold text-xs px-3 py-2 rounded-xl border border-line focus:outline-none cursor-pointer capitalize shadow-2xs"
           >
-            <option value="2026-08">Agosto 2026</option>
-            <option value="2026-09">Setembro 2026 (25 Pagos)</option>
-            <option value="2026-10">Outubro 2026 (Mês Atual)</option>
-            <option value="2026-11">Novembro 2026</option>
-            <option value="2026-12">Dezembro 2026</option>
+            {buildMonthOptions({ selected: selectedMonth }).map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+                {paidCountsByMonth[opt.value] > 0 ? ` (${paidCountsByMonth[opt.value]} Pagos)` : ''}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
       {/* Informativo de Conferência de Pagamentos */}
-      {selectedMonth === '2026-10' && (paidCountsByMonth['2026-09'] || 25) > 0 && (
+      {selectedMonth === currentMonthKey && paidCountsByMonth[prevMonthKey] > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 flex items-start gap-3">
           <span className="material-symbols-outlined text-blue-700 text-[20px] shrink-0 mt-0.5">info</span>
           <div className="text-xs text-blue-900 leading-relaxed">
-            <strong>Aviso de Competência:</strong> Os pagamentos efetuados recentemente para o fechamento de setembro estão salvos na competência <strong>Setembro 2026</strong> ({paidCountsByMonth['2026-09'] || 25} prestadores confirmados). Clique no botão <strong>[Setembro 2026]</strong> acima para ver a folha quitada ou confira o <strong>Histórico de Auditoria</strong> abaixo.
+            <strong>Aviso de Competência:</strong> Os pagamentos do fechamento de {formatMonthLabel(prevMonthKey).split(' ')[0].toLowerCase()} estão salvos na competência <strong>{formatMonthLabel(prevMonthKey)}</strong> ({paidCountsByMonth[prevMonthKey]} prestadores confirmados). Clique no botão <strong>[{formatMonthLabel(prevMonthKey)}]</strong> acima para ver a folha quitada ou confira o <strong>Histórico de Auditoria</strong> abaixo.
           </div>
         </div>
       )}
@@ -1242,9 +1234,11 @@ export function PaymentsView({ onOpenQuickHub }) {
               className="text-xs font-bold px-3 py-2 bg-page border border-line rounded-xl text-ink outline-none cursor-pointer"
             >
               <option value="all">Todos os Meses</option>
-              <option value="2026-09">Setembro 2026</option>
-              <option value="2026-10">Outubro 2026</option>
-              <option value="2026-11">Novembro 2026</option>
+              {buildMonthOptions({ selected: historyMonthFilter, back: 12, ahead: 0 }).map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
 
             <button
