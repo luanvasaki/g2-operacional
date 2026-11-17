@@ -38,8 +38,8 @@ Sistema de Gestão Operacional de Diárias, Escalas de Prestadores de Serviço e
 1. Crie uma conta ou acesse [supabase.com](https://supabase.com) e crie um novo projeto.
 2. No menu **SQL Editor**, crie uma nova consulta e cole o conteúdo de [`supabase-schema.sql`](./supabase-schema.sql). Clique em **Run**.
 3. (Recomendado) Em outra consulta, cole e rode [`supabase-hardening.sql`](./supabase-hardening.sql): adiciona validações dos dados e um registro de todas as alterações (pagamentos, chaves PIX, escala). Pode ser rodado com o app em uso.
-3. Em **Project Settings > API**, copie a **Project URL** e a chave **anon public**.
-4. Crie um arquivo `.env` localmente (ou configure as variáveis no Vercel):
+4. Em **Project Settings > API**, copie a **Project URL** e a chave **anon public**.
+5. Crie um arquivo `.env` localmente (ou configure as variáveis no Vercel):
    ```env
    VITE_SUPABASE_URL=https://seu-projeto.supabase.co
    VITE_SUPABASE_ANON_KEY=sua-chave-anon-publica
