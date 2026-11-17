@@ -300,11 +300,11 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <span>Importar Escala do WhatsApp</span>
-                <span className="px-2 py-0.5 rounded-full bg-whatsapp text-brand-ink text-[10px] font-black uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-whatsapp text-brand-ink text-[11px] font-black">
                   Automático
                 </span>
               </h2>
-              <p className="text-[11px] text-on-navy">
+              <p className="text-xs text-on-navy">
                 Cole o texto enviado pelo supervisor e preencha a planilha em 1 clique
               </p>
             </div>
@@ -330,7 +330,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <label className="text-xs font-bold text-ink block leading-tight">
                   Mês de Destino da Escala:
                 </label>
-                <span className="text-[11px] text-ink-muted">
+                <span className="text-xs text-ink-muted">
                   Selecione para qual mês esses plantões devem ser importados
                 </span>
               </div>
@@ -363,7 +363,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={handlePasteClipboard}
-                  className="px-2.5 py-1 rounded-lg bg-field hover:bg-line text-ink text-[11px] font-bold flex items-center gap-1 border border-line transition"
+                  className="px-2.5 py-1 rounded-lg bg-field hover:bg-line text-ink text-xs font-bold flex items-center gap-1 border border-line transition"
                   title="Colar texto da área de transferência"
                 >
                   <span className="material-symbols-outlined text-[14px]">content_paste</span>
@@ -373,7 +373,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={handleLoadSample}
-                  className="px-2.5 py-1 rounded-lg bg-mint/30 hover:bg-mint/50 text-brand text-[11px] font-bold flex items-center gap-1 border border-mint/40 transition"
+                  className="px-2.5 py-1 rounded-lg bg-mint/30 hover:bg-mint/50 text-brand text-xs font-bold flex items-center gap-1 border border-mint/40 transition"
                   title="Carregar exemplo da escala Confiança"
                 >
                   <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
@@ -433,10 +433,10 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                       type="button"
                       onClick={() => setOverrideHours(h)}
                       className={`py-1.5 rounded-xl font-bold text-xs transition border ${
-                        (overrideHours === h || (overrideHours === null && currentPost?.id === 'confianca' && h === 3) || (overrideHours === null && currentPost?.id !== 'confianca' && h === 4))
-                          ? 'bg-navy text-white border-navy'
-                          : 'bg-white text-ink-soft border-line hover:bg-field'
-                      }`}
+ (overrideHours === h || (overrideHours === null && currentPost?.id === 'confianca' && h === 3) || (overrideHours === null && currentPost?.id !== 'confianca' && h === 4))
+ ? 'bg-navy text-white border-navy'
+ : 'bg-white text-ink-soft border-line hover:bg-field'
+ }`}
                     >
                       {h} Horas
                     </button>
@@ -453,7 +453,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <span className="material-symbols-outlined text-[18px]">warning</span>
                 <span>Nome(s) não cadastrado(s) na equipe:</span>
               </div>
-              <p className="text-[11px] text-amber-700">
+              <p className="text-xs text-amber-700">
                 Os seguintes nomes foram encontrados no texto mas ainda não existem no sistema.
                 Você pode cadastrá-los com 1 toque:
               </p>
@@ -495,7 +495,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-ink">{guard.name}</span>
-                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-field text-brand font-bold">
+                      <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-field text-brand font-bold">
                         {days.length} dias
                       </span>
                     </div>
@@ -529,14 +529,14 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                       <div
                         key={idx}
                         className={`p-1.5 rounded-lg text-xs font-mono flex items-center justify-between ${
-                          entry.guard
-                            ? 'bg-white text-ink border border-line'
-                            : 'bg-red-50 text-red-700 border border-red-200'
-                        }`}
+ entry.guard
+ ? 'bg-white text-ink border border-line'
+ : 'bg-red-50 text-red-700 border border-red-200'
+ }`}
                       >
                         <span className="font-bold">D{String(entry.day).padStart(2, '0')}:</span>
                         <span className="truncate">{entry.guard ? entry.guard.name : entry.rawName}</span>
-                        <span className="text-[10px] text-brand">{entry.hours}h</span>
+                        <span className="text-[11px] text-brand">{entry.hours}h</span>
                       </div>
                     ))}
                   </div>
@@ -559,7 +559,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               {/* Dynamic Impact Hero Ribbon */}
               <div className="bg-navy text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
                 <div>
-                  <span className="text-[10px] text-on-navy font-mono uppercase">
+                  <span className="text-[11px] text-on-navy">
                     Impacto Total Importado
                   </span>
                   <div className="font-bold text-sm text-white mt-0.5">
@@ -568,7 +568,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-mint font-mono uppercase font-bold">
+                  <span className="text-[11px] text-mint font-bold">
                     Carga & Custo
                   </span>
                   <div className="font-mono text-xs font-bold text-white mt-0.5">
@@ -603,10 +603,10 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
             onClick={handleApplyImport}
             disabled={parseResult.entries.filter((e) => e.guard !== null).length === 0}
             className={`flex-2 py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95 ${
-              parseResult.entries.filter((e) => e.guard !== null).length > 0
-                ? 'bg-brand hover:bg-brand-hover text-white'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
+ parseResult.entries.filter((e) => e.guard !== null).length > 0
+ ? 'bg-brand hover:bg-brand-hover text-white'
+ : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
             <span>

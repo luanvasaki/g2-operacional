@@ -25,10 +25,10 @@ export function BottomNav({ activeTab, setActiveTab }) {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[44px] transition-all cursor-pointer relative ${
-                isActive
-                  ? 'text-brand font-bold scale-105'
-                  : 'text-ink-soft hover:text-ink'
-              }`}
+ isActive
+ ? 'text-brand font-bold scale-105'
+ : 'text-ink-soft hover:text-ink'
+ }`}
             >
               <div className="relative flex items-center justify-center">
                 <span
@@ -39,14 +39,14 @@ export function BottomNav({ activeTab, setActiveTab }) {
                 </span>
                 {item.id === 'pagamentos' && pendingCount > 0 && (
                   <span
-                    className="absolute -top-1.5 -right-2.5 min-w-[17px] h-[17px] px-1 bg-amber-500 text-white font-mono text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-pulse"
+                    className="absolute -top-1.5 -right-2.5 min-w-[17px] h-[17px] px-1 bg-amber-500 text-white font-mono text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-xs"
                     title={`${pendingCount} pagamentos pendentes`}
                   >
                     {pendingCount}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] font-medium leading-none">{item.label}</span>
+              <span className="text-xs font-medium leading-none">{item.label}</span>
             </button>
           )
         })}

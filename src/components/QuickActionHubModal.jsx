@@ -236,7 +236,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               <h2 className="text-sm font-bold text-ink">
                 Central de Operações Rápidas G2
               </h2>
-              <p className="text-[11px] text-ink-muted">
+              <p className="text-xs text-ink-muted">
                 Atalhos inteligentes para facilitar sua rotina diária
               </p>
             </div>
@@ -255,52 +255,52 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             type="button"
             onClick={() => setActiveTab('cadastro')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
-              activeTab === 'cadastro'
-                ? 'bg-white text-ink shadow-xs'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeTab === 'cadastro'
+ ? 'bg-white text-ink shadow-xs'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">person_add</span>
-            <span className="text-[10px] leading-tight">Novo Bico</span>
+            <span className="text-[11px] leading-tight">Novo Bico</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('escala')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
-              activeTab === 'escala'
-                ? 'bg-white text-ink shadow-xs'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeTab === 'escala'
+ ? 'bg-white text-ink shadow-xs'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">auto_fix_high</span>
-            <span className="text-[10px] leading-tight">Auto Escala</span>
+            <span className="text-[11px] leading-tight">Auto Escala</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('hoje')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
-              activeTab === 'hoje'
-                ? 'bg-white text-ink shadow-xs'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeTab === 'hoje'
+ ? 'bg-white text-ink shadow-xs'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">today</span>
-            <span className="text-[10px] leading-tight">Lançar Hoje</span>
+            <span className="text-[11px] leading-tight">Lançar Hoje</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('pagamento')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
-              activeTab === 'pagamento'
-                ? 'bg-white text-ink shadow-xs'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeTab === 'pagamento'
+ ? 'bg-white text-ink shadow-xs'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">payments</span>
-            <span className="text-[10px] leading-tight">Pagar PIX</span>
+            <span className="text-[11px] leading-tight">Pagar PIX</span>
           </button>
         </div>
 
@@ -308,7 +308,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         {activeTab === 'cadastro' && (
           <form onSubmit={handleQuickAddGuard} className="space-y-3 pt-1">
             <div className="bg-field p-3 rounded-2xl border border-line/60">
-              <span className="text-[11px] font-bold text-brand flex items-center gap-1">
+              <span className="text-xs font-bold text-brand flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">info</span>
                 Cadastro em 10 segundos: digite apenas o nome do colaborador!
               </span>
@@ -389,7 +389,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   <span className="text-xs font-bold text-ink block leading-tight">
                     Recebeu a escala no WhatsApp?
                   </span>
-                  <span className="text-[10px] text-ink-soft">
+                  <span className="text-[11px] text-ink-soft">
                     Cole a mensagem para preencher os 30 dias automaticamente
                   </span>
                 </div>
@@ -407,7 +407,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             </div>
 
             <div className="bg-field p-3 rounded-2xl border border-line/60">
-              <span className="text-[11px] font-bold text-brand flex items-center gap-1">
+              <span className="text-xs font-bold text-brand flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">magic_button</span>
                 Ou preencha com 1 toque escolhendo o padrão da escala:
               </span>
@@ -450,15 +450,15 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       type="button"
                       onClick={() => setSchedulePattern(item.id)}
                       className={`p-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 border text-left ${
-                        isSelected
-                          ? 'bg-navy text-white border-navy shadow-xs'
-                          : 'bg-field text-ink-soft border-line hover:bg-line'
-                      }`}
+ isSelected
+ ? 'bg-navy text-white border-navy shadow-xs'
+ : 'bg-field text-ink-soft border-line hover:bg-line'
+ }`}
                     >
                       <span className="material-symbols-outlined text-[16px] text-mint">
                         {item.icon}
                       </span>
-                      <span className="text-[11px] leading-tight">{item.label}</span>
+                      <span className="text-xs leading-tight">{item.label}</span>
                     </button>
                   )
                 })}
@@ -478,10 +478,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       type="button"
                       onClick={() => setScheduleHours(h)}
                       className={`py-2 rounded-xl font-mono text-xs font-bold transition border ${
-                        scheduleHours === h
-                          ? 'bg-brand text-white border-brand'
-                          : 'bg-field text-ink border-line'
-                      }`}
+ scheduleHours === h
+ ? 'bg-brand text-white border-brand'
+ : 'bg-field text-ink border-line'
+ }`}
                     >
                       {h}h
                     </button>
@@ -504,10 +504,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       type="button"
                       onClick={() => setScheduleQuinzena(item.id)}
                       className={`py-2 rounded-xl text-xs font-bold transition border ${
-                        scheduleQuinzena === item.id
-                          ? 'bg-brand text-white border-brand'
-                          : 'bg-field text-ink border-line'
-                      }`}
+ scheduleQuinzena === item.id
+ ? 'bg-brand text-white border-brand'
+ : 'bg-field text-ink border-line'
+ }`}
                     >
                       {item.label}
                     </button>
@@ -565,7 +565,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
             {/* Quick Helper and Batch Buttons */}
             <div className="flex items-center justify-between text-xs text-ink-muted">
-              <span className="text-[11px]">
+              <span className="text-xs">
                 Padrão: <strong className="text-brand">3h</strong>. Ajuste no <strong>(+)</strong> ou <strong>(-)</strong>:
               </span>
               <div className="flex items-center gap-1.5">
@@ -579,7 +579,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     setTodayRecords(map)
                     showToast('Todos os plantões definidos para 3h!')
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-brand/10 hover:bg-brand/20 text-brand font-bold text-[10px] border border-brand/30 transition"
+                  className="px-2 py-0.5 rounded-lg bg-brand/10 hover:bg-brand/20 text-brand font-bold text-[11px] border border-brand/30 transition"
                   title="Definir 3 horas para todos os colaboradores"
                 >
                   Todos 3h
@@ -594,7 +594,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     setTodayRecords(map)
                     showToast('Todos definidos com folga (0h)!')
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-field hover:bg-line text-ink-muted font-bold text-[10px] border border-line transition"
+                  className="px-2 py-0.5 rounded-lg bg-field hover:bg-line text-ink-muted font-bold text-[11px] border border-line transition"
                   title="Zerar horas de todos os colaboradores"
                 >
                   Zerar (0h)
@@ -621,17 +621,17 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                           {guard.name}
                         </span>
                         {currentH > 3 && (
-                          <span className="text-[9px] bg-amber-100 text-amber-900 border border-amber-300 font-black px-1.5 py-0.2 rounded-full shrink-0">
-                            ★ +{currentH - 3}h Extra
+                          <span className="text-[11px] bg-amber-100 text-amber-900 border border-amber-300 font-black px-1.5 py-0.2 rounded-full shrink-0">
+                            +{currentH - 3}h extra
                           </span>
                         )}
                         {currentH === 0 && (
-                          <span className="text-[9px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.2 rounded-full shrink-0">
+                          <span className="text-[11px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.2 rounded-full shrink-0">
                             Folga
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-ink-muted block truncate">
+                      <span className="text-[11px] text-ink-muted block truncate">
                         <strong className="text-brand font-mono font-bold">R$ {dailyTotal.toFixed(2).replace('.', ',')}</strong> ({currentH}h)
                       </span>
                     </div>
@@ -654,12 +654,12 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
                         <span
                           className={`w-8 text-center font-mono text-xs font-black ${
-                            currentH === 0
-                              ? 'text-slate-400'
-                              : currentH > 3
-                              ? 'text-amber-800'
-                              : 'text-brand'
-                          }`}
+ currentH === 0
+ ? 'text-slate-400'
+ : currentH > 3
+ ? 'text-amber-800'
+ : 'text-brand'
+ }`}
                         >
                           {currentH}h
                         </span>
@@ -686,11 +686,11 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                             onClick={() =>
                               setTodayRecords({ ...todayRecords, [guard.id]: h })
                             }
-                            className={`h-7 px-1.5 min-w-[28px] rounded-lg font-mono text-[10px] font-bold transition ${
-                              currentH === h
-                                ? 'bg-brand text-white shadow-xs'
-                                : 'bg-field text-ink-soft hover:bg-line'
-                            }`}
+                            className={`h-7 px-1.5 min-w-[28px] rounded-lg font-mono text-[11px] font-bold transition ${
+ currentH === h
+ ? 'bg-brand text-white shadow-xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
                             title={h === 0 ? 'Folga (0h)' : `${h} horas de plantão`}
                           >
                             {h === 0 ? '0h' : `${h}h`}
@@ -724,7 +724,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   <span className="material-symbols-outlined text-[22px]">calendar_month</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-on-navy block font-bold">
+                  <span className="text-[11px] text-on-navy block font-bold">
                     Mês de Competência do Pagamento
                   </span>
                   <span className="text-sm font-black text-mint capitalize leading-none">
@@ -733,7 +733,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-white/70 block font-mono">Quinzena Ativa</span>
+                <span className="text-[11px] text-white/70 block">Quinzena Ativa</span>
                 <span className="text-xs font-black text-white font-mono bg-white/10 px-2 py-0.5 rounded-md">
                   {payQuinzena === 'q1' ? '1ª Q (01 a 15)' : `2ª Q (16 a ${totalDaysInMonth})`}
                 </span>
@@ -747,10 +747,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   type="button"
                   onClick={() => setPayQuinzena('q1')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    payQuinzena === 'q1'
-                      ? 'bg-brand text-white shadow-xs'
-                      : 'bg-white text-ink-soft border border-line'
-                  }`}
+ payQuinzena === 'q1'
+ ? 'bg-brand text-white shadow-xs'
+ : 'bg-white text-ink-soft border border-line'
+ }`}
                 >
                   1ª Quinzena (01-15)
                 </button>
@@ -758,10 +758,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   type="button"
                   onClick={() => setPayQuinzena('q2')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    payQuinzena === 'q2'
-                      ? 'bg-brand text-white shadow-xs'
-                      : 'bg-white text-ink-soft border border-line'
-                  }`}
+ payQuinzena === 'q2'
+ ? 'bg-brand text-white shadow-xs'
+ : 'bg-white text-ink-soft border border-line'
+ }`}
                 >
                   2ª Quinzena (16-{totalDaysInMonth})
                 </button>
@@ -788,13 +788,13 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               return (
                 <div className="grid grid-cols-3 gap-1.5 p-2.5 bg-navy rounded-2xl text-white shadow-xs border border-white/10">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-on-navy uppercase font-mono">Total Previsto</span>
+                    <span className="text-[11px] text-on-navy">Total Previsto</span>
                     <span className="font-mono text-xs font-bold text-white mt-0.5">
                       R$ {qTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="flex flex-col border-x border-white/10 px-2">
-                    <span className="text-[10px] text-mint uppercase font-mono font-bold flex items-center gap-0.5">
+                    <span className="text-[11px] text-mint font-mono font-bold flex items-center gap-0.5">
                       <span className="material-symbols-outlined text-[12px]">check_circle</span>
                       Já Pago
                     </span>
@@ -803,7 +803,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     </span>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-[10px] text-warn-soft uppercase font-mono font-bold flex items-center justify-end gap-0.5">
+                    <span className="text-[11px] text-warn-soft font-mono font-bold flex items-center justify-end gap-0.5">
                       <span className="material-symbols-outlined text-[12px]">schedule</span>
                       A Pagar
                     </span>
@@ -841,27 +841,27 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   <div
                     key={guard.id}
                     className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                      isPaid
-                        ? 'bg-brand/5 border-mint/60'
-                        : 'bg-white border-line shadow-xs'
-                    }`}
+ isPaid
+ ? 'bg-brand/5 border-mint/60'
+ : 'bg-white border-line shadow-xs'
+ }`}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-xs text-ink truncate">
                           {guard.name}
                         </span>
-                        <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-field text-brand font-bold border border-line">
+                        <span className="font-mono text-[11px] px-1.5 py-0.2 rounded bg-field text-brand font-bold border border-line">
                           {monthInfo.monthName.slice(0, 3).toUpperCase()}/{year}
                         </span>
                         {isPaid && (
-                          <span className="font-mono text-[9px] px-1.5 py-0.2 rounded-full bg-brand text-white font-bold">
+                          <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-brand text-white font-bold">
                             Quitado
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5 text-ink-muted">
-                        <span className="font-mono text-[10px] truncate max-w-[130px]">
+                        <span className="font-mono text-[11px] truncate max-w-[130px]">
                           PIX: {guard.pixKey || 'Não cadastrado'}
                         </span>
                         {guard.pixKey && (
@@ -885,10 +885,10 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                         type="button"
                         onClick={() => handlePayGuard(guard)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-xs ${
-                          isPaid
-                            ? 'bg-brand text-white border border-mint hover:bg-brand-hover'
-                            : 'bg-brand hover:bg-brand-hover text-white'
-                        }`}
+ isPaid
+ ? 'bg-brand text-white border border-mint hover:bg-brand-hover'
+ : 'bg-brand hover:bg-brand-hover text-white'
+ }`}
                         title={
                           isPaid
                             ? `Pagamento de ${guard.name} marcado como PAGO. Clique novamente para retirar o pagamento e reabrir.`

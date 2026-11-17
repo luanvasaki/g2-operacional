@@ -187,11 +187,11 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <span>Lançar em Vários Dias</span>
-                <span className="px-2 py-0.5 rounded-full bg-mint text-brand-ink text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-mint text-brand-ink text-[11px] font-bold">
                   Agilidade
                 </span>
               </h2>
-              <p className="text-[11px] text-on-navy capitalize">
+              <p className="text-xs text-on-navy capitalize">
                 {monthName} • R$ {defaultHourlyRate},00/h
               </p>
             </div>
@@ -218,7 +218,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
               <button
                 type="button"
                 onClick={() => setIsMultiGuardMode(!isMultiGuardMode)}
-                className="text-[11px] text-brand font-bold hover:underline flex items-center gap-1"
+                className="text-xs text-brand font-bold hover:underline flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[15px]">
                   {isMultiGuardMode ? 'person' : 'group_add'}
@@ -245,7 +245,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
               </select>
             ) : (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-ink-soft font-semibold">
                     {selectedGuardIds.length} selecionado(s) de {activeGuards.length}
                   </span>
@@ -274,10 +274,10 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                       <label
                         key={g.id}
                         className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer transition ${
-                          isChecked
-                            ? 'bg-mint/20 text-brand font-bold border border-mint/40'
-                            : 'bg-white text-ink-soft hover:bg-field'
-                        }`}
+ isChecked
+ ? 'bg-mint/20 text-brand font-bold border border-mint/40'
+ : 'bg-white text-ink-soft hover:bg-field'
+ }`}
                       >
                         <input
                           type="checkbox"
@@ -318,13 +318,13 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                   type="button"
                   onClick={() => setHours(opt.h)}
                   className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center transition border ${
-                    hours === opt.h
-                      ? 'bg-navy text-white border-navy shadow-xs'
-                      : 'bg-field text-ink-soft border-line hover:bg-line'
-                  }`}
+ hours === opt.h
+ ? 'bg-navy text-white border-navy shadow-xs'
+ : 'bg-field text-ink-soft border-line hover:bg-line'
+ }`}
                 >
                   <span className="font-bold text-xs">{opt.label}</span>
-                  <span className="text-[9px] opacity-75 font-mono">{opt.sub}</span>
+                  <span className="text-[11px] opacity-75 font-mono">{opt.sub}</span>
                 </button>
               ))}
             </div>
@@ -337,49 +337,49 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                 <span className="material-symbols-outlined text-[17px] text-brand">auto_awesome</span>
                 <span>Atalhos de Seleção de Dias</span>
               </label>
-              <span className="font-mono text-[10px] text-ink-muted">1 Toque</span>
+              <span className="font-mono text-[11px] text-ink-muted">1 Toque</span>
             </div>
 
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={selectWeekdays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
-                💼 Seg a Sex
+                <span className="material-symbols-outlined text-[14px] leading-none">work</span> Seg a Sex
               </button>
               <button
                 type="button"
                 onClick={selectWeekends}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
-                🏖️ Sáb e Dom
+                <span className="material-symbols-outlined text-[14px] leading-none">beach_access</span> Sáb e Dom
               </button>
               <button
                 type="button"
                 onClick={selectEvenDays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
-                🔢 Dias Pares
+                <span className="material-symbols-outlined text-[14px] leading-none">filter_2</span> Dias Pares
               </button>
               <button
                 type="button"
                 onClick={selectOddDays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
-                🔢 Dias Ímpares
+                <span className="material-symbols-outlined text-[14px] leading-none">filter_1</span> Dias Ímpares
               </button>
               <button
                 type="button"
                 onClick={selectQuinzena1}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 1ª Quinzena (1-15)
               </button>
               <button
                 type="button"
                 onClick={selectQuinzena2}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
+                className="px-2.5 py-1 text-xs font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 2ª Quinzena (16-{totalDays})
               </button>
@@ -387,11 +387,11 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                 <button
                   type="button"
                   onClick={selectHolidays}
-                  className="px-2.5 py-1 text-[11px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg border border-amber-300 transition flex items-center gap-1"
+                  className="px-2.5 py-1 text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg border border-amber-300 transition flex items-center gap-1"
                   title="Selecionar todos os feriados nacionais deste mês"
                 >
-                  <span>🇧🇷 Feriados</span>
-                  <span className="font-mono text-[9px] bg-amber-200 px-1 rounded font-bold">
+                  <span className="inline-flex items-center gap-1"><span className="material-symbols-outlined text-[14px] leading-none">flag</span>Feriados</span>
+                  <span className="font-mono text-[11px] bg-amber-200 px-1 rounded font-bold">
                     {holidaysInMonth.length}
                   </span>
                 </button>
@@ -399,7 +399,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
               <button
                 type="button"
                 onClick={selectAll}
-                className="px-2.5 py-1 text-[11px] font-bold bg-mint/30 hover:bg-mint/50 text-brand rounded-lg border border-mint/50 transition"
+                className="px-2.5 py-1 text-xs font-bold bg-mint/30 hover:bg-mint/50 text-brand rounded-lg border border-mint/50 transition"
               >
                 ✓ Todos ({totalDays})
               </button>
@@ -407,7 +407,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="px-2.5 py-1 text-[11px] font-semibold bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition"
+                  className="px-2.5 py-1 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition"
                 >
                   ✕ Limpar
                 </button>
@@ -427,7 +427,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             </div>
 
             {/* Weekday Labels (Brazilian standard: Dom..Sáb) */}
-            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-ink-muted font-bold mb-1.5">
+            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[11px] text-ink-muted font-bold mb-1.5">
               {WEEKDAYS.map((w, idx) => (
                 <div
                   key={w}
@@ -461,44 +461,44 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                     onClick={() => toggleDay(d)}
                     title={
                       holiday
-                        ? `Dia ${d} (${WEEKDAYS[dayOfWeek]}) • 🇧🇷 Feriado Nacional: ${holiday.name}`
+                        ? `Dia ${d} (${WEEKDAYS[dayOfWeek]}) • Feriado Nacional: ${holiday.name}`
                         : `Dia ${d} (${WEEKDAYS[dayOfWeek]})`
                     }
                     className={`h-11 rounded-xl flex flex-col items-center justify-center relative transition-all active:scale-90 border ${
-                      isSelected
-                        ? 'bg-brand text-white border-brand shadow-sm font-bold scale-[1.02]'
-                        : holiday
-                        ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 font-bold'
-                        : hasExisting
-                        ? 'bg-field text-ink border-line hover:border-brand'
-                        : isWeekend
-                        ? 'bg-page text-ink-soft border-line/50 hover:bg-field'
-                        : 'bg-white text-ink-soft border-line/70 hover:bg-field'
-                    }`}
+ isSelected
+ ? 'bg-brand text-white border-brand shadow-sm font-bold scale-[1.02]'
+ : holiday
+ ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 font-bold'
+ : hasExisting
+ ? 'bg-field text-ink border-line hover:border-brand'
+ : isWeekend
+ ? 'bg-page text-ink-soft border-line/50 hover:bg-field'
+ : 'bg-white text-ink-soft border-line/70 hover:bg-field'
+ }`}
                   >
                     <div className="flex items-center gap-0.5">
                       <span className="text-xs leading-none font-bold">
                         {String(d).padStart(2, '0')}
                       </span>
-                      {holiday && <span className="text-[8px] leading-none">🇧🇷</span>}
+                      {holiday && <span className="material-symbols-outlined text-[11px] leading-none">flag</span>}
                     </div>
 
                     {/* Badge for existing or new status */}
                     <span
-                      className={`text-[9px] font-mono leading-none mt-0.5 ${
-                        isSelected
-                          ? 'text-mint font-bold'
-                          : hasExisting
-                          ? 'text-brand font-bold'
-                          : 'text-transparent'
-                      }`}
+                      className={`text-[11px] font-mono leading-none mt-0.5 ${
+ isSelected
+ ? 'text-mint font-bold'
+ : hasExisting
+ ? 'text-brand font-bold'
+ : 'text-transparent'
+ }`}
                     >
                       {isSelected ? `${hours}h` : hasExisting ? `${existingH}h` : '•'}
                     </span>
 
                     {/* Tiny Check indicator when selected */}
                     {isSelected && (
-                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-mint text-brand-ink flex items-center justify-center text-[9px] font-black shadow-xs">
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-mint text-brand-ink flex items-center justify-center text-[11px] font-black shadow-xs">
                         ✓
                       </span>
                     )}
@@ -511,7 +511,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
           {/* Section 5: Dynamic Summary Card */}
           <div className="bg-navy text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
             <div className="flex flex-col">
-              <span className="text-[10px] text-on-navy font-mono uppercase">
+              <span className="text-[11px] text-on-navy">
                 Resumo da Escala
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -526,7 +526,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] text-mint font-mono uppercase font-bold">
+              <span className="text-[11px] text-mint font-bold">
                 Impacto Calculado
               </span>
               <div className="font-mono text-xs font-bold text-white mt-0.5">
@@ -552,10 +552,10 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             onClick={handleSave}
             disabled={selectedDays.length === 0}
             className={`flex-2 py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95 ${
-              selectedDays.length > 0
-                ? 'bg-brand hover:bg-brand-hover text-white'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
+ selectedDays.length > 0
+ ? 'bg-brand hover:bg-brand-hover text-white'
+ : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+ }`}
           >
             <span className="material-symbols-outlined text-[18px]">check_circle</span>
             <span>

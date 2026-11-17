@@ -184,7 +184,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                   Editar Escala: {guard.name}
                 </h2>
               </div>
-              <p className="text-[11px] text-on-navy">
+              <p className="text-xs text-on-navy">
                 Ajuste os plantões, horas trabalhadas e valor em reais (R$)
               </p>
             </div>
@@ -214,7 +214,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                 <span className="material-symbols-outlined text-[18px] text-brand">payments</span>
                 <span>Valor da Hora deste Prestador (R$/hora)</span>
               </span>
-              <p className="text-[11px] text-ink-muted">
+              <p className="text-xs text-ink-muted">
                 Define quantos reais ele recebe por cada hora cumprida de plantão
               </p>
             </div>
@@ -242,10 +242,10 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                     type="button"
                     onClick={() => setRate(r)}
                     className={`px-2 py-1.5 rounded-lg font-mono text-xs font-bold transition border ${
-                      Number(rate) === r
-                        ? 'bg-brand text-white border-brand'
-                        : 'bg-white text-ink-soft border-line hover:bg-line'
-                    }`}
+ Number(rate) === r
+ ? 'bg-brand text-white border-brand'
+ : 'bg-white text-ink-soft border-line hover:bg-line'
+ }`}
                   >
                     R${r}
                   </button>
@@ -258,7 +258,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
           <div className="grid grid-cols-3 gap-2 bg-navy text-white p-3.5 rounded-2xl border border-white/10 shadow-sm">
             <div className="flex flex-col justify-between">
               <div>
-                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
+                <span className="text-[11px] text-on-navy font-semibold block">
                   1ª Quinzena (1 a 15)
                 </span>
                 <span className="font-mono text-sm font-bold text-white mt-0.5 block">
@@ -277,11 +277,11 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                     handleSaveAndPay('q1')
                   }
                 }}
-                className={`mt-2 py-1 px-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
-                  isQ1Paid
-                    ? 'bg-brand text-white border-mint'
-                    : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
-                }`}
+                className={`mt-2 py-1 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
+ isQ1Paid
+ ? 'bg-brand text-white border-mint'
+ : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
+ }`}
                 title={isQ1Paid ? 'Clique para estornar pagamento' : 'Salvar horas e marcar 1ª Quinzena como Paga'}
               >
                 <span className="material-symbols-outlined text-[13px]">
@@ -293,7 +293,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
 
             <div className="flex flex-col justify-between border-x border-white/10 px-2 sm:px-3">
               <div>
-                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
+                <span className="text-[11px] text-on-navy font-semibold block">
                   2ª Quinzena (16 a {totalDays})
                 </span>
                 <span className="font-mono text-sm font-bold text-white mt-0.5 block">
@@ -312,11 +312,11 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                     handleSaveAndPay('q2')
                   }
                 }}
-                className={`mt-2 py-1 px-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
-                  isQ2Paid
-                    ? 'bg-brand text-white border-mint'
-                    : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
-                }`}
+                className={`mt-2 py-1 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
+ isQ2Paid
+ ? 'bg-brand text-white border-mint'
+ : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
+ }`}
                 title={isQ2Paid ? 'Clique para estornar pagamento' : 'Salvar horas e marcar 2ª Quinzena como Paga'}
               >
                 <span className="material-symbols-outlined text-[13px]">
@@ -328,7 +328,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
 
             <div className="flex flex-col justify-between text-right">
               <div>
-                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
+                <span className="text-[11px] text-on-navy font-semibold block">
                   Total do Mês
                 </span>
                 <span className="font-mono text-sm font-black text-mint mt-0.5 block">
@@ -338,8 +338,8 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                   R$ {totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              <span className="text-[9px] text-on-navy font-mono mt-2 block">
-                {isQ1Paid && isQ2Paid ? '✓ Mês Quitado' : (isQ1Paid || isQ2Paid) ? '1 Quinzena Paga' : '⏳ Em Aberto'}
+              <span className="text-[11px] text-on-navy font-mono mt-2 block">
+                {isQ1Paid && isQ2Paid ? '✓ Mês Quitado' : (isQ1Paid || isQ2Paid) ? '1 Quinzena Paga' : 'Em aberto'}
               </span>
             </div>
           </div>
@@ -358,10 +358,10 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                   type="button"
                   onClick={() => setActiveQuinzenaFilter(f.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                    activeQuinzenaFilter === f.id
-                      ? 'bg-brand text-white shadow-xs'
-                      : 'text-ink-soft hover:bg-line'
-                  }`}
+ activeQuinzenaFilter === f.id
+ ? 'bg-brand text-white shadow-xs'
+ : 'text-ink-soft hover:bg-line'
+ }`}
                 >
                   {f.label}
                 </button>
@@ -373,28 +373,28 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
               <button
                 type="button"
                 onClick={() => handleApplyPattern('even')}
-                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] border border-line"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-xs border border-line"
               >
                 Pares (3h)
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('odd')}
-                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] border border-line"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-xs border border-line"
               >
                 Ímpares (3h)
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('all')}
-                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-brand font-bold text-[11px] border border-line"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-brand font-bold text-xs border border-line"
               >
                 Todos 3h
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('clear')}
-                className="px-2 py-1 rounded-lg bg-field hover:bg-red-50 text-red-600 font-bold text-[11px] border border-line"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-red-50 text-red-600 font-bold text-xs border border-line"
               >
                 Zerar
               </button>
@@ -417,42 +417,42 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                 <div
                   key={d}
                   className={`p-2.5 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
-                    holiday
-                      ? 'bg-amber-50/80 border-amber-300'
-                      : h > 0
-                      ? isOvertime
-                        ? 'bg-amber-50/60 border-amber-300'
-                        : 'bg-white border-line'
-                      : 'bg-slate-50/80 border-slate-200 opacity-75'
-                  }`}
+ holiday
+ ? 'bg-amber-50/80 border-amber-300'
+ : h > 0
+ ? isOvertime
+ ? 'bg-amber-50/60 border-amber-300'
+ : 'bg-white border-line'
+ : 'bg-slate-50/80 border-slate-200 opacity-75'
+ }`}
                 >
                   {/* Day Info */}
                   <div className="flex items-center gap-2.5 min-w-[130px] flex-wrap">
                     <span className="font-mono text-xs font-black text-ink">
                       Dia {String(d).padStart(2, '0')}
                     </span>
-                    <span className="font-mono text-[10px] text-ink-muted uppercase font-bold">
+                    <span className="font-mono text-[11px] text-ink-muted font-bold">
                       ({weekday.short})
                     </span>
 
                     {holiday && (
                       <span
-                        className="text-[9px] bg-amber-200 text-amber-900 border border-amber-300 font-extrabold px-1.5 py-0.2 rounded-full flex items-center gap-1"
+                        className="text-[11px] bg-amber-200 text-amber-900 border border-amber-300 font-extrabold px-1.5 py-0.2 rounded-full flex items-center gap-1"
                         title={`Feriado Nacional: ${holiday.name}`}
                       >
-                        <span>🇧🇷</span>
+                        <span className="material-symbols-outlined text-[14px] leading-none">flag</span>
                         <span className="truncate max-w-[120px]">{holiday.name}</span>
                       </span>
                     )}
 
                     {isOvertime && !holiday && (
-                      <span className="text-[9px] bg-amber-200 text-amber-900 border border-amber-300 font-extrabold px-1.5 py-0.2 rounded-full">
-                        ★ +{h - 3}h Extra
+                      <span className="text-[11px] bg-amber-200 text-amber-900 border border-amber-300 font-extrabold px-1.5 py-0.2 rounded-full">
+                        +{h - 3}h extra
                       </span>
                     )}
 
                     {h === 0 && (
-                      <span className="text-[10px] text-slate-400 font-medium italic">
+                      <span className="text-[11px] text-slate-400 font-medium italic">
                         Folga
                       </span>
                     )}
@@ -465,7 +465,7 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                       placeholder="Motivo / Obs (ex: Dobra, Cobriu Silva)..."
                       value={note}
                       onChange={(e) => handleSetDayNote(d, e.target.value)}
-                      className="w-full text-[11px] px-2.5 py-1 bg-white rounded-lg border border-line text-ink focus:outline-none focus:ring-1 focus:ring-brand"
+                      className="w-full text-xs px-2.5 py-1 bg-white rounded-lg border border-line text-ink focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
 
@@ -484,12 +484,12 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
 
                       <span
                         className={`w-8 text-center font-mono text-xs font-black ${
-                          h === 0
-                            ? 'text-slate-400'
-                            : isOvertime
-                            ? 'text-amber-800'
-                            : 'text-brand'
-                        }`}
+ h === 0
+ ? 'text-slate-400'
+ : isOvertime
+ ? 'text-amber-800'
+ : 'text-brand'
+ }`}
                       >
                         {h}h
                       </span>
@@ -511,11 +511,11 @@ function GuardScheduleEditModalContent({ guard, onClose }) {
                           key={presetH}
                           type="button"
                           onClick={() => handleSetDayHours(d, presetH)}
-                          className={`h-6 px-1.5 rounded-md font-mono text-[10px] font-bold transition ${
-                            h === presetH
-                              ? 'bg-brand text-white shadow-2xs'
-                              : 'bg-field text-ink-soft hover:bg-line'
-                          }`}
+                          className={`h-6 px-1.5 rounded-md font-mono text-[11px] font-bold transition ${
+ h === presetH
+ ? 'bg-brand text-white shadow-2xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
                         >
                           {presetH === 0 ? '0h' : `${presetH}h`}
                         </button>

@@ -351,7 +351,7 @@ export function PaymentsView({ onOpenQuickHub }) {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-[10px] font-black uppercase tracking-wider text-brand bg-mint/30 px-2 py-0.5 rounded-md border border-mint/40">
+              <span className="text-[11px] font-black text-brand bg-mint/30 px-2 py-0.5 rounded-md border border-mint/40">
                 Mês de Competência
               </span>
               <h1 className="text-base font-black text-ink tracking-tight">
@@ -375,17 +375,17 @@ export function PaymentsView({ onOpenQuickHub }) {
               type="button"
               onClick={() => setSelectedMonth(key)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                selectedMonth === key
-                  ? 'bg-brand text-white border-brand shadow-sm'
-                  : 'bg-page text-ink border-line hover:bg-field'
-              }`}
+ selectedMonth === key
+ ? 'bg-brand text-white border-brand shadow-sm'
+ : 'bg-page text-ink border-line hover:bg-field'
+ }`}
             >
               <span className="material-symbols-outlined text-[16px]">{icon}</span>
               <span>{label}</span>
               {paidCountsByMonth[key] > 0 && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                  selectedMonth === key ? 'bg-white text-brand' : 'bg-mint/40 text-brand'
-                }`}>
+                <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-black ${
+ selectedMonth === key ? 'bg-white text-brand' : 'bg-mint/40 text-brand'
+ }`}>
                   {paidCountsByMonth[key]} Pagos
                 </span>
               )}
@@ -419,21 +419,18 @@ export function PaymentsView({ onOpenQuickHub }) {
 
       {/* ALERTA DE FALTAS DE PAGAMENTO */}
       {(selectedQuinzena === 'q1' ? q1PendingCount : selectedQuinzena === 'q2' ? q2PendingCount : q1PendingCount + q2PendingCount) > 0 ? (
-        <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-2 border-amber-400 rounded-2xl p-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+        <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shrink-0 shadow-2xs">
               <span className="material-symbols-outlined text-[22px]">notification_important</span>
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-white">
-                  Alerta: Faltas de Pagamento
-                </span>
-                <span className="text-xs font-black text-warn-ink">
+                <span className="text-sm font-bold text-warn-ink">
                   {(selectedQuinzena === 'q1' ? q1PendingCount : selectedQuinzena === 'q2' ? q2PendingCount : q1PendingCount + q2PendingCount)} {((selectedQuinzena === 'q1' ? q1PendingCount : selectedQuinzena === 'q2' ? q2PendingCount : q1PendingCount + q2PendingCount) === 1 ? 'prestador aguarda pagamento' : 'prestadores aguardam pagamento')}
                 </span>
               </div>
-              <p className="text-[11px] text-warn-strong font-medium mt-0.5">
+              <p className="text-xs text-warn-strong font-medium mt-0.5">
                 Total pendente: <strong>R$ {(selectedQuinzena === 'q1' ? q1PendingAmount : selectedQuinzena === 'q2' ? q2PendingAmount : q1PendingAmount + q2PendingAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> ({activeShortLabel} • {monthInfo.formattedMonth})
               </p>
             </div>
@@ -443,10 +440,10 @@ export function PaymentsView({ onOpenQuickHub }) {
             type="button"
             onClick={() => setOnlyPendingFilter(!onlyPendingFilter)}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-95 ${
-              onlyPendingFilter
-                ? 'bg-amber-700 text-white ring-2 ring-amber-400'
-                : 'bg-amber-600 hover:bg-amber-700 text-white'
-            }`}
+ onlyPendingFilter
+ ? 'bg-amber-700 text-white ring-2 ring-amber-400'
+ : 'bg-amber-600 hover:bg-amber-700 text-white'
+ }`}
           >
             <span className="material-symbols-outlined text-[16px]">
               {onlyPendingFilter ? 'visibility_off' : 'filter_alt'}
@@ -462,7 +459,7 @@ export function PaymentsView({ onOpenQuickHub }) {
               Todos os pagamentos da {activeShortLabel} estão 100% quitados!
             </span>
           </div>
-          <span className="font-mono text-[10px] font-black text-brand-text bg-mint/30 px-2 py-0.5 rounded-full">
+          <span className="text-[11px] font-black text-brand-text bg-mint/30 px-2 py-0.5 rounded-full">
             Tudo Pago
           </span>
         </div>
@@ -472,8 +469,8 @@ export function PaymentsView({ onOpenQuickHub }) {
       <div className="bg-navy text-white rounded-2xl p-2.5 shadow-sm border border-white/10 flex flex-col gap-2">
         <div className="flex items-center justify-between px-2 pt-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-mint animate-pulse"></span>
-            <span className="font-mono text-[11px] uppercase tracking-wider text-white font-black flex items-center gap-1.5 flex-wrap">
+            <span className="w-2 h-2 rounded-full bg-mint"></span>
+            <span className="font-mono text-xs text-white font-black flex items-center gap-1.5 flex-wrap">
               <span>Folha de {monthInfo.formattedMonth}</span>
               <span className="text-mint font-bold">•</span>
               <span className="text-mint">{activeShortLabel}</span>
@@ -481,7 +478,7 @@ export function PaymentsView({ onOpenQuickHub }) {
           </div>
           <button
             onClick={() => onOpenQuickHub?.('pagamento')}
-            className="flex items-center gap-1 text-[10px] font-bold text-mint hover:underline"
+            className="flex items-center gap-1 text-[11px] font-bold text-mint hover:underline"
           >
             <span className="material-symbols-outlined text-[14px]">bolt</span>
             <span>Liquidar Lote</span>
@@ -495,20 +492,20 @@ export function PaymentsView({ onOpenQuickHub }) {
             type="button"
             onClick={() => setSelectedQuinzena('q1')}
             className={`py-2 px-1.5 rounded-lg flex flex-col items-center justify-center transition-all ${
-              selectedQuinzena === 'q1'
-                ? 'bg-brand text-white shadow-md font-bold'
-                : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
-            }`}
+ selectedQuinzena === 'q1'
+ ? 'bg-brand text-white shadow-md font-bold'
+ : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
+ }`}
           >
             <span className="text-xs font-bold leading-tight">1ª Quinzena</span>
-            <span className="font-mono text-[10px] opacity-80">Dias 01 a 15</span>
+            <span className="font-mono text-[11px] opacity-80">Dias 01 a 15</span>
             {currentGuard && (
               <span
-                className={`mt-1 font-mono text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
-                  isQ1Paid
-                    ? 'bg-mint text-brand-ink shadow-xs'
-                    : 'bg-white/20 text-mint'
-                }`}
+                className={`mt-1 font-mono text-[11px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
+ isQ1Paid
+ ? 'bg-mint text-brand-ink shadow-xs'
+ : 'bg-white/20 text-mint'
+ }`}
               >
                 {isQ1Paid ? '✓ PAGO' : `R$ ${calc.q1Total.toFixed(0)}`}
               </span>
@@ -520,20 +517,20 @@ export function PaymentsView({ onOpenQuickHub }) {
             type="button"
             onClick={() => setSelectedQuinzena('q2')}
             className={`py-2 px-1.5 rounded-lg flex flex-col items-center justify-center transition-all ${
-              selectedQuinzena === 'q2'
-                ? 'bg-brand text-white shadow-md font-bold'
-                : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
-            }`}
+ selectedQuinzena === 'q2'
+ ? 'bg-brand text-white shadow-md font-bold'
+ : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
+ }`}
           >
             <span className="text-xs font-bold leading-tight">2ª Quinzena</span>
-            <span className="font-mono text-[10px] opacity-80">Dias 16 a {totalDays}</span>
+            <span className="font-mono text-[11px] opacity-80">Dias 16 a {totalDays}</span>
             {currentGuard && (
               <span
-                className={`mt-1 font-mono text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
-                  isQ2Paid
-                    ? 'bg-mint text-brand-ink shadow-xs'
-                    : 'bg-white/20 text-mint'
-                }`}
+                className={`mt-1 font-mono text-[11px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
+ isQ2Paid
+ ? 'bg-mint text-brand-ink shadow-xs'
+ : 'bg-white/20 text-mint'
+ }`}
               >
                 {isQ2Paid ? '✓ PAGO' : `R$ ${calc.q2Total.toFixed(0)}`}
               </span>
@@ -545,20 +542,20 @@ export function PaymentsView({ onOpenQuickHub }) {
             type="button"
             onClick={() => setSelectedQuinzena('all')}
             className={`py-2 px-1.5 rounded-lg flex flex-col items-center justify-center transition-all ${
-              selectedQuinzena === 'all'
-                ? 'bg-brand text-white shadow-md font-bold'
-                : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
-            }`}
+ selectedQuinzena === 'all'
+ ? 'bg-brand text-white shadow-md font-bold'
+ : 'bg-white/5 text-on-navy hover:bg-white/10 hover:text-white'
+ }`}
           >
             <span className="text-xs font-bold leading-tight">Mês Todo</span>
-            <span className="font-mono text-[10px] opacity-80">01 a {totalDays}</span>
+            <span className="font-mono text-[11px] opacity-80">01 a {totalDays}</span>
             {currentGuard && (
               <span
-                className={`mt-1 font-mono text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
-                  isQ1Paid && isQ2Paid
-                    ? 'bg-mint text-brand-ink shadow-xs'
-                    : 'bg-white/20 text-mint'
-                }`}
+                className={`mt-1 font-mono text-[11px] px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 ${
+ isQ1Paid && isQ2Paid
+ ? 'bg-mint text-brand-ink shadow-xs'
+ : 'bg-white/20 text-mint'
+ }`}
               >
                 {isQ1Paid && isQ2Paid ? '✓ PAGO' : `R$ ${calc.totalAmount.toFixed(0)}`}
               </span>
@@ -570,56 +567,56 @@ export function PaymentsView({ onOpenQuickHub }) {
         <div className="grid grid-cols-2 gap-2 pt-1">
           <div className="bg-white/5 rounded-xl p-2.5 border border-white/5 flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-on-navy font-bold">1ª Q (01 a 15)</span>
+              <span className="text-[11px] text-on-navy font-bold">1ª Q (01 a 15)</span>
               {q1PendingCount > 0 ? (
                 <button
                   type="button"
                   onClick={() => handleBatchPayQuinzena('q1')}
-                  className="py-0.5 px-2 text-[9px] font-bold bg-brand hover:bg-brand-hover text-white rounded-md transition active:scale-95 shadow-2xs"
+                  className="py-0.5 px-2 text-[11px] font-bold bg-brand hover:bg-brand-hover text-white rounded-md transition active:scale-95 shadow-2xs"
                 >
                   Quitar ({q1PendingCount})
                 </button>
               ) : (
-                <span className="text-[9px] text-mint font-mono font-black flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-[11px]">check</span>
+                <span className="text-[11px] text-mint font-mono font-black flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-xs">check</span>
                   Quitada
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between text-[11px] font-mono">
+            <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-mint font-bold" title="Já Pago">
                 ✓ R$ {q1PaidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
               <span className="text-warn-soft font-bold" title="Ainda a Pagar">
-                ⏳ R$ {q1PendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+                <span className="material-symbols-outlined text-[12px] leading-none align-[-2px]">schedule</span> R$ {q1PendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
             </div>
           </div>
 
           <div className="bg-white/5 rounded-xl p-2.5 border border-white/5 flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-on-navy font-bold">2ª Q (16 a {totalDays})</span>
+              <span className="text-[11px] text-on-navy font-bold">2ª Q (16 a {totalDays})</span>
               {q2PendingCount > 0 ? (
                 <button
                   type="button"
                   onClick={() => handleBatchPayQuinzena('q2')}
-                  className="py-0.5 px-2 text-[9px] font-bold bg-brand hover:bg-brand-hover text-white rounded-md transition active:scale-95 shadow-2xs"
+                  className="py-0.5 px-2 text-[11px] font-bold bg-brand hover:bg-brand-hover text-white rounded-md transition active:scale-95 shadow-2xs"
                 >
                   Quitar ({q2PendingCount})
                 </button>
               ) : (
-                <span className="text-[9px] text-mint font-mono font-black flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-[11px]">check</span>
+                <span className="text-[11px] text-mint font-mono font-black flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-xs">check</span>
                   Quitada
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between text-[11px] font-mono">
+            <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-mint font-bold" title="Já Pago">
                 ✓ R$ {q2PaidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
               <span className="text-warn-soft font-bold" title="Ainda a Pagar">
-                ⏳ R$ {q2PendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+                <span className="material-symbols-outlined text-[12px] leading-none align-[-2px]">schedule</span> R$ {q2PendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
               </span>
             </div>
           </div>
@@ -642,7 +639,7 @@ export function PaymentsView({ onOpenQuickHub }) {
         <select
           value={selectedGuardId}
           onChange={(e) => setSelectedGuardId(e.target.value)}
-          className="bg-field text-ink font-bold text-xs px-3 py-1.5 rounded-xl border border-line focus:outline-none cursor-pointer flex-1 truncate"
+          className="bg-field text-ink font-bold text-xs px-3 py-1.5 rounded-xl border border-line focus:outline-none cursor-pointer flex-1 min-w-0 truncate"
         >
           {displayedGuards.length === 0 ? (
             <option value="">Nenhum prestador pendente nesta quinzena</option>
@@ -666,7 +663,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
               return (
                 <option key={g.id} value={g.id}>
-                  {isPaid ? '✓ [PAGO' : '⏳ [A PAGAR'} • {monthInfo.monthName.slice(0, 3).toUpperCase()}/{monthInfo.year}] {g.name} — {formatCurrencyBR(gAmount)}
+                  {isPaid ? '✓ [PAGO' : '[A PAGAR'} • {monthInfo.monthName.slice(0, 3).toUpperCase()}/{monthInfo.year}] {g.name} — {formatCurrencyBR(gAmount)}
                 </option>
               )
             })
@@ -715,17 +712,17 @@ export function PaymentsView({ onOpenQuickHub }) {
               <div className="flex flex-col items-end gap-1 shrink-0">
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-xs transition-all ${
-                    isCurrentPaid
-                      ? 'bg-brand text-white border-2 border-mint'
-                      : 'bg-warn-soft text-warn-ink border border-warn-light'
-                  }`}
+ isCurrentPaid
+ ? 'bg-brand text-white border-2 border-mint'
+ : 'bg-warn-soft text-warn-ink border border-warn-light'
+ }`}
                 >
                   <span className="material-symbols-outlined text-[16px] font-black">
                     {isCurrentPaid ? 'check_circle' : 'pending'}
                   </span>
                   <span>{isCurrentPaid ? '✓ PAGO' : 'A PAGAR'}</span>
                 </span>
-                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-field text-brand font-bold border border-line">
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-field text-brand font-bold border border-line">
                   Ref: {monthInfo.formattedMonth}
                 </span>
                 <button
@@ -743,7 +740,7 @@ export function PaymentsView({ onOpenQuickHub }) {
             {/* Bank Details Chip Grid */}
             <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-field text-ink border border-line/60">
               <div className="flex flex-col">
-                <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
+                <span className="font-mono text-[11px] text-ink-muted font-semibold">
                   Chave PIX ({currentGuard.pixType || 'CPF'})
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -765,7 +762,7 @@ export function PaymentsView({ onOpenQuickHub }) {
               </div>
 
               <div className="flex flex-col">
-                <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
+                <span className="text-[11px] text-ink-muted font-semibold">
                   Contato
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -783,7 +780,7 @@ export function PaymentsView({ onOpenQuickHub }) {
             <div className="flex flex-col gap-2 z-10">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-1 rounded-lg bg-mint/20 text-mint border border-mint/40 font-mono text-xs font-black uppercase flex items-center gap-1.5 shadow-xs">
+                  <span className="px-2.5 py-1 rounded-lg bg-mint/20 text-mint border border-mint/40 font-mono text-xs font-black flex items-center gap-1.5 shadow-xs">
                     <span className="material-symbols-outlined text-[15px]">calendar_month</span>
                     <span>MÊS DE REFERÊNCIA: {monthInfo.formattedMonth.toUpperCase()}</span>
                   </span>
@@ -792,11 +789,11 @@ export function PaymentsView({ onOpenQuickHub }) {
                   </span>
                 </div>
                 <span
-                  className={`font-mono text-[11px] px-2.5 py-1 rounded-full font-black flex items-center gap-1.5 shadow-xs ${
-                    isCurrentPaid
-                      ? 'bg-brand text-white border-2 border-mint'
-                      : 'bg-warn-soft text-warn-deep'
-                  }`}
+                  className={`font-mono text-xs px-2.5 py-1 rounded-full font-black flex items-center gap-1.5 shadow-xs ${
+ isCurrentPaid
+ ? 'bg-brand text-white border-2 border-mint'
+ : 'bg-warn-soft text-warn-deep'
+ }`}
                 >
                   <span className="material-symbols-outlined text-[14px] font-black">
                     {isCurrentPaid ? 'check_circle' : 'pending'}
@@ -807,7 +804,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
               {/* Main Quinzena Calculation Hero Number with differentiation */}
               <div className="flex flex-col mt-1">
-                <span className={`text-[10px] font-mono uppercase font-bold flex items-center gap-1 ${isCurrentPaid ? 'text-mint' : 'text-warn-soft'}`}>
+                <span className={`text-[11px] font-mono font-bold flex items-center gap-1 ${isCurrentPaid ? 'text-mint' : 'text-warn-soft'}`}>
                   <span className="material-symbols-outlined text-[13px]">
                     {isCurrentPaid ? 'check_circle' : 'schedule'}
                   </span>
@@ -825,7 +822,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
               {/* Big High-Visibility Paid Banner */}
               {isCurrentPaid && (
-                <div className="mt-2 flex items-center gap-3 p-3.5 bg-gradient-to-r from-brand to-brand-hover text-white rounded-xl border-2 border-mint shadow-lg animate-in fade-in zoom-in-95">
+                <div className="mt-2 flex items-center gap-3 p-3.5 bg-brand text-white rounded-xl border-2 border-mint shadow-lg animate-in fade-in zoom-in-95">
                   <div className="w-10 h-10 rounded-full bg-mint text-brand-ink flex items-center justify-center shrink-0 shadow-sm">
                     <span className="material-symbols-outlined text-[26px] font-black">
                       check
@@ -833,14 +830,14 @@ export function PaymentsView({ onOpenQuickHub }) {
                   </div>
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-black tracking-wider text-mint uppercase">
+                      <span className="text-xs font-black text-mint">
                         ✓ PAGAMENTO CONFIRMADO
                       </span>
-                      <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded font-mono font-bold">
+                      <span className="text-[11px] bg-white/20 text-white px-2 py-0.5 rounded font-mono font-bold">
                         {activeShortLabel}
                       </span>
-                      <span className="text-[10px] bg-mint text-brand-ink px-2 py-0.5 rounded font-mono font-black uppercase shadow-2xs">
-                        📅 {monthInfo.formattedMonth.toUpperCase()}
+                      <span className="text-[11px] bg-mint text-brand-ink px-2 py-0.5 rounded font-mono font-black shadow-2xs">
+                        {monthInfo.formattedMonth}
                       </span>
                     </div>
                     <span className="text-xs text-white/95 font-medium mt-0.5">
@@ -854,21 +851,21 @@ export function PaymentsView({ onOpenQuickHub }) {
             {/* Quick Metrics Strip for this Quinzena */}
             <div className="grid grid-cols-3 gap-2 pt-1 bg-white/10 rounded-xl p-2.5 z-10">
               <div className="flex flex-col">
-                <span className="text-[10px] text-on-navy">Carga Horária</span>
+                <span className="text-[11px] text-on-navy">Carga Horária</span>
                 <span className="font-mono text-xs font-bold text-white mt-0.5">
                   {activeHours} horas
                 </span>
               </div>
 
               <div className="flex flex-col border-x border-white/10 px-2">
-                <span className="text-[10px] text-on-navy">Valor da Hora</span>
+                <span className="text-[11px] text-on-navy">Valor da Hora</span>
                 <span className="font-mono text-xs font-bold text-white mt-0.5">
                   R$ {(calc.rate || defaultHourlyRate).toFixed(2).replace('.', ',')}
                 </span>
               </div>
 
               <div className="flex flex-col text-right">
-                <span className="text-[10px] text-on-navy">Diárias Ativas</span>
+                <span className="text-[11px] text-on-navy">Diárias Ativas</span>
                 <span className="font-mono text-xs font-bold text-mint mt-0.5">
                   {daysWithHours.length} plantões
                 </span>
@@ -880,8 +877,8 @@ export function PaymentsView({ onOpenQuickHub }) {
               <div className="flex items-center gap-2">
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center font-bold ${
-                    isCurrentPaid ? 'bg-brand text-mint border border-mint' : 'bg-white/20 text-on-navy'
-                  }`}
+ isCurrentPaid ? 'bg-brand text-mint border border-mint' : 'bg-white/20 text-on-navy'
+ }`}
                 >
                   <span className="material-symbols-outlined text-[16px] font-black">
                     {isCurrentPaid ? 'check' : 'schedule'}
@@ -899,10 +896,10 @@ export function PaymentsView({ onOpenQuickHub }) {
                 type="button"
                 onClick={handleToggleActiveQuinzenaPayment}
                 className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition shadow-xs flex items-center gap-1.5 active:scale-95 ${
-                  isCurrentPaid
-                    ? 'bg-brand text-white border border-mint hover:bg-brand-hover'
-                    : 'bg-mint hover:bg-mint-strong text-brand-ink'
-                }`}
+ isCurrentPaid
+ ? 'bg-brand text-white border border-mint hover:bg-brand-hover'
+ : 'bg-mint hover:bg-mint-strong text-brand-ink'
+ }`}
                 title={isCurrentPaid ? 'Pagamento marcado como PAGO. Clique para retirar o pagamento e reabrir.' : 'Clique para pagar'}
               >
                 <span className="material-symbols-outlined text-[16px]">
@@ -917,16 +914,16 @@ export function PaymentsView({ onOpenQuickHub }) {
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 z-10">
                 <div className="bg-white/5 rounded-xl p-2.5 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-on-navy block">1ª Quinzena (01-15)</span>
+                    <span className="text-[11px] text-on-navy block">1ª Quinzena (01-15)</span>
                     <span className="font-mono text-xs font-bold text-white">
                       {formatCurrencyBR(calc.q1Total)} ({calc.q1Hours}h)
                     </span>
                   </div>
                   <button
                     onClick={() => togglePaymentStatus(currentGuard.id, 'q1')}
-                    className={`text-[9px] font-mono font-bold px-2 py-1 rounded transition ${
-                      isQ1Paid ? 'bg-brand text-white' : 'bg-warn-soft text-warn-deep'
-                    }`}
+                    className={`text-[11px] font-mono font-bold px-2 py-1 rounded transition ${
+ isQ1Paid ? 'bg-brand text-white' : 'bg-warn-soft text-warn-deep'
+ }`}
                   >
                     {isQ1Paid ? 'Pago' : 'Pagar'}
                   </button>
@@ -934,16 +931,16 @@ export function PaymentsView({ onOpenQuickHub }) {
 
                 <div className="bg-white/5 rounded-xl p-2.5 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-on-navy block">2ª Quinzena (16-{totalDays})</span>
+                    <span className="text-[11px] text-on-navy block">2ª Quinzena (16-{totalDays})</span>
                     <span className="font-mono text-xs font-bold text-white">
                       {formatCurrencyBR(calc.q2Total)} ({calc.q2Hours}h)
                     </span>
                   </div>
                   <button
                     onClick={() => togglePaymentStatus(currentGuard.id, 'q2')}
-                    className={`text-[9px] font-mono font-bold px-2 py-1 rounded transition ${
-                      isQ2Paid ? 'bg-brand text-white' : 'bg-warn-soft text-warn-deep'
-                    }`}
+                    className={`text-[11px] font-mono font-bold px-2 py-1 rounded transition ${
+ isQ2Paid ? 'bg-brand text-white' : 'bg-warn-soft text-warn-deep'
+ }`}
                   >
                     {isQ2Paid ? 'Pago' : 'Pagar'}
                   </button>
@@ -962,12 +959,12 @@ export function PaymentsView({ onOpenQuickHub }) {
                 <span className="text-xs font-bold text-ink">
                   Controle Operacional Interno por Quinzena
                 </span>
-                <span className="text-[11px] text-ink-muted">
+                <span className="text-xs text-ink-muted">
                   Sem emissão de recibos pelo app • Comprovante enviado diretamente pelo app do banco (PIX)
                 </span>
               </div>
             </div>
-            <span className="font-mono text-[10px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-full shrink-0">
+            <span className="text-[11px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-full shrink-0">
               Uso Interno
             </span>
           </section>
@@ -983,12 +980,12 @@ export function PaymentsView({ onOpenQuickHub }) {
                   <h3 className="text-xs font-bold text-ink">
                     Diárias da {activeShortLabel} • {monthInfo.formattedMonth}
                   </h3>
-                  <p className="text-[10px] text-ink-muted">
+                  <p className="text-[11px] text-ink-muted">
                     Calendário Oficial Brasileiro • Feriados Nacionais & Dias da Semana
                   </p>
                 </div>
               </div>
-              <span className="font-mono text-[10px] text-brand font-bold bg-field px-2 py-0.5 rounded-full border border-line">
+              <span className="font-mono text-[11px] text-brand font-bold bg-field px-2 py-0.5 rounded-full border border-line">
                 {daysWithHours.length} diárias ({activeHours}h)
               </span>
             </div>
@@ -1009,17 +1006,17 @@ export function PaymentsView({ onOpenQuickHub }) {
                       {/* Day & Weekday Box */}
                       <div
                         className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center shrink-0 font-mono transition ${
-                          hasHoliday
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300 font-black'
-                            : isWeekend
-                            ? 'bg-page text-ink-soft border border-line'
-                            : 'bg-field text-ink font-bold border border-line'
-                        }`}
+ hasHoliday
+ ? 'bg-amber-100 text-amber-900 border border-amber-300 font-black'
+ : isWeekend
+ ? 'bg-page text-ink-soft border border-line'
+ : 'bg-field text-ink font-bold border border-line'
+ }`}
                       >
                         <span className="text-xs font-bold leading-none">
                           {String(item.day).padStart(2, '0')}
                         </span>
-                        <span className="text-[9px] uppercase leading-none mt-0.5 font-sans font-bold">
+                        <span className="text-[11px] leading-none mt-0.5 font-sans font-bold">
                           {item.weekday.short}
                         </span>
                       </div>
@@ -1033,27 +1030,27 @@ export function PaymentsView({ onOpenQuickHub }) {
                           {/* Brazilian National Holiday Badge */}
                           {hasHoliday && (
                             <span
-                              className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 border border-amber-300"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 border border-amber-300"
                               title={`Feriado Nacional Oficial: ${item.holiday.name}`}
                             >
-                              <span>🇧🇷</span>
+                              <span className="material-symbols-outlined text-[14px] leading-none">flag</span>
                               <span className="truncate max-w-[140px]">{item.holiday.name}</span>
                             </span>
                           )}
 
                           {isOvertime && (
-                            <span className="text-[9px] bg-warn-soft text-warn-ink font-black px-1.5 py-0.2 rounded-full">
-                              ★ Hora Extra (+{item.hours - (currentGuard.defaultShiftHours || 3)}h)
+                            <span className="text-[11px] bg-warn-soft text-warn-ink font-black px-1.5 py-0.2 rounded-full">
+                              Hora extra (+{item.hours - (currentGuard.defaultShiftHours || 3)}h)
                             </span>
                           )}
                         </div>
 
-                        <span className="text-[10px] text-ink-muted mt-0.5">
+                        <span className="text-[11px] text-ink-muted mt-0.5">
                           {item.hours} horas cumpridas
                         </span>
                         {item.note && (
-                          <span className="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-md font-mono mt-1 inline-block w-fit">
-                            💬 {item.note}
+                          <span className="text-[11px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-md font-mono mt-1 inline-block w-fit">
+                            {item.note}
                           </span>
                         )}
                       </div>
@@ -1076,8 +1073,8 @@ export function PaymentsView({ onOpenQuickHub }) {
 
                         <span
                           className={`w-7 text-center font-mono text-xs font-black ${
-                            isOvertime ? 'text-amber-800' : 'text-brand'
-                          }`}
+ isOvertime ? 'text-amber-800' : 'text-brand'
+ }`}
                         >
                           {item.hours}h
                         </span>
@@ -1109,7 +1106,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                               note: item.note || '',
                             })
                           }
-                          className="text-[10px] text-brand hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
+                          className="text-[11px] text-brand hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
                           title="Ajustar horas exatas ou adicionar motivo de hora extra"
                         >
                           <span>Ajustar</span>
@@ -1129,7 +1126,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                   <p className="text-xs text-ink-muted font-medium">
                     Nenhum plantão registrado para este colaborador na {activeShortLabel}.
                   </p>
-                  <p className="text-[10px] text-ink-muted mt-0.5">
+                  <p className="text-[11px] text-ink-muted mt-0.5">
                     Alterne para a outra quinzena ou lance plantões na aba Planilha / Vários Dias.
                   </p>
                 </div>
@@ -1141,8 +1138,8 @@ export function PaymentsView({ onOpenQuickHub }) {
           <section className="fixed bottom-16 md:bottom-4 left-0 w-full px-4 z-30">
             <div className="max-w-[1920px] 2xl:max-w-full mx-auto flex flex-col gap-1.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-line">
               {/* Ultra-clear Month Competência Label above the button */}
-              <div className="flex items-center justify-between px-1 text-[11px] font-mono">
-                <span className="flex items-center gap-1 text-brand font-black uppercase">
+              <div className="flex items-center justify-between px-1 text-xs font-mono">
+                <span className="flex items-center gap-1 text-brand font-black">
                   <span className="material-symbols-outlined text-[14px]">calendar_month</span>
                   <span>Mês de Competência: <strong className="underline">{monthInfo.formattedMonth}</strong></span>
                 </span>
@@ -1157,10 +1154,10 @@ export function PaymentsView({ onOpenQuickHub }) {
                   type="button"
                   onClick={handleToggleActiveQuinzenaPayment}
                   className={`flex-1 h-12 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all border ${
-                    isCurrentPaid
-                      ? 'bg-brand text-white border-2 border-mint hover:bg-brand-hover'
-                      : 'bg-brand hover:bg-brand-hover text-white border border-brand'
-                  }`}
+ isCurrentPaid
+ ? 'bg-brand text-white border-2 border-mint hover:bg-brand-hover'
+ : 'bg-brand hover:bg-brand-hover text-white border border-brand'
+ }`}
                   title={isCurrentPaid ? `Pagamento marcado como PAGO. Clique para retirar o pagamento e reabrir.` : `Clique para pagar ${activeShortLabel} de ${monthInfo.formattedMonth}`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -1181,7 +1178,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                     title="Copiar Chave PIX"
                   >
                     <span className="material-symbols-outlined text-[18px]">content_copy</span>
-                    <span className="text-[9px] font-bold">PIX</span>
+                    <span className="text-[11px] font-bold">PIX</span>
                   </button>
                 )}
               </div>
@@ -1300,7 +1297,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
                       return (
                         <tr key={rec.key} className="hover:bg-page transition-colors">
-                          <td className="py-3 px-3.5 font-mono text-[11px] text-ink-soft whitespace-nowrap">
+                          <td className="py-3 px-3.5 font-mono text-xs text-ink-soft whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-[15px] text-emerald-600">
                                 event_available
@@ -1312,7 +1309,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                             <span>{rec.guardName}</span>
                           </td>
                           <td className="py-3 px-3.5 whitespace-nowrap">
-                            <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded-md bg-field text-brand border border-line">
+                            <span className="font-mono font-bold text-xs px-2 py-0.5 rounded-md bg-field text-brand border border-line">
                               {rec.monthName}
                             </span>
                           </td>
@@ -1325,7 +1322,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                           <td className="py-3 px-3.5 font-mono font-black text-emerald-700 whitespace-nowrap">
                             {rec.amount > 0 ? formatCurrencyBR(rec.amount) : 'Quitado'}
                           </td>
-                          <td className="py-3 px-3.5 font-mono text-[11px] text-ink-soft">
+                          <td className="py-3 px-3.5 font-mono text-xs text-ink-soft">
                             {rec.pixKey ? (
                               <button
                                 type="button"
@@ -1344,7 +1341,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                             )}
                           </td>
                           <td className="py-3 px-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
                               <span className="material-symbols-outlined text-[13px]">check_circle</span>
                               PAGO
                             </span>
@@ -1355,7 +1352,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                                 <button
                                   type="button"
                                   onClick={() => setSelectedMonth(rec.month)}
-                                  className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[10px] transition cursor-pointer"
+                                  className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] transition cursor-pointer"
                                   title="Ver folha desta competência"
                                 >
                                   Ver Folha
@@ -1369,7 +1366,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                                     showToast(`Pagamento de ${rec.guardName} reaberto (Pendente).`)
                                   }
                                 }}
-                                className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10px] transition cursor-pointer border border-rose-200"
+                                className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] transition cursor-pointer border border-rose-200"
                                 title="Desfazer marcação de pago"
                               >
                                 Reabrir
@@ -1400,7 +1397,7 @@ export function PaymentsView({ onOpenQuickHub }) {
                   <h4 className="text-sm font-bold text-ink">
                     Ajustar Dia {dayEditModal.day}
                   </h4>
-                  <span className="text-[11px] text-ink-muted">
+                  <span className="text-xs text-ink-muted">
                     {dayEditModal.guard.name}
                   </span>
                 </div>
@@ -1451,10 +1448,10 @@ export function PaymentsView({ onOpenQuickHub }) {
                       type="button"
                       onClick={() => setDayEditModal({ ...dayEditModal, hours: h })}
                       className={`py-1 rounded-lg text-xs font-mono font-bold transition border cursor-pointer ${
-                        dayEditModal.hours === h
-                          ? 'bg-brand text-white border-brand'
-                          : 'bg-field text-ink-soft border-line hover:bg-line'
-                      }`}
+ dayEditModal.hours === h
+ ? 'bg-brand text-white border-brand'
+ : 'bg-field text-ink-soft border-line hover:bg-line'
+ }`}
                     >
                       {h === 0 ? '0h' : `${h}h`}
                     </button>
@@ -1477,7 +1474,7 @@ export function PaymentsView({ onOpenQuickHub }) {
 
               {/* Subtotal preview */}
               <div className="p-2.5 bg-navy text-white rounded-xl flex items-center justify-between text-xs">
-                <span className="text-on-navy font-mono">Total deste dia:</span>
+                <span className="text-on-navy">Total deste dia:</span>
                 <span className="font-mono font-black text-mint">
                   R$ {(dayEditModal.hours * (calc.rate || defaultHourlyRate)).toFixed(2).replace('.', ',')}
                 </span>

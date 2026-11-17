@@ -144,7 +144,7 @@ export function PostsManagement() {
       {/* Header Info */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-line flex items-center justify-between">
         <div>
-          <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
+          <span className="text-[11px] text-ink-muted font-semibold">
             Configurações Operacionais
           </span>
           <h2 className="text-base font-bold text-ink">Postos e Parâmetros G2</h2>
@@ -189,7 +189,7 @@ export function PostsManagement() {
             Atualizar Taxa
           </button>
         </form>
-        <p className="text-[11px] text-ink-muted">
+        <p className="text-xs text-ink-muted">
           Valor multiplicado automaticamente pelo número de horas na 1ª e 2ª Quinzena.
         </p>
       </div>
@@ -221,7 +221,7 @@ export function PostsManagement() {
             Salvar Teto
           </button>
         </form>
-        <p className="text-[11px] text-ink-muted">
+        <p className="text-xs text-ink-muted">
           Meta máxima de previsão de pagamento para controle da barra de progresso no Início.
         </p>
       </div>
@@ -233,7 +233,7 @@ export function PostsManagement() {
             <span className="material-symbols-outlined text-brand">vpn_key</span>
             <h3 className="text-xs font-bold text-ink">Senha Oficial de Acesso dos Gerentes</h3>
           </div>
-          <span className="font-mono text-[10px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-md">
+          <span className="font-mono text-[11px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-md">
             G2 Acesso
           </span>
         </div>
@@ -257,7 +257,7 @@ export function PostsManagement() {
             Salvar Senha
           </button>
         </form>
-        <p className="text-[11px] text-ink-muted">
+        <p className="text-xs text-ink-muted">
           Esta é a senha que os gerentes usam para entrar na plataforma. Ao salvar, atualiza na nuvem para todos.
         </p>
       </div>
@@ -269,7 +269,7 @@ export function PostsManagement() {
             <span className="material-symbols-outlined text-brand">verified_user</span>
             <span>Sessão Atual ({currentUser?.name || 'Gestor'})</span>
           </h3>
-          <p className="text-[11px] text-ink-muted mt-0.5">
+          <p className="text-xs text-ink-muted mt-0.5">
             Navegador autenticado com credenciais G2
           </p>
         </div>
@@ -317,11 +317,11 @@ export function PostsManagement() {
                 <div>
                   <h4 className="text-sm font-bold text-ink">{post.name}</h4>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-ink-muted">
+                    <span className="text-[11px] text-ink-muted">
                       {post.address || 'Unidade Operacional'}
                     </span>
                     <span className="text-line">•</span>
-                    <span className="font-mono text-[10px] text-brand font-bold">
+                    <span className="font-mono text-[11px] text-brand font-bold">
                       {postHours}h acumuladas
                     </span>
                   </div>
@@ -357,16 +357,16 @@ export function PostsManagement() {
             <span>Banco de Dados em Nuvem (Supabase)</span>
           </h3>
           <span
-            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-              isSupabaseConfigured
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                : 'bg-amber-50 text-amber-700 border border-amber-200'
-            }`}
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+ isSupabaseConfigured
+ ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+ : 'bg-amber-50 text-amber-700 border border-amber-200'
+ }`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isSupabaseConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-              }`}
+ isSupabaseConfigured ? 'bg-emerald-500 ' : 'bg-amber-500'
+ }`}
             />
             {isSupabaseConfigured ? 'Conectado à Nuvem' : 'Modo Local (Offline)'}
           </span>
@@ -377,7 +377,7 @@ export function PostsManagement() {
             <p className="text-xs text-ink-soft leading-relaxed">
               Seus dados estão sendo sincronizados em tempo real no PostgreSQL da sua nuvem Supabase.
               {lastSyncTime && (
-                <span className="block text-[11px] text-ink-muted mt-1">
+                <span className="block text-xs text-ink-muted mt-1">
                   Última sincronização:{' '}
                   {new Date(lastSyncTime).toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
@@ -399,8 +399,8 @@ export function PostsManagement() {
             >
               <span
                 className={`material-symbols-outlined text-[16px] text-brand ${
-                  isSyncing ? 'animate-spin' : ''
-                }`}
+ isSyncing ? 'animate-spin' : ''
+ }`}
               >
                 sync
               </span>
@@ -413,14 +413,14 @@ export function PostsManagement() {
               O sistema está operando localmente no navegador (localStorage). Para sincronizar entre vários
               celulares e computadores na nuvem com o Supabase e Vercel:
             </p>
-            <div className="bg-field/60 border border-line rounded-xl p-2.5 text-[11px] font-mono text-ink space-y-1">
-              <div className="text-ink-muted font-sans text-[10px] font-bold uppercase tracking-wider">
+            <div className="bg-field/60 border border-line rounded-xl p-2.5 text-xs font-mono text-ink space-y-1">
+              <div className="text-ink-muted font-sans text-[11px] font-bold">
                 Variáveis de Ambiente (Vercel ou .env):
               </div>
               <div className="text-brand">VITE_SUPABASE_URL=https://...supabase.co</div>
               <div className="text-brand">VITE_SUPABASE_ANON_KEY=eyJ...</div>
             </div>
-            <p className="text-[11px] text-ink-muted">
+            <p className="text-xs text-ink-muted">
               Consulte o arquivo <strong className="text-ink">supabase-schema.sql</strong> gerado no projeto para criar as tabelas com 1 clique no SQL Editor do Supabase.
             </p>
           </div>

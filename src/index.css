@@ -48,7 +48,13 @@
   --color-whatsapp-dark: #075e54;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* "font-mono" no app = números alinhados (valores, horas), não fonte de código */
+  --font-mono: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@utility font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 @layer base {

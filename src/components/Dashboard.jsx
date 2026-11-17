@@ -91,23 +91,8 @@ export function Dashboard({
 
   return (
     <div className="flex flex-col w-full gap-5 pb-8 max-w-[1920px] 2xl:max-w-full mx-auto">
-      {/* Central de Facilidades G2 - Banner de Ações em 1 Toque */}
-      <div className="bg-gradient-to-r from-navy via-navy-soft to-brand text-white p-4 rounded-3xl shadow-lg border border-white/10 relative overflow-hidden">
-        <div className="flex items-center justify-between mb-3 relative z-10">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-mint animate-ping"></span>
-            <span className="font-mono text-[11px] text-mint uppercase font-bold tracking-wider">
-              Facilidades Operacionais
-            </span>
-          </div>
-          <span className="font-mono text-[10px] text-white/70 bg-white/10 px-2 py-0.5 rounded-full">
-            1 Toque
-          </span>
-        </div>
-
-        <h3 className="text-sm font-bold mb-3 relative z-10">
-          O que você deseja fazer agora?
-        </h3>
+      {/* Atalhos principais */}
+      <div className="bg-navy text-white p-3 rounded-3xl shadow-sm relative overflow-hidden">
 
         {/* 2 atalhos principais (grandes, fáceis de tocar no celular) */}
         <div className="grid grid-cols-2 gap-3 relative z-10">
@@ -175,10 +160,10 @@ export function Dashboard({
           <button
             onClick={() => setActiveQuinzena(1)}
             className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all ${
-              activeQuinzena === 1
-                ? 'bg-white shadow-xs text-ink'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeQuinzena === 1
+ ? 'bg-white shadow-xs text-ink'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
@@ -189,10 +174,10 @@ export function Dashboard({
           <button
             onClick={() => setActiveQuinzena(2)}
             className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all ${
-              activeQuinzena === 2
-                ? 'bg-white shadow-xs text-ink'
-                : 'text-ink-soft hover:text-ink'
-            }`}
+ activeQuinzena === 2
+ ? 'bg-white shadow-xs text-ink'
+ : 'text-ink-soft hover:text-ink'
+ }`}
           >
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
@@ -204,20 +189,15 @@ export function Dashboard({
 
       {/* Alerta de Faltas de Pagamento */}
       {pendingGuardsCount > 0 && (
-        <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-2 border-amber-400 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+        <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs font-black">
               <span className="material-symbols-outlined text-[24px]">notification_important</span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-2xs">
-                  Alerta Financeiro
-                </span>
-                <span className="text-xs font-black text-warn-ink">
-                  {pendingGuardsCount} {pendingGuardsCount === 1 ? 'prestador aguardando pagamento' : 'prestadores aguardando pagamento'}
-                </span>
-              </div>
+              <p className="text-sm font-bold text-warn-ink">
+                {pendingGuardsCount} {pendingGuardsCount === 1 ? 'prestador aguardando pagamento' : 'prestadores aguardando pagamento'}
+              </p>
               <p className="text-xs text-warn-strong mt-1 font-medium">
                 Faltam liquidar <strong>R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> na {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'} ({monthInfo.formattedMonth}).
               </p>
@@ -243,14 +223,14 @@ export function Dashboard({
 
         <div className="flex items-center justify-between mb-2 z-10 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-on-navy font-semibold">
+            <span className="text-xs text-on-navy font-semibold">
               Previsão de Pagamento
             </span>
-            <span className="px-2 py-0.5 rounded-md bg-mint/20 text-mint border border-mint/40 font-mono text-[10px] font-black uppercase">
-              📅 {monthInfo.formattedMonth.toUpperCase()}
+            <span className="px-2 py-0.5 rounded-md bg-mint/20 text-mint border border-mint/40 font-mono text-[11px] font-black">
+              {monthInfo.formattedMonth}
             </span>
           </div>
-          <span className="inline-flex items-center gap-1 bg-brand text-white px-2 py-0.5 rounded-full font-mono text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 bg-brand text-white px-2 py-0.5 rounded-full font-mono text-[11px] font-bold">
             <span className="material-symbols-outlined text-[12px]">verified</span>
             {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'}
           </span>
@@ -271,27 +251,27 @@ export function Dashboard({
         {/* Differentiated Paid vs Still To Pay Split */}
         <div className="grid grid-cols-2 gap-2 mb-3 z-10">
           <div className="p-3 rounded-xl bg-brand/40 border border-mint/40 flex flex-col">
-            <span className="text-[11px] font-bold text-mint flex items-center gap-1">
+            <span className="text-xs font-bold text-mint flex items-center gap-1">
               <span className="material-symbols-outlined text-[15px]">check_circle</span>
               Valor Já Pago
             </span>
             <span className="font-mono text-lg font-black text-mint mt-0.5">
               R$ {paidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-on-navy mt-0.5">
+            <span className="text-[11px] text-on-navy mt-0.5">
               {totalAmount > 0 ? ((paidAmount / totalAmount) * 100).toFixed(0) : 0}% liquidado
             </span>
           </div>
 
           <div className="p-3 rounded-xl bg-warn-soft/15 border border-warn-soft/30 flex flex-col">
-            <span className="text-[11px] font-bold text-warn-soft flex items-center gap-1">
+            <span className="text-xs font-bold text-warn-soft flex items-center gap-1">
               <span className="material-symbols-outlined text-[15px]">schedule</span>
               Ainda a Pagar
             </span>
             <span className="font-mono text-lg font-black text-warn-soft mt-0.5">
               R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-on-navy mt-0.5">
+            <span className="text-[11px] text-on-navy mt-0.5">
               {totalAmount > 0 ? ((pendingAmount / totalAmount) * 100).toFixed(0) : 0}% em aberto
             </span>
           </div>
@@ -345,7 +325,7 @@ export function Dashboard({
                   setTempBudget(currentBudgetCeiling)
                   setShowBudgetModal(true)
                 }}
-                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-mint text-[10px] font-bold flex items-center gap-1 transition active:scale-95"
+                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-mint text-[11px] font-bold flex items-center gap-1 transition active:scale-95"
                 title="Clique para editar o teto orçado"
               >
                 <span className="material-symbols-outlined text-[12px]">edit</span>
@@ -362,7 +342,7 @@ export function Dashboard({
               style={{ width: `${budgetPercent}%` }}
             ></div>
           </div>
-          <span className="font-mono text-[11px] text-on-navy/80">
+          <span className="font-mono text-xs text-on-navy/80">
             Saldo disponível: R$ {budgetRemaining.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} no período
           </span>
         </div>
@@ -373,10 +353,10 @@ export function Dashboard({
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 flex-wrap">
             <h2 className="text-sm font-bold text-ink">Resumo do Efetivo</h2>
-            <span className="bg-field-strong px-2 py-0.5 rounded-full font-mono text-[10px] text-ink-muted font-semibold">
+            <span className="bg-field-strong px-2 py-0.5 rounded-full font-mono text-[11px] text-ink-muted font-semibold">
               {activeGuards.length} Colaboradores
             </span>
-            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-field text-brand font-bold border border-line">
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-field text-brand font-bold border border-line">
               Ref: {monthInfo.formattedMonth}
             </span>
           </div>
@@ -420,7 +400,7 @@ export function Dashboard({
                     <span className="font-mono text-xs font-bold text-brand">
                       R$ {shiftAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
-                    <span className="font-mono text-[9px] text-ink-muted">
+                    <span className="font-mono text-[11px] text-ink-muted">
                       {shiftHours}h • ({monthInfo.monthName.slice(0, 3)}/{year})
                     </span>
                   </div>
@@ -432,10 +412,10 @@ export function Dashboard({
                       togglePaymentStatus(guard.id, qKey)
                     }}
                     className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition active:scale-95 shadow-xs ${
-                      isPaid
-                        ? 'bg-brand hover:bg-brand-hover text-white border border-mint'
-                        : 'bg-brand hover:bg-brand-hover text-white'
-                    }`}
+ isPaid
+ ? 'bg-brand hover:bg-brand-hover text-white border border-mint'
+ : 'bg-brand hover:bg-brand-hover text-white'
+ }`}
                     title={
                       isPaid
                         ? `Pagamento de ${guard.name} marcado como PAGO. Clique novamente para retirar o pagamento e reabrir.`
@@ -484,7 +464,7 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => setActiveTab('quinzena-horas')}
-            className="text-[11px] text-brand font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+            className="text-xs text-brand font-bold hover:underline cursor-pointer flex items-center gap-0.5"
           >
             <span>Ver Grade</span>
             <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
@@ -502,7 +482,7 @@ export function Dashboard({
                 <span className="text-xs font-bold text-ink block truncate">
                   {monthInfo.formattedMonth}
                 </span>
-                <span className="text-[10px] text-ink-muted">
+                <span className="text-[11px] text-ink-muted">
                   {activeQuinzena === 1 ? '1ª Quinzena (Dias 01 a 15)' : `2ª Quinzena (Dias 16 a ${totalDaysInMonth})`}
                 </span>
               </div>
@@ -527,11 +507,11 @@ export function Dashboard({
             return (
               <div className="p-3 rounded-xl bg-white border border-line flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-ink flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-ink flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-brand" />
                     <span>Plantão de Hoje (Dia {todayDay})</span>
                   </span>
-                  <span className="font-mono text-[10px] text-ink-muted font-semibold">
+                  <span className="font-mono text-[11px] text-ink-muted font-semibold">
                     {todayPlantao.length} {todayPlantao.length === 1 ? 'colaborador' : 'colaboradores'}
                   </span>
                 </div>
@@ -544,12 +524,12 @@ export function Dashboard({
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-field text-ink text-xs font-bold border border-line"
                       >
                         <span>{guard.name}</span>
-                        <span className="font-mono text-[10px] text-brand font-black">({hours}h)</span>
+                        <span className="font-mono text-[11px] text-brand font-black">({hours}h)</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-[11px] text-ink-muted italic">
+                  <span className="text-xs text-ink-muted italic">
                     Nenhum colaborador com horas lançadas hoje.
                   </span>
                 )}
@@ -660,7 +640,7 @@ export function Dashboard({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-ink">Editar Teto Orçado</h3>
-                  <p className="text-[10px] text-ink-muted">Limite máximo de gastos para a quinzena</p>
+                  <p className="text-[11px] text-ink-muted">Limite máximo de gastos para a quinzena</p>
                 </div>
               </div>
               <button
@@ -696,7 +676,7 @@ export function Dashboard({
 
               {/* Quick Preset Buttons */}
               <div>
-                <span className="text-[10px] font-bold text-ink-muted block mb-1">
+                <span className="text-[11px] font-bold text-ink-muted block mb-1">
                   Valores Rápidos:
                 </span>
                 <div className="grid grid-cols-4 gap-1.5">
@@ -706,10 +686,10 @@ export function Dashboard({
                       type="button"
                       onClick={() => setTempBudget(val)}
                       className={`py-1.5 rounded-xl text-xs font-mono font-bold transition border ${
-                        tempBudget === val
-                          ? 'bg-brand text-white border-brand'
-                          : 'bg-field text-ink border-line hover:bg-line'
-                      }`}
+ tempBudget === val
+ ? 'bg-brand text-white border-brand'
+ : 'bg-field text-ink border-line hover:bg-line'
+ }`}
                     >
                       {val >= 1000 ? `${val / 1000}k` : val}
                     </button>

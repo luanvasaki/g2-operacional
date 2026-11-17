@@ -45,13 +45,13 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
           <G2Logo className="h-10 sm:h-12 w-auto shrink-0 drop-shadow-xs" />
           <div className="flex flex-col truncate">
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
+              <span className="font-mono text-[11px] text-ink-muted font-semibold">
                 G2 Atacadista
               </span>
               {isSupabaseConfigured && (
                 <span
                   title={isSyncing ? 'Sincronizando com a nuvem...' : 'Conectado à nuvem'}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
                 >
                   <span className={`w-1 h-1 rounded-full bg-emerald-500 ${isSyncing ? 'animate-ping' : ''}`} />
                   {isSyncing ? 'Sincronizando...' : 'Nuvem Conectada'}
@@ -81,10 +81,10 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
-                    isActive
-                      ? 'bg-ink text-white shadow-xs'
-                      : 'text-ink-soft hover:text-ink hover:bg-white/60'
-                  }`}
+ isActive
+ ? 'bg-ink text-white shadow-xs'
+ : 'text-ink-soft hover:text-ink hover:bg-white/60'
+ }`}
                 >
                   <span
                     className="material-symbols-outlined text-[18px]"
@@ -96,11 +96,11 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
 
                   {tab.badge > 0 && (
                     <span
-                      className={`min-w-[18px] h-[18px] px-1 font-mono text-[10px] font-black rounded-full flex items-center justify-center ${
-                        isActive
-                          ? 'bg-amber-400 text-slate-900'
-                          : 'bg-amber-500 text-white'
-                      }`}
+                      className={`min-w-[18px] h-[18px] px-1 font-mono text-[11px] font-black rounded-full flex items-center justify-center ${
+ isActive
+ ? 'bg-amber-400 text-slate-900'
+ : 'bg-amber-500 text-white'
+ }`}
                     >
                       {tab.badge}
                     </span>
@@ -131,7 +131,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
             <span className="text-xs font-bold text-ink hidden sm:inline">
               {currentUser?.name?.split(' ')[0] || 'Luan'}
             </span>
-            <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
+            <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs shadow-xs">
               {currentUser?.name?.charAt(0) || 'L'}
             </div>
             <button
@@ -141,7 +141,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
               title="Sair do sistema (exigirá senha novamente)"
             >
               <span className="material-symbols-outlined text-[16px]">logout</span>
-              <span className="text-[11px]">Sair</span>
+              <span className="text-xs">Sair</span>
             </button>
           </div>
         </div>

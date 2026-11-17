@@ -157,13 +157,13 @@ export function GuardsManagement({
         <div className="bg-white p-3 rounded-2xl shadow-xs border border-line flex flex-col justify-between">
           <div className="flex items-center justify-between text-brand">
             <span className="material-symbols-outlined text-[18px]">engineering</span>
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-brand"></span>
           </div>
           <div className="mt-2">
             <span className="text-xl font-bold text-ink leading-none">
               {activeCount}
             </span>
-            <p className="font-mono text-[10px] text-ink-muted mt-1 truncate">
+            <p className="text-[11px] text-ink-muted mt-1 truncate">
               Ativos na Equipe
             </p>
           </div>
@@ -177,7 +177,7 @@ export function GuardsManagement({
             <span className="font-mono text-base font-bold text-ink leading-none">
               R$ {defaultHourlyRate}
             </span>
-            <p className="font-mono text-[10px] text-ink-muted mt-1 truncate">
+            <p className="text-[11px] text-ink-muted mt-1 truncate">
               Taxa Média/h
             </p>
           </div>
@@ -191,7 +191,7 @@ export function GuardsManagement({
             <span className="font-mono text-xl font-bold text-brand-text leading-none">
               {posts.length}
             </span>
-            <p className="font-mono text-[10px] text-brand-text mt-1 truncate">
+            <p className="text-[11px] text-brand-text mt-1 truncate">
               Postos Ativos
             </p>
           </div>
@@ -244,41 +244,41 @@ export function GuardsManagement({
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setStatusFilter('todos')}
-            className={`px-3 py-1 rounded-full font-mono text-[11px] font-bold shrink-0 transition-colors ${
-              statusFilter === 'todos'
-                ? 'bg-black text-white shadow-xs'
-                : 'bg-field text-ink-soft hover:bg-line'
-            }`}
+            className={`px-3 py-1 rounded-full font-mono text-xs font-bold shrink-0 transition-colors ${
+ statusFilter === 'todos'
+ ? 'bg-black text-white shadow-xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
           >
             Todos ({guards.length})
           </button>
           <button
             onClick={() => setStatusFilter('ativo')}
-            className={`px-3 py-1 rounded-full font-mono text-[11px] font-bold shrink-0 transition-colors ${
-              statusFilter === 'ativo'
-                ? 'bg-black text-white shadow-xs'
-                : 'bg-field text-ink-soft hover:bg-line'
-            }`}
+            className={`px-3 py-1 rounded-full font-mono text-xs font-bold shrink-0 transition-colors ${
+ statusFilter === 'ativo'
+ ? 'bg-black text-white shadow-xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
           >
             Ativos ({activeCount})
           </button>
           <button
             onClick={() => setStatusFilter('pendente')}
-            className={`px-3 py-1 rounded-full font-mono text-[11px] font-bold shrink-0 transition-colors ${
-              statusFilter === 'pendente'
-                ? 'bg-black text-white shadow-xs'
-                : 'bg-field text-ink-soft hover:bg-line'
-            }`}
+            className={`px-3 py-1 rounded-full font-mono text-xs font-bold shrink-0 transition-colors ${
+ statusFilter === 'pendente'
+ ? 'bg-black text-white shadow-xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
           >
             Em Escala ({activeCount})
           </button>
           <button
             onClick={() => setStatusFilter('inativo')}
-            className={`px-3 py-1 rounded-full font-mono text-[11px] font-bold shrink-0 transition-colors ${
-              statusFilter === 'inativo'
-                ? 'bg-black text-white shadow-xs'
-                : 'bg-field text-ink-soft hover:bg-line'
-            }`}
+            className={`px-3 py-1 rounded-full font-mono text-xs font-bold shrink-0 transition-colors ${
+ statusFilter === 'inativo'
+ ? 'bg-black text-white shadow-xs'
+ : 'bg-field text-ink-soft hover:bg-line'
+ }`}
           >
             Inativos ({inactiveCount})
           </button>
@@ -293,10 +293,10 @@ export function GuardsManagement({
             <div
               key={guard.id}
               className={`bg-white rounded-2xl p-3.5 shadow-xs border transition-all flex flex-col gap-2.5 ${
-                guard.active
-                  ? 'border-line hover:border-mint'
-                  : 'border-line/60 opacity-60 bg-page'
-              }`}
+ guard.active
+ ? 'border-line hover:border-mint'
+ : 'border-line/60 opacity-60 bg-page'
+ }`}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
@@ -309,11 +309,11 @@ export function GuardsManagement({
                         {guard.name}
                       </h3>
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold font-mono ${
-                          guard.active
-                            ? 'bg-mint/30 text-brand-text'
-                            : 'bg-red-100 text-red-700'
-                        }`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold font-mono ${
+ guard.active
+ ? 'bg-mint/30 text-brand-text'
+ : 'bg-red-100 text-red-700'
+ }`}
                       >
                         {guard.active ? 'Ativo' : 'Inativo'}
                       </span>
@@ -333,7 +333,7 @@ export function GuardsManagement({
                   <span className="font-mono text-xs font-bold text-brand group-hover:underline">
                     R$ {(guard.hourlyRate || defaultHourlyRate).toFixed(2).replace('.', ',')}
                   </span>
-                  <span className="text-[10px] text-ink-muted block font-mono">/hora</span>
+                  <span className="text-[11px] text-ink-muted block">/hora</span>
                 </button>
               </div>
 
@@ -343,7 +343,7 @@ export function GuardsManagement({
                   <span className="material-symbols-outlined text-[16px] text-brand">
                     qr_code_2
                   </span>
-                  <span className="font-mono text-[11px] text-ink truncate">
+                  <span className="font-mono text-xs text-ink truncate">
                     PIX: {guard.pixKey || 'Não cadastrado'}
                   </span>
                 </div>
@@ -352,7 +352,7 @@ export function GuardsManagement({
                     href={`https://wa.me/55${guard.phone.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-whatsapp/15 hover:bg-whatsapp/25 text-brand font-bold text-[11px] shrink-0 transition"
+                    className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-whatsapp/15 hover:bg-whatsapp/25 text-brand font-bold text-xs shrink-0 transition"
                     title={`Abrir WhatsApp de ${guard.name}`}
                   >
                     <WhatsAppIcon className="w-3.5 h-3.5 fill-whatsapp" />
@@ -605,7 +605,7 @@ export function GuardsManagement({
                   <h4 className="text-xs font-bold text-ink">
                     Desativar Colaborador (Recomendado)
                   </h4>
-                  <p className="text-[11px] text-ink-muted mt-0.5 leading-snug">
+                  <p className="text-xs text-ink-muted mt-0.5 leading-snug">
                     Mantém todas as horas, plantões e histórico financeiro intactos no
                     sistema, apenas retirando da folha ativa.
                   </p>
@@ -625,7 +625,7 @@ export function GuardsManagement({
                   <h4 className="text-xs font-bold text-red-700">
                     Excluir Registro Permanentemente
                   </h4>
-                  <p className="text-[11px] text-red-600/80 mt-0.5 leading-snug">
+                  <p className="text-xs text-red-600/80 mt-0.5 leading-snug">
                     Remove este prestador do apontamento atual. Indicado apenas se cadastrado por engano.
                   </p>
                 </div>
@@ -675,7 +675,7 @@ export function GuardsManagement({
               return (
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div className="bg-field p-3 rounded-xl border border-line/60">
-                    <span className="font-mono text-[10px] text-ink-muted uppercase">
+                    <span className="text-[11px] text-ink-muted">
                       Total Horas
                     </span>
                     <p className="font-mono text-base font-bold text-ink mt-0.5">
@@ -683,7 +683,7 @@ export function GuardsManagement({
                     </p>
                   </div>
                   <div className="bg-mint/20 p-3 rounded-xl border border-mint/30">
-                    <span className="font-mono text-[10px] text-brand-text uppercase font-bold">
+                    <span className="text-[11px] text-brand-text font-bold">
                       Total Acumulado
                     </span>
                     <p className="font-mono text-base font-bold text-brand-text mt-0.5">

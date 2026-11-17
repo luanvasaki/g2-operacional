@@ -76,7 +76,7 @@ export function LoginScreen() {
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-field-strong rounded-full mb-2">
               <span className="w-2 h-2 rounded-full bg-brand"></span>
-              <span className="font-mono text-[11px] text-ink-soft uppercase tracking-wider font-semibold">
+              <span className="text-xs text-ink-soft font-semibold">
                 Gestão Operacional de Bicos
               </span>
             </div>
@@ -118,7 +118,7 @@ export function LoginScreen() {
                   htmlFor="login-username"
                 >
                   <span>Usuário</span>
-                  <span className="text-[11px] text-brand font-mono font-bold">
+                  <span className="text-xs text-brand font-bold">
                     luanbarreto
                   </span>
                 </label>
@@ -185,7 +185,7 @@ export function LoginScreen() {
                     Confiar neste navegador (manter conectado)
                   </span>
                 </label>
-                <span className="text-[11px] text-ink-muted pl-6.5 leading-tight">
+                <span className="text-xs text-ink-muted pl-6.5 leading-tight">
                   Não pedirá senha novamente ao reabrir o app neste dispositivo.
                 </span>
               </div>
@@ -217,7 +217,7 @@ export function LoginScreen() {
           <div className="flex flex-col items-center justify-center gap-2 text-center pt-4">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-field text-ink-soft border border-line/80">
               <span className="material-symbols-outlined text-[15px] text-brand">lock</span>
-              <span className="font-mono text-[11px]">
+              <span className="font-mono text-xs">
                 G2 Operacional • Acesso Restrito aos Gestores
               </span>
             </div>
