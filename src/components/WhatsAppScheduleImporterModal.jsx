@@ -288,22 +288,22 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0d1c2f]/70 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink/70 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-line flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#eff4ff] flex items-center justify-between bg-[#131b2e] text-white">
+        <div className="p-4 sm:p-5 border-b border-field flex items-center justify-between bg-navy text-white">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#25D366]/20 flex items-center justify-center text-[#25D366] border border-[#25D366]/30 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-whatsapp/20 flex items-center justify-center text-whatsapp border border-whatsapp/30 shadow-xs">
               <WhatsAppBadgeIcon className="w-7 h-7" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <span>Importar Escala do WhatsApp</span>
-                <span className="px-2 py-0.5 rounded-full bg-[#25D366] text-[#002113] text-[10px] font-black uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-whatsapp text-brand-ink text-[10px] font-black uppercase">
                   Automático
                 </span>
               </h2>
-              <p className="text-[11px] text-[#bec6e0]">
+              <p className="text-[11px] text-on-navy">
                 Cole o texto enviado pelo supervisor e preencha a planilha em 1 clique
               </p>
             </div>
@@ -311,7 +311,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[#bec6e0] hover:text-white transition"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-navy hover:text-white transition"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
@@ -320,16 +320,16 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
         {/* Modal Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {/* Section 0: Target Month Selection */}
-          <div className="p-3.5 bg-[#eff4ff] rounded-2xl border border-[#dde9ff] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="p-3.5 bg-field rounded-2xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#006c49] flex items-center justify-center text-[#6cf8bb] shadow-xs shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-mint shadow-xs shrink-0">
                 <span className="material-symbols-outlined text-[22px]">calendar_month</span>
               </div>
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block leading-tight">
+                <label className="text-xs font-bold text-ink block leading-tight">
                   Mês de Destino da Escala:
                 </label>
-                <span className="text-[11px] text-[#76777d]">
+                <span className="text-[11px] text-ink-muted">
                   Selecione para qual mês esses plantões devem ser importados
                 </span>
               </div>
@@ -339,7 +339,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               <select
                 value={targetMonth}
                 onChange={(e) => setTargetMonth(e.target.value)}
-                className="bg-white text-[#0d1c2f] font-bold text-xs px-3.5 py-2.5 rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49] cursor-pointer shadow-xs capitalize"
+                className="bg-white text-ink font-bold text-xs px-3.5 py-2.5 rounded-xl border border-line focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer shadow-xs capitalize"
               >
                 <option value="2026-08">Agosto 2026</option>
                 <option value="2026-09">Setembro 2026</option>
@@ -356,8 +356,8 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
           {/* Section 1: Textarea with Quick Actions */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#006c49]">content_paste</span>
+              <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-brand">content_paste</span>
                 <span>Cole a mensagem do WhatsApp aqui:</span>
               </label>
 
@@ -365,7 +365,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={handlePasteClipboard}
-                  className="px-2.5 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] text-[11px] font-bold flex items-center gap-1 border border-[#dde9ff] transition"
+                  className="px-2.5 py-1 rounded-lg bg-field hover:bg-line text-ink text-[11px] font-bold flex items-center gap-1 border border-line transition"
                   title="Colar texto da área de transferência"
                 >
                   <span className="material-symbols-outlined text-[14px]">content_paste</span>
@@ -375,7 +375,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={handleLoadSample}
-                  className="px-2.5 py-1 rounded-lg bg-[#6cf8bb]/30 hover:bg-[#6cf8bb]/50 text-[#006c49] text-[11px] font-bold flex items-center gap-1 border border-[#6cf8bb]/40 transition"
+                  className="px-2.5 py-1 rounded-lg bg-mint/30 hover:bg-mint/50 text-brand text-[11px] font-bold flex items-center gap-1 border border-mint/40 transition"
                   title="Carregar exemplo da escala Confiança"
                 >
                   <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
@@ -400,21 +400,21 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               placeholder={`Exemplo:\n01- Gomes\n02 - Barbosa\n03- Gomes\n04 - Miranda\n...\nConfiança`}
-              className="w-full p-3 font-mono text-xs bg-[#f8f9ff] text-[#0d1c2f] rounded-2xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49] placeholder:text-[#76777d]/60 resize-y"
+              className="w-full p-3 font-mono text-xs bg-page text-ink rounded-2xl border border-line focus:outline-none focus:ring-2 focus:ring-brand placeholder:text-ink-muted/60 resize-y"
             />
           </div>
 
           {/* Section 2: Post & Hours Detection Controls */}
           {rawText.trim() && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-[#eff4ff]/60 rounded-2xl border border-[#dde9ff]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-field/60 rounded-2xl border border-line">
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-bold text-ink block mb-1">
                   Local / Posto Operacional:
                 </label>
                 <select
                   value={selectedPostId || parseResult.detectedPost?.id || ''}
                   onChange={(e) => setSelectedPostId(e.target.value)}
-                  className="w-full bg-white text-[#0d1c2f] font-bold text-xs p-2 rounded-xl border border-[#dde9ff] focus:outline-none"
+                  className="w-full bg-white text-ink font-bold text-xs p-2 rounded-xl border border-line focus:outline-none"
                 >
                   {posts.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -425,7 +425,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-bold text-ink block mb-1">
                   Carga Horária por Plantão:
                 </label>
                 <div className="grid grid-cols-3 gap-1">
@@ -436,8 +436,8 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                       onClick={() => setOverrideHours(h)}
                       className={`py-1.5 rounded-xl font-bold text-xs transition border ${
                         (overrideHours === h || (overrideHours === null && currentPost?.id === 'confianca' && h === 3) || (overrideHours === null && currentPost?.id !== 'confianca' && h === 4))
-                          ? 'bg-[#131b2e] text-white border-[#131b2e]'
-                          : 'bg-white text-[#45464d] border-[#dde9ff] hover:bg-[#eff4ff]'
+                          ? 'bg-navy text-white border-navy'
+                          : 'bg-white text-ink-soft border-line hover:bg-field'
                       }`}
                     >
                       {h} Horas
@@ -479,11 +479,11 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
           {parseResult.entries.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[18px] text-[#006c49]">task_alt</span>
+                <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[18px] text-brand">task_alt</span>
                   <span>Resultado Identificado ({parseResult.entries.length} plantões):</span>
                 </span>
-                <span className="font-mono text-xs font-bold text-[#006c49] bg-[#6cf8bb]/20 px-2 py-0.5 rounded-full">
+                <span className="font-mono text-xs font-bold text-brand bg-mint/20 px-2 py-0.5 rounded-full">
                   Posto {currentPost.name}
                 </span>
               </div>
@@ -493,18 +493,18 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 {parseResult.guardSummaries.map(({ guard, days, totalHours, totalCost }) => (
                   <div
                     key={guard.id}
-                    className="bg-white p-3 rounded-2xl border border-[#dde9ff] shadow-xs flex flex-col justify-between"
+                    className="bg-white p-3 rounded-2xl border border-line shadow-xs flex flex-col justify-between"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-[#0d1c2f]">{guard.name}</span>
-                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[#eff4ff] text-[#006c49] font-bold">
+                      <span className="font-bold text-xs text-ink">{guard.name}</span>
+                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-field text-brand font-bold">
                         {days.length} dias
                       </span>
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-[#eff4ff] flex items-center justify-between text-xs">
-                      <span className="font-mono text-[#76777d]">{totalHours}h</span>
-                      <span className="font-mono font-bold text-[#0d1c2f]">
+                    <div className="mt-2 pt-2 border-t border-field flex items-center justify-between text-xs">
+                      <span className="font-mono text-ink-muted">{totalHours}h</span>
+                      <span className="font-mono font-bold text-ink">
                         R$ {totalCost.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
                       </span>
                     </div>
@@ -513,11 +513,11 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               </div>
 
               {/* Expandable Day-by-Day List */}
-              <div className="bg-[#f8f9ff] p-3 rounded-2xl border border-[#dde9ff]">
+              <div className="bg-page p-3 rounded-2xl border border-line">
                 <button
                   type="button"
                   onClick={() => setShowDetailedList(!showDetailedList)}
-                  className="w-full flex items-center justify-between text-xs font-bold text-[#45464d] hover:text-[#0d1c2f]"
+                  className="w-full flex items-center justify-between text-xs font-bold text-ink-soft hover:text-ink"
                 >
                   <span>Ver lista detalhada dia a dia</span>
                   <span className="material-symbols-outlined text-[18px]">
@@ -526,19 +526,19 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 </button>
 
                 {showDetailedList && (
-                  <div className="mt-2 pt-2 border-t border-[#dde9ff] grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-48 overflow-y-auto">
+                  <div className="mt-2 pt-2 border-t border-line grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-48 overflow-y-auto">
                     {parseResult.entries.map((entry, idx) => (
                       <div
                         key={idx}
                         className={`p-1.5 rounded-lg text-xs font-mono flex items-center justify-between ${
                           entry.guard
-                            ? 'bg-white text-[#0d1c2f] border border-[#dde9ff]'
+                            ? 'bg-white text-ink border border-line'
                             : 'bg-red-50 text-red-700 border border-red-200'
                         }`}
                       >
                         <span className="font-bold">D{String(entry.day).padStart(2, '0')}:</span>
                         <span className="truncate">{entry.guard ? entry.guard.name : entry.rawName}</span>
-                        <span className="text-[10px] text-[#006c49]">{entry.hours}h</span>
+                        <span className="text-[10px] text-brand">{entry.hours}h</span>
                       </div>
                     ))}
                   </div>
@@ -546,22 +546,22 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
               </div>
 
               {/* Replace Option Checkbox */}
-              <label className="flex items-center gap-2 p-2.5 rounded-xl bg-[#eff4ff]/60 border border-[#dde9ff] text-xs cursor-pointer">
+              <label className="flex items-center gap-2 p-2.5 rounded-xl bg-field/60 border border-line text-xs cursor-pointer">
                 <input
                   type="checkbox"
                   checked={replaceExisting}
                   onChange={(e) => setReplaceExisting(e.target.checked)}
-                  className="rounded text-[#006c49] focus:ring-0"
+                  className="rounded text-brand focus:ring-0"
                 />
-                <span className="text-[#0d1c2f] font-semibold">
+                <span className="text-ink font-semibold">
                   Substituir escala anterior destes colaboradores no mês de {selectedMonth}
                 </span>
               </label>
 
               {/* Dynamic Impact Hero Ribbon */}
-              <div className="bg-[#131b2e] text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
+              <div className="bg-navy text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
                 <div>
-                  <span className="text-[10px] text-[#bec6e0] font-mono uppercase">
+                  <span className="text-[10px] text-on-navy font-mono uppercase">
                     Impacto Total Importado
                   </span>
                   <div className="font-bold text-sm text-white mt-0.5">
@@ -570,7 +570,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-[#6cf8bb] font-mono uppercase font-bold">
+                  <span className="text-[10px] text-mint font-mono uppercase font-bold">
                     Carga & Custo
                   </span>
                   <div className="font-mono text-xs font-bold text-white mt-0.5">
@@ -583,7 +583,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
           )}
 
           {successToast && (
-            <div className="p-3 bg-[#6cf8bb] text-[#002113] rounded-2xl font-bold text-xs flex items-center justify-center gap-2 animate-in fade-in">
+            <div className="p-3 bg-mint text-brand-ink rounded-2xl font-bold text-xs flex items-center justify-center gap-2 animate-in fade-in">
               <span className="material-symbols-outlined text-[20px]">check_circle</span>
               <span>Escala do WhatsApp importada com sucesso para a planilha!</span>
             </div>
@@ -591,11 +591,11 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
         </div>
 
         {/* Modal Sticky Footer */}
-        <div className="p-4 border-t border-[#eff4ff] bg-white flex items-center gap-3">
+        <div className="p-4 border-t border-field bg-white flex items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl border border-[#dde9ff] text-[#45464d] font-bold text-xs hover:bg-[#eff4ff] transition"
+            className="flex-1 py-3 px-4 rounded-xl border border-line text-ink-soft font-bold text-xs hover:bg-field transition"
           >
             Cancelar
           </button>
@@ -606,7 +606,7 @@ export function WhatsAppScheduleImporterModal({ isOpen, onClose }) {
             disabled={parseResult.entries.filter((e) => e.guard !== null).length === 0}
             className={`flex-2 py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95 ${
               parseResult.entries.filter((e) => e.guard !== null).length > 0
-                ? 'bg-[#006c49] hover:bg-[#005236] text-white'
+                ? 'bg-brand hover:bg-brand-hover text-white'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >

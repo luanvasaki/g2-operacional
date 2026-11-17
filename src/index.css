@@ -1,45 +1,51 @@
 @import "tailwindcss";
 
+/*
+ * Paleta G2 — única fonte das cores do app.
+ * Use pelo nome nas classes do Tailwind: bg-brand, text-ink, border-line, bg-whatsapp/20 ...
+ * Para mudar uma cor no app inteiro, altere só o valor aqui.
+ */
 @theme {
-  --color-surface: #f8f9ff;
-  --color-on-surface: #0d1c2f;
-  --color-on-surface-variant: #45464d;
-  --color-surface-container: #e6eeff;
-  --color-surface-container-low: #eff4ff;
-  --color-surface-container-high: #dde9ff;
-  --color-surface-container-highest: #d5e3fd;
-  --color-surface-container-lowest: #ffffff;
-  
-  --color-primary: #000000;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #131b2e;
-  --color-on-primary-container: #7c839b;
-  --color-primary-fixed: #dae2fd;
-  
-  --color-secondary: #006c49;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #6cf8bb;
-  --color-on-secondary-container: #00714d;
-  --color-secondary-fixed: #6ffbbe;
-  --color-secondary-fixed-dim: #4edea3;
-  
-  --color-tertiary: #000000;
-  --color-tertiary-container: #2a1700;
-  --color-on-tertiary-container: #b87500;
-  --color-tertiary-fixed: #ffddb8;
-  --color-tertiary-fixed-dim: #ffb95f;
-  --color-on-tertiary-fixed: #2a1700;
-  --color-on-tertiary-fixed-variant: #653e00;
+  /* Texto */
+  --color-ink: #0d1c2f;          /* texto principal / títulos */
+  --color-ink-soft: #45464d;     /* texto secundário */
+  --color-ink-muted: #76777d;    /* legendas, texto auxiliar */
 
-  --color-outline: #76777d;
-  --color-outline-variant: #c6c6cd;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
-  
-  --color-inverse-surface: #233144;
-  --color-inverse-on-surface: #ebf1ff;
-  --color-inverse-primary: #bec6e0;
+  /* Fundos e bordas */
+  --color-page: #f8f9ff;         /* fundo da página */
+  --color-field: #eff4ff;        /* fundo de campos e áreas suaves */
+  --color-field-strong: #e6eeff; /* destaque suave */
+  --color-line: #dde9ff;         /* bordas e divisórias */
+
+  /* Marca G2 — verde */
+  --color-brand: #006c49;        /* botões principais, destaques */
+  --color-brand-hover: #005236;  /* hover dos botões verdes */
+  --color-brand-text: #00714d;   /* texto verde sobre fundo claro */
+  --color-brand-deep: #003823;
+  --color-brand-ink: #002113;    /* texto sobre fundo verde-claro */
+  --color-mint: #6cf8bb;         /* verde-claro de destaque */
+  --color-mint-strong: #57e4a8;
+
+  /* Marca G2 — azul-marinho */
+  --color-navy: #131b2e;         /* cartões escuros */
+  --color-navy-soft: #1a243b;
+  --color-navy-hover: #1a2d47;
+  --color-navy-muted: #2c3e50;
+  --color-slate: #334155;
+  --color-on-navy: #bec6e0;      /* texto claro sobre fundo escuro */
+
+  /* Alertas (pendências de pagamento) */
+  --color-warn-soft: #ffddb8;
+  --color-warn-light: #ffb95f;
+  --color-warn: #b45309;
+  --color-warn-strong: #92400e;
+  --color-warn-ink: #78350f;
+  --color-warn-deep: #2a1700;
+
+  /* WhatsApp */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-hover: #1faa53;
+  --color-whatsapp-dark: #075e54;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -47,9 +53,9 @@
 
 @layer base {
   body {
-    background-color: #f8f9ff;
-    color: #0d1c2f;
-    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
     overscroll-behavior: none;
   }
 }

@@ -14,7 +14,7 @@ export function BottomNav({ activeTab, setActiveTab }) {
   ]
 
   return (
-    <nav className="md:hidden fixed bottom-0 w-full z-40 bg-white/95 backdrop-blur-xl border-t border-[#dde9ff] shadow-[0_-2px_12px_rgba(13,28,47,0.06)] print:hidden">
+    <nav className="md:hidden fixed bottom-0 w-full z-40 bg-white/95 backdrop-blur-xl border-t border-line shadow-[0_-2px_12px_rgba(13,28,47,0.06)] print:hidden">
       <div className="max-w-md mx-auto flex justify-around items-center h-16 px-1">
         {navItems.map((item) => {
           const isActive =
@@ -26,8 +26,8 @@ export function BottomNav({ activeTab, setActiveTab }) {
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[44px] transition-all cursor-pointer relative ${
                 isActive
-                  ? 'text-[#006c49] font-bold scale-105'
-                  : 'text-[#45464d] hover:text-[#0d1c2f]'
+                  ? 'text-brand font-bold scale-105'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               <div className="relative flex items-center justify-center">

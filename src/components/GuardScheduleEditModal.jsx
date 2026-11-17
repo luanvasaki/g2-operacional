@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { getHoliday, getWeekday } from '../utils/brazilianCalendar'
 
+// O "return null" fica fora do componente com hooks, para que os hooks
+// sejam sempre chamados na mesma ordem (regra do React).
 export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
+  if (!isOpen || !guard) return null
+  return <GuardScheduleEditModalContent guard={guard} onClose={onClose} />
+}
+
+function GuardScheduleEditModalContent({ guard, onClose }) {
   const {
     selectedMonth,
     posts,
@@ -14,8 +21,6 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
     getPaymentStatus,
     togglePaymentStatus,
   } = useApp()
-
-  if (!isOpen || !guard) return null
 
   const post = posts.find((p) => p.id === guard.postId)
   const [yearStr, monthStr] = selectedMonth.split('-')
@@ -165,12 +170,12 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0d1c2f]/70 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink/70 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-line flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#eff4ff] flex items-center justify-between bg-[#131b2e] text-white shrink-0">
+        <div className="p-4 sm:p-5 border-b border-field flex items-center justify-between bg-navy text-white shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#006c49] flex items-center justify-center text-[#6cf8bb] shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-mint shadow-xs shrink-0">
               <span className="material-symbols-outlined text-[24px]">edit_calendar</span>
             </div>
             <div>
@@ -179,7 +184,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                   Editar Escala: {guard.name}
                 </h2>
               </div>
-              <p className="text-[11px] text-[#bec6e0]">
+              <p className="text-[11px] text-on-navy">
                 Ajuste os plantões, horas trabalhadas e valor em reais (R$)
               </p>
             </div>
@@ -187,7 +192,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[#bec6e0] hover:text-white transition"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-navy hover:text-white transition"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
@@ -197,26 +202,26 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {/* Toast */}
           {toastMsg && (
-            <div className="p-2.5 bg-[#006c49] text-white rounded-xl text-xs font-bold text-center animate-in fade-in shadow-md">
+            <div className="p-2.5 bg-brand text-white rounded-xl text-xs font-bold text-center animate-in fade-in shadow-md">
               {toastMsg}
             </div>
           )}
 
           {/* Section 1: Hourly Rate (Quantos Reais por Hora) */}
-          <div className="p-3.5 bg-[#eff4ff] rounded-2xl border border-[#dde9ff] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-3.5 bg-field rounded-2xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[18px] text-[#006c49]">payments</span>
+              <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[18px] text-brand">payments</span>
                 <span>Valor da Hora deste Prestador (R$/hora)</span>
               </span>
-              <p className="text-[11px] text-[#76777d]">
+              <p className="text-[11px] text-ink-muted">
                 Define quantos reais ele recebe por cada hora cumprida de plantão
               </p>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#76777d]">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-muted">
                   R$
                 </span>
                 <input
@@ -225,7 +230,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                   step="0.5"
                   value={rate}
                   onChange={(e) => setRate(Number(e.target.value))}
-                  className="w-24 h-10 pl-9 pr-2 bg-white text-[#0d1c2f] font-mono font-bold text-sm rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49]"
+                  className="w-24 h-10 pl-9 pr-2 bg-white text-ink font-mono font-bold text-sm rounded-xl border border-line focus:outline-none focus:ring-2 focus:ring-brand"
                 />
               </div>
 
@@ -238,8 +243,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                     onClick={() => setRate(r)}
                     className={`px-2 py-1.5 rounded-lg font-mono text-xs font-bold transition border ${
                       Number(rate) === r
-                        ? 'bg-[#006c49] text-white border-[#006c49]'
-                        : 'bg-white text-[#45464d] border-[#dde9ff] hover:bg-[#dde9ff]'
+                        ? 'bg-brand text-white border-brand'
+                        : 'bg-white text-ink-soft border-line hover:bg-line'
                     }`}
                   >
                     R${r}
@@ -250,16 +255,16 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
           </div>
 
           {/* Section 2: Real-time Live Financial Summary */}
-          <div className="grid grid-cols-3 gap-2 bg-[#131b2e] text-white p-3.5 rounded-2xl border border-white/10 shadow-sm">
+          <div className="grid grid-cols-3 gap-2 bg-navy text-white p-3.5 rounded-2xl border border-white/10 shadow-sm">
             <div className="flex flex-col justify-between">
               <div>
-                <span className="text-[10px] text-[#bec6e0] font-semibold uppercase tracking-wider block">
+                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
                   1ª Quinzena (1 a 15)
                 </span>
                 <span className="font-mono text-sm font-bold text-white mt-0.5 block">
                   {q1Hours}h
                 </span>
-                <span className="font-mono text-xs font-bold text-[#6cf8bb] block">
+                <span className="font-mono text-xs font-bold text-mint block">
                   R$ {q1Amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
@@ -274,8 +279,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                 }}
                 className={`mt-2 py-1 px-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
                   isQ1Paid
-                    ? 'bg-[#006c49] text-white border-[#6cf8bb]'
-                    : 'bg-[#6cf8bb] hover:bg-[#57e4a8] text-[#002113] border-transparent shadow-xs'
+                    ? 'bg-brand text-white border-mint'
+                    : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
                 }`}
                 title={isQ1Paid ? 'Clique para estornar pagamento' : 'Salvar horas e marcar 1ª Quinzena como Paga'}
               >
@@ -288,13 +293,13 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
 
             <div className="flex flex-col justify-between border-x border-white/10 px-2 sm:px-3">
               <div>
-                <span className="text-[10px] text-[#bec6e0] font-semibold uppercase tracking-wider block">
+                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
                   2ª Quinzena (16 a {totalDays})
                 </span>
                 <span className="font-mono text-sm font-bold text-white mt-0.5 block">
                   {q2Hours}h
                 </span>
-                <span className="font-mono text-xs font-bold text-[#6cf8bb] block">
+                <span className="font-mono text-xs font-bold text-mint block">
                   R$ {q2Amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
@@ -309,8 +314,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                 }}
                 className={`mt-2 py-1 px-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer border ${
                   isQ2Paid
-                    ? 'bg-[#006c49] text-white border-[#6cf8bb]'
-                    : 'bg-[#6cf8bb] hover:bg-[#57e4a8] text-[#002113] border-transparent shadow-xs'
+                    ? 'bg-brand text-white border-mint'
+                    : 'bg-mint hover:bg-mint-strong text-brand-ink border-transparent shadow-xs'
                 }`}
                 title={isQ2Paid ? 'Clique para estornar pagamento' : 'Salvar horas e marcar 2ª Quinzena como Paga'}
               >
@@ -323,17 +328,17 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
 
             <div className="flex flex-col justify-between text-right">
               <div>
-                <span className="text-[10px] text-[#bec6e0] font-semibold uppercase tracking-wider block">
+                <span className="text-[10px] text-on-navy font-semibold uppercase tracking-wider block">
                   Total do Mês
                 </span>
-                <span className="font-mono text-sm font-black text-[#6cf8bb] mt-0.5 block">
+                <span className="font-mono text-sm font-black text-mint mt-0.5 block">
                   {totalHours}h
                 </span>
-                <span className="font-mono text-sm font-black text-[#6cf8bb] block">
+                <span className="font-mono text-sm font-black text-mint block">
                   R$ {totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              <span className="text-[9px] text-[#bec6e0] font-mono mt-2 block">
+              <span className="text-[9px] text-on-navy font-mono mt-2 block">
                 {isQ1Paid && isQ2Paid ? '✓ Mês Quitado' : (isQ1Paid || isQ2Paid) ? '1 Quinzena Paga' : '⏳ Em Aberto'}
               </span>
             </div>
@@ -342,7 +347,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
           {/* Section 3: Pattern Fast Tools & Quinzena Filter */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
             {/* Filter buttons */}
-            <div className="flex items-center gap-1 bg-[#eff4ff] p-1 rounded-xl border border-[#dde9ff] w-fit">
+            <div className="flex items-center gap-1 bg-field p-1 rounded-xl border border-line w-fit">
               {[
                 { id: 'all', label: 'Mês Todo' },
                 { id: 'q1', label: '1ª Quinzena' },
@@ -354,8 +359,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                   onClick={() => setActiveQuinzenaFilter(f.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
                     activeQuinzenaFilter === f.id
-                      ? 'bg-[#006c49] text-white shadow-xs'
-                      : 'text-[#45464d] hover:bg-[#dde9ff]'
+                      ? 'bg-brand text-white shadow-xs'
+                      : 'text-ink-soft hover:bg-line'
                   }`}
                 >
                   {f.label}
@@ -368,28 +373,28 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
               <button
                 type="button"
                 onClick={() => handleApplyPattern('even')}
-                className="px-2 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-[11px] border border-[#dde9ff]"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] border border-line"
               >
                 Pares (3h)
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('odd')}
-                className="px-2 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] font-bold text-[11px] border border-[#dde9ff]"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] border border-line"
               >
                 Ímpares (3h)
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('all')}
-                className="px-2 py-1 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#006c49] font-bold text-[11px] border border-[#dde9ff]"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-line text-brand font-bold text-[11px] border border-line"
               >
                 Todos 3h
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyPattern('clear')}
-                className="px-2 py-1 rounded-lg bg-[#eff4ff] hover:bg-red-50 text-red-600 font-bold text-[11px] border border-[#dde9ff]"
+                className="px-2 py-1 rounded-lg bg-field hover:bg-red-50 text-red-600 font-bold text-[11px] border border-line"
               >
                 Zerar
               </button>
@@ -417,16 +422,16 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                       : h > 0
                       ? isOvertime
                         ? 'bg-amber-50/60 border-amber-300'
-                        : 'bg-white border-[#dde9ff]'
+                        : 'bg-white border-line'
                       : 'bg-slate-50/80 border-slate-200 opacity-75'
                   }`}
                 >
                   {/* Day Info */}
                   <div className="flex items-center gap-2.5 min-w-[130px] flex-wrap">
-                    <span className="font-mono text-xs font-black text-[#0d1c2f]">
+                    <span className="font-mono text-xs font-black text-ink">
                       Dia {String(d).padStart(2, '0')}
                     </span>
-                    <span className="font-mono text-[10px] text-[#76777d] uppercase font-bold">
+                    <span className="font-mono text-[10px] text-ink-muted uppercase font-bold">
                       ({weekday.short})
                     </span>
 
@@ -460,18 +465,18 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                       placeholder="Motivo / Obs (ex: Dobra, Cobriu Silva)..."
                       value={note}
                       onChange={(e) => handleSetDayNote(d, e.target.value)}
-                      className="w-full text-[11px] px-2.5 py-1 bg-white rounded-lg border border-[#dde9ff] text-[#0d1c2f] focus:outline-none focus:ring-1 focus:ring-[#006c49]"
+                      className="w-full text-[11px] px-2.5 py-1 bg-white rounded-lg border border-line text-ink focus:outline-none focus:ring-1 focus:ring-brand"
                     />
                   </div>
 
                   {/* Stepper (- / +) and Quick Chips + Day Total */}
                   <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
                     {/* Stepper */}
-                    <div className="flex items-center bg-[#eff4ff] border border-[#dde9ff] rounded-xl p-0.5 shadow-2xs">
+                    <div className="flex items-center bg-field border border-line rounded-xl p-0.5 shadow-2xs">
                       <button
                         type="button"
                         onClick={() => handleStepDay(d, -1)}
-                        className="w-6 h-6 rounded-lg bg-white hover:bg-[#dde9ff] text-[#0d1c2f] font-black text-xs flex items-center justify-center transition active:scale-95 shadow-2xs"
+                        className="w-6 h-6 rounded-lg bg-white hover:bg-line text-ink font-black text-xs flex items-center justify-center transition active:scale-95 shadow-2xs"
                         title="Diminuir 1 hora (-1h)"
                       >
                         -
@@ -483,7 +488,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                             ? 'text-slate-400'
                             : isOvertime
                             ? 'text-amber-800'
-                            : 'text-[#006c49]'
+                            : 'text-brand'
                         }`}
                       >
                         {h}h
@@ -492,7 +497,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                       <button
                         type="button"
                         onClick={() => handleStepDay(d, 1)}
-                        className="w-6 h-6 rounded-lg bg-[#006c49] hover:bg-[#005236] text-white font-black text-xs flex items-center justify-center transition active:scale-95 shadow-2xs"
+                        className="w-6 h-6 rounded-lg bg-brand hover:bg-brand-hover text-white font-black text-xs flex items-center justify-center transition active:scale-95 shadow-2xs"
                         title="Aumentar 1 hora (+1h)"
                       >
                         +
@@ -508,8 +513,8 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                           onClick={() => handleSetDayHours(d, presetH)}
                           className={`h-6 px-1.5 rounded-md font-mono text-[10px] font-bold transition ${
                             h === presetH
-                              ? 'bg-[#006c49] text-white shadow-2xs'
-                              : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
+                              ? 'bg-brand text-white shadow-2xs'
+                              : 'bg-field text-ink-soft hover:bg-line'
                           }`}
                         >
                           {presetH === 0 ? '0h' : `${presetH}h`}
@@ -518,7 +523,7 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
                     </div>
 
                     {/* Real-time Subtotal for this day */}
-                    <div className="min-w-[65px] text-right font-mono text-xs font-bold text-[#006c49]">
+                    <div className="min-w-[65px] text-right font-mono text-xs font-bold text-brand">
                       {h > 0 ? `R$ ${dayTotal.toFixed(0)}` : 'R$ 0'}
                     </div>
                   </div>
@@ -529,12 +534,12 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-[#eff4ff] bg-[#f8f9ff] flex items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-t border-field bg-page flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-[#76777d]">Total:</span>
-            <strong className="text-[#0d1c2f] font-mono">{totalHours}h</strong>
-            <span className="text-[#76777d]">•</span>
-            <strong className="text-[#006c49] font-mono text-sm">
+            <span className="text-ink-muted">Total:</span>
+            <strong className="text-ink font-mono">{totalHours}h</strong>
+            <span className="text-ink-muted">•</span>
+            <strong className="text-brand font-mono text-sm">
               R$ {totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </strong>
           </div>
@@ -543,14 +548,14 @@ export function GuardScheduleEditModal({ guard, isOpen, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-[#dde9ff] text-xs font-bold text-[#45464d] hover:bg-[#eff4ff] transition"
+              className="px-4 py-2.5 rounded-xl border border-line text-xs font-bold text-ink-soft hover:bg-field transition"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-5 py-2.5 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-98"
+              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-98"
             >
               <span className="material-symbols-outlined text-[17px]">save</span>
               <span>Salvar Escala & Valores</span>

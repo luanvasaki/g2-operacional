@@ -97,11 +97,11 @@ export function Dashboard({
   return (
     <div className="flex flex-col w-full gap-5 pb-8 max-w-[1920px] 2xl:max-w-full mx-auto">
       {/* Central de Facilidades G2 - Banner de Ações em 1 Toque */}
-      <div className="bg-gradient-to-r from-[#131b2e] via-[#1a243b] to-[#006c49] text-white p-4 rounded-3xl shadow-lg border border-white/10 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-navy via-navy-soft to-brand text-white p-4 rounded-3xl shadow-lg border border-white/10 relative overflow-hidden">
         <div className="flex items-center justify-between mb-3 relative z-10">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#6cf8bb] animate-ping"></span>
-            <span className="font-mono text-[11px] text-[#6cf8bb] uppercase font-bold tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-mint animate-ping"></span>
+            <span className="font-mono text-[11px] text-mint uppercase font-bold tracking-wider">
               Facilidades Operacionais
             </span>
           </div>
@@ -119,12 +119,12 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#25D366]/20 hover:bg-[#25D366]/30 transition-all border border-[#25D366]/40 active:scale-95 text-center shadow-xs cursor-pointer"
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-whatsapp/20 hover:bg-whatsapp/30 transition-all border border-whatsapp/40 active:scale-95 text-center shadow-xs cursor-pointer"
             title="Importar lista de escala copiada do WhatsApp"
           >
-            <WhatsAppIcon className="w-5 h-5 fill-[#25D366] mb-1" />
+            <WhatsAppIcon className="w-5 h-5 fill-whatsapp mb-1" />
             <span className="text-[11px] font-bold leading-tight text-white">Colar WhatsApp</span>
-            <span className="text-[9px] text-[#6cf8bb] font-mono">Importar Lista</span>
+            <span className="text-[9px] text-mint font-mono">Importar Lista</span>
           </button>
 
           <button
@@ -133,7 +133,7 @@ export function Dashboard({
             className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
             title="Acessar a tela de Escala e Horas (Grande Calendário do Mês)"
           >
-            <span className="material-symbols-outlined text-[22px] text-[#ffb95f] mb-1">
+            <span className="material-symbols-outlined text-[22px] text-warn-light mb-1">
               calendar_month
             </span>
             <span className="text-[11px] font-bold leading-tight text-white">Escala & Horas</span>
@@ -146,7 +146,7 @@ export function Dashboard({
             className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 transition-all border border-white/10 active:scale-95 text-center cursor-pointer"
             title="Cadastrar novo colaborador em 10s"
           >
-            <span className="material-symbols-outlined text-[22px] text-[#6cf8bb] mb-1">
+            <span className="material-symbols-outlined text-[22px] text-mint mb-1">
               person_add
             </span>
             <span className="text-[11px] font-bold leading-tight">Novo Bico</span>
@@ -156,24 +156,24 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => onOpenQuickHub && onOpenQuickHub('pagamento')}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#006c49] hover:bg-[#005236] transition-all border border-[#6cf8bb]/40 active:scale-95 text-center shadow-xs cursor-pointer"
+            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-brand hover:bg-brand-hover transition-all border border-mint/40 active:scale-95 text-center shadow-xs cursor-pointer"
             title="Calcular e liquidar pagamentos por quinzena"
           >
-            <span className="material-symbols-outlined text-[22px] text-[#6cf8bb] mb-1">
+            <span className="material-symbols-outlined text-[22px] text-mint mb-1">
               payments
             </span>
             <span className="text-[11px] font-bold leading-tight text-white">Pagar PIX</span>
-            <span className="text-[9px] text-[#bec6e0] font-mono">Quinzena</span>
+            <span className="text-[9px] text-on-navy font-mono">Quinzena</span>
           </button>
         </div>
       </div>
 
       {/* Cycle Switcher Bar */}
-      <div className="flex flex-col gap-2 bg-white p-3.5 rounded-2xl shadow-xs border border-[#dde9ff]">
+      <div className="flex flex-col gap-2 bg-white p-3.5 rounded-2xl shadow-xs border border-line">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span
-              className="material-symbols-outlined text-[#006c49] text-[20px]"
+              className="material-symbols-outlined text-brand text-[20px]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               calendar_today
@@ -181,7 +181,7 @@ export function Dashboard({
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="bg-transparent font-bold text-xs text-[#0d1c2f] outline-none cursor-pointer capitalize"
+              className="bg-transparent font-bold text-xs text-ink outline-none cursor-pointer capitalize"
             >
               {monthOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -192,7 +192,7 @@ export function Dashboard({
           </div>
           <button
             onClick={() => setActiveTab('quinzena-horas')}
-            className="flex items-center gap-1 text-[#45464d] hover:text-[#0d1c2f] text-xs font-semibold px-2 py-1 rounded transition-colors"
+            className="flex items-center gap-1 text-ink-soft hover:text-ink text-xs font-semibold px-2 py-1 rounded transition-colors"
           >
             <span>Ver Grade</span>
             <span className="material-symbols-outlined text-[16px]">chevron_right</span>
@@ -200,17 +200,17 @@ export function Dashboard({
         </div>
 
         {/* Toggle Segmented Buttons */}
-        <div className="grid grid-cols-2 p-1 bg-[#eff4ff] rounded-xl gap-1">
+        <div className="grid grid-cols-2 p-1 bg-field rounded-xl gap-1">
           <button
             onClick={() => setActiveQuinzena(1)}
             className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all ${
               activeQuinzena === 1
-                ? 'bg-white shadow-xs text-[#0d1c2f]'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white shadow-xs text-ink'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#006c49]"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
               1ª Quinzena (01-15)
             </span>
           </button>
@@ -219,12 +219,12 @@ export function Dashboard({
             onClick={() => setActiveQuinzena(2)}
             className={`flex items-center justify-center py-2 px-3 rounded-lg text-xs font-bold transition-all ${
               activeQuinzena === 2
-                ? 'bg-white shadow-xs text-[#0d1c2f]'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white shadow-xs text-ink'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#006c49]"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-brand"></span>
               2ª Quinzena (16-{totalDaysInMonth})
             </span>
           </button>
@@ -243,11 +243,11 @@ export function Dashboard({
                 <span className="font-mono text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-2xs">
                   Alerta Financeiro
                 </span>
-                <span className="text-xs font-black text-[#78350f]">
+                <span className="text-xs font-black text-warn-ink">
                   {pendingGuardsCount} {pendingGuardsCount === 1 ? 'prestador aguardando pagamento' : 'prestadores aguardando pagamento'}
                 </span>
               </div>
-              <p className="text-xs text-[#92400e] mt-1 font-medium">
+              <p className="text-xs text-warn-strong mt-1 font-medium">
                 Faltam liquidar <strong>R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> na {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'} ({monthInfo.formattedMonth}).
               </p>
             </div>
@@ -266,20 +266,20 @@ export function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Column: Financial Bento & Guards List */}
         <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
-          {/* Financial Master Bento Card (Stitch Dark Theme #131b2e) */}
-          <div className="flex flex-col bg-[#131b2e] text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
-        <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-[#006c49]/20 rounded-full blur-2xl pointer-events-none"></div>
+          {/* Cartão escuro de previsão de pagamento */}
+          <div className="flex flex-col bg-navy text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+        <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-brand/20 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="flex items-center justify-between mb-2 z-10 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-[#bec6e0] font-semibold">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-on-navy font-semibold">
               Previsão de Pagamento
             </span>
-            <span className="px-2 py-0.5 rounded-md bg-[#6cf8bb]/20 text-[#6cf8bb] border border-[#6cf8bb]/40 font-mono text-[10px] font-black uppercase">
+            <span className="px-2 py-0.5 rounded-md bg-mint/20 text-mint border border-mint/40 font-mono text-[10px] font-black uppercase">
               📅 {monthInfo.formattedMonth.toUpperCase()}
             </span>
           </div>
-          <span className="inline-flex items-center gap-1 bg-[#006c49] text-white px-2 py-0.5 rounded-full font-mono text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 bg-brand text-white px-2 py-0.5 rounded-full font-mono text-[10px] font-bold">
             <span className="material-symbols-outlined text-[12px]">verified</span>
             {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'}
           </span>
@@ -287,7 +287,7 @@ export function Dashboard({
 
         {/* Main Value Hero */}
         <div className="flex flex-col mb-3 z-10">
-          <span className="text-xs text-[#bec6e0]">
+          <span className="text-xs text-on-navy">
             Total Previsto da {activeQuinzena === 1 ? '1ª Quinzena' : '2ª Quinzena'} • <strong className="text-white font-bold">{monthInfo.formattedMonth}</strong>
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
@@ -299,28 +299,28 @@ export function Dashboard({
 
         {/* Differentiated Paid vs Still To Pay Split */}
         <div className="grid grid-cols-2 gap-2 mb-3 z-10">
-          <div className="p-3 rounded-xl bg-[#006c49]/40 border border-[#6cf8bb]/40 flex flex-col">
-            <span className="text-[11px] font-bold text-[#6cf8bb] flex items-center gap-1">
+          <div className="p-3 rounded-xl bg-brand/40 border border-mint/40 flex flex-col">
+            <span className="text-[11px] font-bold text-mint flex items-center gap-1">
               <span className="material-symbols-outlined text-[15px]">check_circle</span>
               Valor Já Pago
             </span>
-            <span className="font-mono text-lg font-black text-[#6cf8bb] mt-0.5">
+            <span className="font-mono text-lg font-black text-mint mt-0.5">
               R$ {paidAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-[#bec6e0] mt-0.5">
+            <span className="text-[10px] text-on-navy mt-0.5">
               {totalAmount > 0 ? ((paidAmount / totalAmount) * 100).toFixed(0) : 0}% liquidado
             </span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#ffddb8]/15 border border-[#ffddb8]/30 flex flex-col">
-            <span className="text-[11px] font-bold text-[#ffddb8] flex items-center gap-1">
+          <div className="p-3 rounded-xl bg-warn-soft/15 border border-warn-soft/30 flex flex-col">
+            <span className="text-[11px] font-bold text-warn-soft flex items-center gap-1">
               <span className="material-symbols-outlined text-[15px]">schedule</span>
               Ainda a Pagar
             </span>
-            <span className="font-mono text-lg font-black text-[#ffddb8] mt-0.5">
+            <span className="font-mono text-lg font-black text-warn-soft mt-0.5">
               R$ {pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-[#bec6e0] mt-0.5">
+            <span className="text-[10px] text-on-navy mt-0.5">
               {totalAmount > 0 ? ((pendingAmount / totalAmount) * 100).toFixed(0) : 0}% em aberto
             </span>
           </div>
@@ -329,7 +329,7 @@ export function Dashboard({
         {/* Metrics Split Row */}
         <div className="grid grid-cols-2 gap-2 pt-1 z-10">
           <div className="flex flex-col p-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/5">
-            <div className="flex items-center gap-1 text-[#bec6e0] mb-1">
+            <div className="flex items-center gap-1 text-on-navy mb-1">
               <span className="material-symbols-outlined text-[16px]">schedule</span>
               <span className="text-xs">Horas Totais</span>
             </div>
@@ -340,7 +340,7 @@ export function Dashboard({
 
           <div className="flex flex-col justify-between p-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-[#bec6e0]">
+              <div className="flex items-center gap-1 text-on-navy">
                 <span className="material-symbols-outlined text-[16px]">payments</span>
                 <span className="text-xs">Taxa Padrão</span>
               </div>
@@ -349,7 +349,7 @@ export function Dashboard({
                   setTempRate(defaultHourlyRate)
                   setShowRateModal(true)
                 }}
-                className="w-5 h-5 rounded flex items-center justify-center text-[#6cf8bb] hover:bg-white/20 transition"
+                className="w-5 h-5 rounded flex items-center justify-center text-mint hover:bg-white/20 transition"
                 title="Editar taxa padrão"
               >
                 <span className="material-symbols-outlined text-[14px]">edit</span>
@@ -363,7 +363,7 @@ export function Dashboard({
 
         {/* Budget Progress Bar */}
         <div className="flex flex-col gap-1.5 mt-4 pt-2 z-10">
-          <div className="flex justify-between items-center text-[#bec6e0] text-xs">
+          <div className="flex justify-between items-center text-on-navy text-xs">
             <div className="flex items-center gap-1.5">
               <span>
                 Teto Orçado: <strong className="text-white font-mono">R$ {currentBudgetCeiling.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
@@ -374,24 +374,24 @@ export function Dashboard({
                   setTempBudget(currentBudgetCeiling)
                   setShowBudgetModal(true)
                 }}
-                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-[#6cf8bb] text-[10px] font-bold flex items-center gap-1 transition active:scale-95"
+                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-mint text-[10px] font-bold flex items-center gap-1 transition active:scale-95"
                 title="Clique para editar o teto orçado"
               >
                 <span className="material-symbols-outlined text-[12px]">edit</span>
                 <span>Editar Teto</span>
               </button>
             </div>
-            <span className="font-mono font-bold text-[#6cf8bb]">
+            <span className="font-mono font-bold text-mint">
               {budgetPercent.toFixed(1)}%
             </span>
           </div>
           <div className="w-full h-2 rounded-full bg-white/15 overflow-hidden">
             <div
-              className="h-full bg-[#6cf8bb] rounded-full transition-all duration-500"
+              className="h-full bg-mint rounded-full transition-all duration-500"
               style={{ width: `${budgetPercent}%` }}
             ></div>
           </div>
-          <span className="font-mono text-[11px] text-[#bec6e0]/80">
+          <span className="font-mono text-[11px] text-on-navy/80">
             Saldo disponível: R$ {budgetRemaining.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} no período
           </span>
         </div>
@@ -401,15 +401,15 @@ export function Dashboard({
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <h2 className="text-sm font-bold text-[#0d1c2f]">Resumo do Efetivo</h2>
-            <span className="bg-[#e6eeff] px-2 py-0.5 rounded-full font-mono text-[10px] text-[#76777d] font-semibold">
+            <h2 className="text-sm font-bold text-ink">Resumo do Efetivo</h2>
+            <span className="bg-field-strong px-2 py-0.5 rounded-full font-mono text-[10px] text-ink-muted font-semibold">
               {activeGuards.length} Colaboradores
             </span>
-            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-[#eff4ff] text-[#006c49] font-bold border border-[#dde9ff]">
+            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-field text-brand font-bold border border-line">
               Ref: {monthInfo.formattedMonth}
             </span>
           </div>
-          <span className="font-mono text-xs text-[#006c49] font-bold">
+          <span className="font-mono text-xs text-brand font-bold">
             {totalHours}h acumuladas
           </span>
         </div>
@@ -428,17 +428,17 @@ export function Dashboard({
             return (
               <div
                 key={guard.id}
-                className="flex items-center justify-between p-3.5 bg-white rounded-2xl shadow-xs border border-[#dde9ff] hover:bg-[#eff4ff] transition-colors"
+                className="flex items-center justify-between p-3.5 bg-white rounded-2xl shadow-xs border border-line hover:bg-field transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-[#dde9ff] flex items-center justify-center text-[#0d1c2f] font-bold text-xs shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-line flex items-center justify-center text-ink font-bold text-xs shrink-0">
                     {guard.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-sm text-[#0d1c2f] truncate">
+                    <span className="font-bold text-sm text-ink truncate">
                       {guard.name}
                     </span>
-                    <span className="text-xs text-[#76777d] truncate">
+                    <span className="text-xs text-ink-muted truncate">
                       Colaborador
                     </span>
                   </div>
@@ -446,10 +446,10 @@ export function Dashboard({
 
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="flex flex-col items-end">
-                    <span className="font-mono text-xs font-bold text-[#006c49]">
+                    <span className="font-mono text-xs font-bold text-brand">
                       R$ {shiftAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
-                    <span className="font-mono text-[9px] text-[#76777d]">
+                    <span className="font-mono text-[9px] text-ink-muted">
                       {shiftHours}h • ({monthInfo.monthName.slice(0, 3)}/{year})
                     </span>
                   </div>
@@ -462,8 +462,8 @@ export function Dashboard({
                     }}
                     className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition active:scale-95 shadow-xs ${
                       isPaid
-                        ? 'bg-[#006c49] hover:bg-[#005236] text-white border border-[#6cf8bb]'
-                        : 'bg-[#006c49] hover:bg-[#005236] text-white'
+                        ? 'bg-brand hover:bg-brand-hover text-white border border-mint'
+                        : 'bg-brand hover:bg-brand-hover text-white'
                     }`}
                     title={
                       isPaid
@@ -479,7 +479,7 @@ export function Dashboard({
 
                   <button
                     onClick={() => setActiveTab('pagamentos')}
-                    className="text-[#76777d] hover:text-[#0d1c2f] p-1"
+                    className="text-ink-muted hover:text-ink p-1"
                     title="Ir para Pagamentos & PIX"
                   >
                     <span className="material-symbols-outlined text-[18px]">chevron_right</span>
@@ -493,7 +493,7 @@ export function Dashboard({
         {/* Quick Footer Action */}
         <button
           onClick={() => setActiveTab('prestadores')}
-          className="w-full py-3 rounded-2xl bg-[#e6eeff] hover:bg-[#dde9ff] text-[#0d1c2f] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors active:scale-98"
+          className="w-full py-3 rounded-2xl bg-field-strong hover:bg-line text-ink font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors active:scale-98"
         >
           <span>Ver todos os {activeGuards.length} colaboradores ativos</span>
           <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -504,16 +504,16 @@ export function Dashboard({
     {/* Right Column: Escala & Horas e Atalhos */}
     <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
       {/* Card da Escala & Horas do Mês */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col gap-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line flex flex-col gap-3">
+        <div className="flex items-center justify-between pb-2 border-b border-field">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#006c49] text-[20px]">calendar_month</span>
-            <h3 className="text-sm font-bold text-[#0d1c2f]">Escala & Horas</h3>
+            <span className="material-symbols-outlined text-brand text-[20px]">calendar_month</span>
+            <h3 className="text-sm font-bold text-ink">Escala & Horas</h3>
           </div>
           <button
             type="button"
             onClick={() => setActiveTab('quinzena-horas')}
-            className="text-[11px] text-[#006c49] font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+            className="text-[11px] text-brand font-bold hover:underline cursor-pointer flex items-center gap-0.5"
           >
             <span>Ver Grade</span>
             <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
@@ -522,21 +522,21 @@ export function Dashboard({
 
         <div className="flex flex-col gap-2.5">
           {/* Resumo do Mês Selecionado */}
-          <div className="p-3 rounded-xl bg-[#eff4ff]/60 border border-[#dde9ff]/60 flex items-center justify-between">
+          <div className="p-3 rounded-xl bg-field/60 border border-line/60 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-[#006c49] border border-[#dde9ff] shadow-2xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-brand border border-line shadow-2xs shrink-0">
                 <span className="material-symbols-outlined text-[18px]">event</span>
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-bold text-[#0d1c2f] block truncate">
+                <span className="text-xs font-bold text-ink block truncate">
                   {monthInfo.formattedMonth}
                 </span>
-                <span className="text-[10px] text-[#76777d]">
+                <span className="text-[10px] text-ink-muted">
                   {activeQuinzena === 1 ? '1ª Quinzena (Dias 01 a 15)' : `2ª Quinzena (Dias 16 a ${totalDaysInMonth})`}
                 </span>
               </div>
             </div>
-            <span className="font-mono text-xs font-bold text-[#006c49] bg-white px-2.5 py-1 rounded-lg border border-[#dde9ff] shadow-2xs shrink-0">
+            <span className="font-mono text-xs font-bold text-brand bg-white px-2.5 py-1 rounded-lg border border-line shadow-2xs shrink-0">
               {totalHours}h
             </span>
           </div>
@@ -552,13 +552,13 @@ export function Dashboard({
               .filter((x) => x.hours > 0)
 
             return (
-              <div className="p-3 rounded-xl bg-white border border-[#dde9ff] flex flex-col gap-2">
+              <div className="p-3 rounded-xl bg-white border border-line flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#006c49]" />
+                  <span className="text-[11px] font-bold text-ink flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-brand" />
                     <span>Plantão de Hoje (Dia {todayDay})</span>
                   </span>
-                  <span className="font-mono text-[10px] text-[#76777d] font-semibold">
+                  <span className="font-mono text-[10px] text-ink-muted font-semibold">
                     {todayPlantao.length} {todayPlantao.length === 1 ? 'colaborador' : 'colaboradores'}
                   </span>
                 </div>
@@ -568,15 +568,15 @@ export function Dashboard({
                     {todayPlantao.map(({ guard, hours }) => (
                       <span
                         key={guard.id}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#eff4ff] text-[#0d1c2f] text-xs font-bold border border-[#dde9ff]"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-field text-ink text-xs font-bold border border-line"
                       >
                         <span>{guard.name}</span>
-                        <span className="font-mono text-[10px] text-[#006c49] font-black">({hours}h)</span>
+                        <span className="font-mono text-[10px] text-brand font-black">({hours}h)</span>
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-[11px] text-[#76777d] italic">
+                  <span className="text-[11px] text-ink-muted italic">
                     Nenhum colaborador com horas lançadas hoje.
                   </span>
                 )}
@@ -588,7 +588,7 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => setActiveTab('quinzena-horas')}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-98"
+            className="w-full py-2.5 px-3 rounded-xl bg-brand hover:bg-brand-hover text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-98"
           >
             <span className="material-symbols-outlined text-[18px]">calendar_month</span>
             <span>Acessar Grade Completa (Escala & Horas)</span>
@@ -597,20 +597,20 @@ export function Dashboard({
       </div>
 
       {/* Atalhos Rápidos da Gestão */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex flex-col gap-3">
-        <div className="flex items-center gap-2 pb-2 border-b border-[#eff4ff]">
-          <span className="material-symbols-outlined text-[#006c49] text-[20px]">bolt</span>
-          <h3 className="text-sm font-bold text-[#0d1c2f]">Atalhos da Gestão</h3>
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line flex flex-col gap-3">
+        <div className="flex items-center gap-2 pb-2 border-b border-field">
+          <span className="material-symbols-outlined text-brand text-[20px]">bolt</span>
+          <h3 className="text-sm font-bold text-ink">Atalhos da Gestão</h3>
         </div>
 
         <div className="flex flex-col gap-2">
           <button
             type="button"
             onClick={() => onOpenWhatsApp && onOpenWhatsApp()}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#075e54] font-bold text-xs flex items-center justify-between border border-[#25D366]/30 transition cursor-pointer active:scale-98"
+            className="w-full py-2.5 px-3 rounded-xl bg-whatsapp/15 hover:bg-whatsapp/25 text-whatsapp-dark font-bold text-xs flex items-center justify-between border border-whatsapp/30 transition cursor-pointer active:scale-98"
           >
             <div className="flex items-center gap-2">
-              <WhatsAppIcon className="w-4 h-4 fill-[#25D366]" />
+              <WhatsAppIcon className="w-4 h-4 fill-whatsapp" />
               <span>Importar Escala do WhatsApp</span>
             </div>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -619,10 +619,10 @@ export function Dashboard({
           <button
             type="button"
             onClick={() => setActiveTab('pagamentos')}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#131b2e] hover:bg-[#1a243b] text-white font-bold text-xs flex items-center justify-between shadow-xs transition cursor-pointer active:scale-98"
+            className="w-full py-2.5 px-3 rounded-xl bg-navy hover:bg-navy-soft text-white font-bold text-xs flex items-center justify-between shadow-xs transition cursor-pointer active:scale-98"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px] text-[#6cf8bb]">payments</span>
+              <span className="material-symbols-outlined text-[18px] text-mint">payments</span>
               <span>Extrato & Pagamentos PIX</span>
             </div>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -635,16 +635,16 @@ export function Dashboard({
       {/* Hourly Rate Modal */}
       {showRateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-[#dde9ff]">
-            <h3 className="text-sm font-bold text-[#0d1c2f] mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#006c49]">payments</span>
+          <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl border border-line">
+            <h3 className="text-sm font-bold text-ink mb-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-brand">payments</span>
               <span>Ajustar Taxa Padrão</span>
             </h3>
             <form onSubmit={handleSaveRate} className="space-y-3">
               <div>
-                <label className="text-xs text-[#76777d] block mb-1">Valor da Hora (R$)</label>
+                <label className="text-xs text-ink-muted block mb-1">Valor da Hora (R$)</label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-3 text-xs text-[#76777d] font-bold">R$</span>
+                  <span className="absolute left-3 text-xs text-ink-muted font-bold">R$</span>
                   <input
                     type="number"
                     step="0.5"
@@ -652,7 +652,7 @@ export function Dashboard({
                     required
                     value={tempRate}
                     onChange={(e) => setTempRate(e.target.value)}
-                    className="w-full h-11 pl-9 pr-3 bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49]"
+                    className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
               </div>
@@ -660,7 +660,7 @@ export function Dashboard({
                 <button
                   type="button"
                   onClick={() => setShowRateModal(false)}
-                  className="px-3 py-1.5 text-xs text-[#76777d] hover:text-[#0d1c2f]"
+                  className="px-3 py-1.5 text-xs text-ink-muted hover:text-ink"
                 >
                   Cancelar
                 </button>
@@ -679,21 +679,21 @@ export function Dashboard({
       {/* Modal: Editar Teto Orçado */}
       {showBudgetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-[#dde9ff] space-y-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-[#eff4ff] pb-3">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-line space-y-4 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-field pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-[#6cf8bb]/30 flex items-center justify-center text-[#006c49]">
+                <div className="w-9 h-9 rounded-2xl bg-mint/30 flex items-center justify-center text-brand">
                   <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[#0d1c2f]">Editar Teto Orçado</h3>
-                  <p className="text-[10px] text-[#76777d]">Limite máximo de gastos para a quinzena</p>
+                  <h3 className="text-sm font-bold text-ink">Editar Teto Orçado</h3>
+                  <p className="text-[10px] text-ink-muted">Limite máximo de gastos para a quinzena</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowBudgetModal(false)}
-                className="w-8 h-8 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#45464d] hover:bg-[#dde9ff]"
+                className="w-8 h-8 rounded-full bg-field flex items-center justify-center text-ink-soft hover:bg-line"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -701,11 +701,11 @@ export function Dashboard({
 
             <form onSubmit={handleSaveBudget} className="space-y-3.5">
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1.5">
+                <label className="text-xs font-bold text-ink block mb-1.5">
                   Valor do Teto Orçado (R$):
                 </label>
                 <div className="relative flex items-center">
-                  <span className="absolute left-3 font-mono font-bold text-xs text-[#76777d]">
+                  <span className="absolute left-3 font-mono font-bold text-xs text-ink-muted">
                     R$
                   </span>
                   <input
@@ -715,7 +715,7 @@ export function Dashboard({
                     required
                     value={tempBudget}
                     onChange={(e) => setTempBudget(Number(e.target.value) || 0)}
-                    className="w-full h-11 pl-10 pr-3 rounded-xl bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-base border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49]"
+                    className="w-full h-11 pl-10 pr-3 rounded-xl bg-field text-ink font-mono font-bold text-base border border-line focus:outline-none focus:ring-2 focus:ring-brand"
                     autoFocus
                   />
                 </div>
@@ -723,7 +723,7 @@ export function Dashboard({
 
               {/* Quick Preset Buttons */}
               <div>
-                <span className="text-[10px] font-bold text-[#76777d] block mb-1">
+                <span className="text-[10px] font-bold text-ink-muted block mb-1">
                   Valores Rápidos:
                 </span>
                 <div className="grid grid-cols-4 gap-1.5">
@@ -734,8 +734,8 @@ export function Dashboard({
                       onClick={() => setTempBudget(val)}
                       className={`py-1.5 rounded-xl text-xs font-mono font-bold transition border ${
                         tempBudget === val
-                          ? 'bg-[#006c49] text-white border-[#006c49]'
-                          : 'bg-[#eff4ff] text-[#0d1c2f] border-[#dde9ff] hover:bg-[#dde9ff]'
+                          ? 'bg-brand text-white border-brand'
+                          : 'bg-field text-ink border-line hover:bg-line'
                       }`}
                     >
                       {val >= 1000 ? `${val / 1000}k` : val}
@@ -744,17 +744,17 @@ export function Dashboard({
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-2 border-t border-[#eff4ff]">
+              <div className="flex gap-2 pt-2 border-t border-field">
                 <button
                   type="button"
                   onClick={() => setShowBudgetModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-[#dde9ff] text-xs font-bold text-[#45464d] hover:bg-[#eff4ff] transition"
+                  className="flex-1 py-2.5 rounded-xl border border-line text-xs font-bold text-ink-soft hover:bg-field transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-xs font-bold shadow-md transition active:scale-95"
+                  className="flex-1 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-bold shadow-md transition active:scale-95"
                 >
                   Salvar Teto
                 </button>

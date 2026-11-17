@@ -212,50 +212,50 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-60 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
-          <span className="material-symbols-outlined text-[#6cf8bb] text-[18px]">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-60 bg-navy text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
+          <span className="material-symbols-outlined text-mint text-[18px]">
             check_circle
           </span>
           <span>{toastMessage}</span>
         </div>
       )}
 
-      <div className="bg-white w-full sm:max-w-3xl rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto border border-[#dde9ff] animate-in slide-in-from-bottom duration-200">
+      <div className="bg-white w-full sm:max-w-3xl rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto border border-line animate-in slide-in-from-bottom duration-200">
         {/* Grabber handle for mobile */}
-        <div className="w-12 h-1.5 bg-[#dde9ff] rounded-full mx-auto mb-2 sm:hidden"></div>
+        <div className="w-12 h-1.5 bg-line rounded-full mx-auto mb-2 sm:hidden"></div>
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#eff4ff]">
+        <div className="flex items-center justify-between pb-3 border-b border-field">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#006c49] text-white flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-brand text-white flex items-center justify-center shadow-xs">
               <span className="material-symbols-outlined text-[20px]">bolt</span>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#0d1c2f]">
+              <h2 className="text-sm font-bold text-ink">
                 Central de Operações Rápidas G2
               </h2>
-              <p className="text-[11px] text-[#76777d]">
+              <p className="text-[11px] text-ink-muted">
                 Atalhos inteligentes para facilitar sua rotina diária
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#45464d] hover:bg-[#dde9ff]"
+            className="w-8 h-8 rounded-full bg-field flex items-center justify-center text-ink-soft hover:bg-line"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
         {/* 4 Feature Tabs */}
-        <div className="grid grid-cols-4 gap-1 p-1 bg-[#eff4ff] rounded-2xl my-3">
+        <div className="grid grid-cols-4 gap-1 p-1 bg-field rounded-2xl my-3">
           <button
             type="button"
             onClick={() => setActiveTab('cadastro')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
               activeTab === 'cadastro'
-                ? 'bg-white text-[#0d1c2f] shadow-xs'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white text-ink shadow-xs'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">person_add</span>
@@ -267,8 +267,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             onClick={() => setActiveTab('escala')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
               activeTab === 'escala'
-                ? 'bg-white text-[#0d1c2f] shadow-xs'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white text-ink shadow-xs'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">auto_fix_high</span>
@@ -280,8 +280,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             onClick={() => setActiveTab('hoje')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
               activeTab === 'hoje'
-                ? 'bg-white text-[#0d1c2f] shadow-xs'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white text-ink shadow-xs'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">today</span>
@@ -293,8 +293,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             onClick={() => setActiveTab('pagamento')}
             className={`py-2 px-1 rounded-xl text-center text-xs font-bold transition flex flex-col items-center gap-1 ${
               activeTab === 'pagamento'
-                ? 'bg-white text-[#0d1c2f] shadow-xs'
-                : 'text-[#45464d] hover:text-[#0d1c2f]'
+                ? 'bg-white text-ink shadow-xs'
+                : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">payments</span>
@@ -305,15 +305,15 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         {/* TAB 1: CADASTRO ULTRA RÁPIDO */}
         {activeTab === 'cadastro' && (
           <form onSubmit={handleQuickAddGuard} className="space-y-3 pt-1">
-            <div className="bg-[#eff4ff] p-3 rounded-2xl border border-[#dde9ff]/60">
-              <span className="text-[11px] font-bold text-[#006c49] flex items-center gap-1">
+            <div className="bg-field p-3 rounded-2xl border border-line/60">
+              <span className="text-[11px] font-bold text-brand flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">info</span>
                 Cadastro em 10 segundos: digite apenas o nome do colaborador!
               </span>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+              <label className="text-xs font-bold text-ink block mb-1">
                 Nome na Escala *
               </label>
               <input
@@ -322,14 +322,14 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                 placeholder="Ex: Carlos, Rocha, Martins..."
                 value={quickGuard.name}
                 onChange={(e) => setQuickGuard({ ...quickGuard, name: e.target.value })}
-                className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] font-semibold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]"
+                className="w-full h-11 px-3 bg-field text-ink font-semibold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line"
               />
             </div>
 
             {/* Chave PIX e Telefone */}
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-bold text-ink block mb-1">
                   Chave PIX
                 </label>
                 <input
@@ -337,13 +337,13 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   placeholder="CPF, celular, e-mail..."
                   value={quickGuard.pixKey}
                   onChange={(e) => setQuickGuard({ ...quickGuard, pixKey: e.target.value })}
-                  className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]"
+                  className="w-full h-11 px-3 bg-field text-ink font-mono text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5 mb-1">
-                  <WhatsAppIcon className="w-3.5 h-3.5 fill-[#25D366]" />
+                <label className="text-xs font-bold text-ink flex items-center gap-1.5 mb-1">
+                  <WhatsAppIcon className="w-3.5 h-3.5 fill-whatsapp" />
                   <span>WhatsApp (Opcional)</span>
                 </label>
                 <input
@@ -351,24 +351,24 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   placeholder="(11) 9...."
                   value={quickGuard.phone}
                   onChange={(e) => setQuickGuard({ ...quickGuard, phone: e.target.value })}
-                  className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]"
+                  className="w-full h-11 px-3 bg-field text-ink text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line"
                 />
               </div>
             </div>
 
             {/* Smart Defaults Ribbon */}
-            <div className="flex items-center justify-between p-2.5 bg-[#eff4ff] rounded-xl text-xs text-[#45464d]">
+            <div className="flex items-center justify-between p-2.5 bg-field rounded-xl text-xs text-ink-soft">
               <span>
-                Valor da Hora: <strong className="text-[#006c49]">R$ {defaultHourlyRate},00</strong>
+                Valor da Hora: <strong className="text-brand">R$ {defaultHourlyRate},00</strong>
               </span>
               <span>
-                Plantão: <strong className="text-[#006c49]">{quickGuard.defaultShiftHours}h padrão</strong>
+                Plantão: <strong className="text-brand">{quickGuard.defaultShiftHours}h padrão</strong>
               </span>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
+              className="w-full py-3 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
             >
               <span className="material-symbols-outlined text-[18px]">person_add</span>
               <span>Salvar Bico em 1 Clique</span>
@@ -380,14 +380,14 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         {activeTab === 'escala' && (
           <form onSubmit={handleApplySchedule} className="space-y-3 pt-1">
             {/* WhatsApp Import Fast Button */}
-            <div className="p-3 bg-[#25D366]/20 border border-[#25D366]/40 rounded-2xl flex items-center justify-between">
+            <div className="p-3 bg-whatsapp/20 border border-whatsapp/40 rounded-2xl flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <WhatsAppIcon className="w-5 h-5 fill-[#25D366] shrink-0" />
+                <WhatsAppIcon className="w-5 h-5 fill-whatsapp shrink-0" />
                 <div>
-                  <span className="text-xs font-bold text-[#0d1c2f] block leading-tight">
+                  <span className="text-xs font-bold text-ink block leading-tight">
                     Recebeu a escala no WhatsApp?
                   </span>
-                  <span className="text-[10px] text-[#45464d]">
+                  <span className="text-[10px] text-ink-soft">
                     Cole a mensagem para preencher os 30 dias automaticamente
                   </span>
                 </div>
@@ -398,14 +398,14 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   onClose()
                   window.dispatchEvent(new CustomEvent('open-whatsapp-importer'))
                 }}
-                className="px-2.5 py-1.5 bg-[#25D366] hover:bg-[#1faa53] text-[#002113] rounded-xl text-xs font-black shadow-xs active:scale-95 transition shrink-0"
+                className="px-2.5 py-1.5 bg-whatsapp hover:bg-whatsapp-hover text-brand-ink rounded-xl text-xs font-black shadow-xs active:scale-95 transition shrink-0"
               >
                 Colar Texto
               </button>
             </div>
 
-            <div className="bg-[#eff4ff] p-3 rounded-2xl border border-[#dde9ff]/60">
-              <span className="text-[11px] font-bold text-[#006c49] flex items-center gap-1">
+            <div className="bg-field p-3 rounded-2xl border border-line/60">
+              <span className="text-[11px] font-bold text-brand flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px]">magic_button</span>
                 Ou preencha com 1 toque escolhendo o padrão da escala:
               </span>
@@ -413,13 +413,13 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
             {/* Colaborador Alvo */}
             <div>
-              <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+              <label className="text-xs font-bold text-ink block mb-1">
                 Para qual colaborador? *
               </label>
               <select
                 value={scheduleTargetGuard}
                 onChange={(e) => setScheduleTargetGuard(e.target.value)}
-                className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] font-bold text-xs rounded-xl border border-[#dde9ff] focus:outline-none cursor-pointer"
+                className="w-full h-11 px-3 bg-field text-ink font-bold text-xs rounded-xl border border-line focus:outline-none cursor-pointer"
               >
                 {guards.filter((g) => g.active).map((g) => (
                   <option key={g.id} value={g.id}>
@@ -431,7 +431,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
 
             {/* Padrões Rápidos de Escala */}
             <div>
-              <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+              <label className="text-xs font-bold text-ink block mb-1">
                 Padrão da Escala (Como ele trabalha?)
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -449,11 +449,11 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       onClick={() => setSchedulePattern(item.id)}
                       className={`p-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 border text-left ${
                         isSelected
-                          ? 'bg-[#131b2e] text-white border-[#131b2e] shadow-xs'
-                          : 'bg-[#eff4ff] text-[#45464d] border-[#dde9ff] hover:bg-[#dde9ff]'
+                          ? 'bg-navy text-white border-navy shadow-xs'
+                          : 'bg-field text-ink-soft border-line hover:bg-line'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[16px] text-[#6cf8bb]">
+                      <span className="material-symbols-outlined text-[16px] text-mint">
                         {item.icon}
                       </span>
                       <span className="text-[11px] leading-tight">{item.label}</span>
@@ -466,7 +466,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             {/* Horas do Plantão & Quinzena */}
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-bold text-ink block mb-1">
                   Horas por Plantão
                 </label>
                 <div className="grid grid-cols-3 gap-1">
@@ -477,8 +477,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       onClick={() => setScheduleHours(h)}
                       className={`py-2 rounded-xl font-mono text-xs font-bold transition border ${
                         scheduleHours === h
-                          ? 'bg-[#006c49] text-white border-[#006c49]'
-                          : 'bg-[#eff4ff] text-[#0d1c2f] border-[#dde9ff]'
+                          ? 'bg-brand text-white border-brand'
+                          : 'bg-field text-ink border-line'
                       }`}
                     >
                       {h}h
@@ -488,7 +488,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-bold text-ink block mb-1">
                   Período
                 </label>
                 <div className="grid grid-cols-3 gap-1">
@@ -503,8 +503,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                       onClick={() => setScheduleQuinzena(item.id)}
                       className={`py-2 rounded-xl text-xs font-bold transition border ${
                         scheduleQuinzena === item.id
-                          ? 'bg-[#006c49] text-white border-[#006c49]'
-                          : 'bg-[#eff4ff] text-[#0d1c2f] border-[#dde9ff]'
+                          ? 'bg-brand text-white border-brand'
+                          : 'bg-field text-ink border-line'
                       }`}
                     >
                       {item.label}
@@ -517,19 +517,19 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             {/* Action Submit */}
             <button
               type="submit"
-              className="w-full py-3 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
+              className="w-full py-3 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
             >
               <span className="material-symbols-outlined text-[18px]">auto_fix_high</span>
               <span>Aplicar Escala Automaticamente</span>
             </button>
 
             {/* Quick Duplicate from Previous Month */}
-            <div className="pt-2 border-t border-[#eff4ff] flex items-center justify-between">
-              <span className="text-xs text-[#76777d]">Ou copie a escala do mês anterior:</span>
+            <div className="pt-2 border-t border-field flex items-center justify-between">
+              <span className="text-xs text-ink-muted">Ou copie a escala do mês anterior:</span>
               <button
                 type="button"
                 onClick={handleCopyMonth}
-                className="px-3 py-1.5 bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-xl text-xs font-bold border border-[#dde9ff] flex items-center gap-1"
+                className="px-3 py-1.5 bg-field hover:bg-line text-ink rounded-xl text-xs font-bold border border-line flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[15px]">content_copy</span>
                 <span>Duplicar Escala</span>
@@ -541,17 +541,17 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         {/* TAB 3: LANÇAMENTO RÁPIDO DO PLANTÃO DE HOJE */}
         {activeTab === 'hoje' && (
           <div className="space-y-3 pt-1">
-            <div className="flex items-center justify-between bg-[#eff4ff] p-3 rounded-2xl border border-[#dde9ff]/60">
+            <div className="flex items-center justify-between bg-field p-3 rounded-2xl border border-line/60">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#006c49]">today</span>
-                <span className="text-xs font-bold text-[#0d1c2f]">
+                <span className="material-symbols-outlined text-brand">today</span>
+                <span className="text-xs font-bold text-ink">
                   Plantão do Dia:
                 </span>
               </div>
               <select
                 value={todayDay}
                 onChange={(e) => setTodayDay(Number(e.target.value))}
-                className="bg-white px-2.5 py-1 rounded-xl text-xs font-bold text-[#0d1c2f] border border-[#dde9ff] cursor-pointer"
+                className="bg-white px-2.5 py-1 rounded-xl text-xs font-bold text-ink border border-line cursor-pointer"
               >
                 {monthDaysArray.map((d) => (
                   <option key={d} value={d}>
@@ -562,9 +562,9 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             </div>
 
             {/* Quick Helper and Batch Buttons */}
-            <div className="flex items-center justify-between text-xs text-[#76777d]">
+            <div className="flex items-center justify-between text-xs text-ink-muted">
               <span className="text-[11px]">
-                Padrão: <strong className="text-[#006c49]">3h</strong>. Ajuste no <strong>(+)</strong> ou <strong>(-)</strong>:
+                Padrão: <strong className="text-brand">3h</strong>. Ajuste no <strong>(+)</strong> ou <strong>(-)</strong>:
               </span>
               <div className="flex items-center gap-1.5">
                 <button
@@ -577,7 +577,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     setTodayRecords(map)
                     showToast('Todos os plantões definidos para 3h!')
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] font-bold text-[10px] border border-[#006c49]/30 transition"
+                  className="px-2 py-0.5 rounded-lg bg-brand/10 hover:bg-brand/20 text-brand font-bold text-[10px] border border-brand/30 transition"
                   title="Definir 3 horas para todos os colaboradores"
                 >
                   Todos 3h
@@ -592,7 +592,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     setTodayRecords(map)
                     showToast('Todos definidos com folga (0h)!')
                   }}
-                  className="px-2 py-0.5 rounded-lg bg-[#eff4ff] hover:bg-[#dde9ff] text-[#76777d] font-bold text-[10px] border border-[#dde9ff] transition"
+                  className="px-2 py-0.5 rounded-lg bg-field hover:bg-line text-ink-muted font-bold text-[10px] border border-line transition"
                   title="Zerar horas de todos os colaboradores"
                 >
                   Zerar (0h)
@@ -611,11 +611,11 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                 return (
                   <div
                     key={guard.id}
-                    className="p-2.5 bg-white rounded-2xl border border-[#dde9ff] flex items-center justify-between shadow-2xs hover:border-[#006c49]/40 transition"
+                    className="p-2.5 bg-white rounded-2xl border border-line flex items-center justify-between shadow-2xs hover:border-brand/40 transition"
                   >
                     <div className="min-w-0 pr-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs text-[#0d1c2f] truncate">
+                        <span className="font-bold text-xs text-ink truncate">
                           {guard.name}
                         </span>
                         {currentH > 3 && (
@@ -629,22 +629,22 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-[#76777d] block truncate">
-                        <strong className="text-[#006c49] font-mono font-bold">R$ {dailyTotal.toFixed(2).replace('.', ',')}</strong> ({currentH}h)
+                      <span className="text-[10px] text-ink-muted block truncate">
+                        <strong className="text-brand font-mono font-bold">R$ {dailyTotal.toFixed(2).replace('.', ',')}</strong> ({currentH}h)
                       </span>
                     </div>
 
                     {/* Stepper with - and + and presets */}
                     <div className="flex items-center gap-1.5 shrink-0">
                       {/* Stepper (- / +) */}
-                      <div className="flex items-center bg-[#eff4ff] border border-[#dde9ff] rounded-xl p-0.5 shadow-2xs">
+                      <div className="flex items-center bg-field border border-line rounded-xl p-0.5 shadow-2xs">
                         <button
                           type="button"
                           onClick={() => {
                             const newH = Math.max(0, currentH - 1)
                             setTodayRecords({ ...todayRecords, [guard.id]: newH })
                           }}
-                          className="w-7 h-7 rounded-lg bg-white hover:bg-[#dde9ff] text-[#0d1c2f] font-black text-sm flex items-center justify-center transition active:scale-95 shadow-2xs"
+                          className="w-7 h-7 rounded-lg bg-white hover:bg-line text-ink font-black text-sm flex items-center justify-center transition active:scale-95 shadow-2xs"
                           title="Diminuir 1 hora (-1h)"
                         >
                           -
@@ -656,7 +656,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                               ? 'text-slate-400'
                               : currentH > 3
                               ? 'text-amber-800'
-                              : 'text-[#006c49]'
+                              : 'text-brand'
                           }`}
                         >
                           {currentH}h
@@ -668,7 +668,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                             const newH = Math.min(24, currentH + 1)
                             setTodayRecords({ ...todayRecords, [guard.id]: newH })
                           }}
-                          className="w-7 h-7 rounded-lg bg-[#006c49] hover:bg-[#005236] text-white font-black text-sm flex items-center justify-center transition active:scale-95 shadow-2xs"
+                          className="w-7 h-7 rounded-lg bg-brand hover:bg-brand-hover text-white font-black text-sm flex items-center justify-center transition active:scale-95 shadow-2xs"
                           title="Aumentar 1 hora (+1h)"
                         >
                           +
@@ -686,8 +686,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                             }
                             className={`h-7 px-1.5 min-w-[28px] rounded-lg font-mono text-[10px] font-bold transition ${
                               currentH === h
-                                ? 'bg-[#006c49] text-white shadow-xs'
-                                : 'bg-[#eff4ff] text-[#45464d] hover:bg-[#dde9ff]'
+                                ? 'bg-brand text-white shadow-xs'
+                                : 'bg-field text-ink-soft hover:bg-line'
                             }`}
                             title={h === 0 ? 'Folga (0h)' : `${h} horas de plantão`}
                           >
@@ -704,7 +704,7 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             <button
               type="button"
               onClick={handleSaveTodayCheckin}
-              className="w-full py-3 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
+              className="w-full py-3 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition active:scale-98"
             >
               <span className="material-symbols-outlined text-[18px]">done_all</span>
               <span>Confirmar Plantão de Hoje para Todos</span>
@@ -716,16 +716,16 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
         {activeTab === 'pagamento' && (
           <div className="space-y-3 pt-1">
             {/* High-Visibility Month Competência Banner */}
-            <div className="bg-[#131b2e] text-white p-3.5 rounded-2xl border border-white/10 shadow-sm flex items-center justify-between">
+            <div className="bg-navy text-white p-3.5 rounded-2xl border border-white/10 shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#6cf8bb]/20 text-[#6cf8bb] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-mint/20 text-mint flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-[22px]">calendar_month</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-[#bec6e0] block font-bold">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-on-navy block font-bold">
                     Mês de Competência do Pagamento
                   </span>
-                  <span className="text-sm font-black text-[#6cf8bb] capitalize leading-none">
+                  <span className="text-sm font-black text-mint capitalize leading-none">
                     {monthInfo.formattedMonth}
                   </span>
                 </div>
@@ -738,16 +738,16 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               </div>
             </div>
 
-            <div className="flex items-center justify-between bg-[#eff4ff] p-2.5 rounded-2xl border border-[#dde9ff]/60">
-              <span className="text-xs font-bold text-[#0d1c2f]">Quinzena:</span>
+            <div className="flex items-center justify-between bg-field p-2.5 rounded-2xl border border-line/60">
+              <span className="text-xs font-bold text-ink">Quinzena:</span>
               <div className="flex gap-1">
                 <button
                   type="button"
                   onClick={() => setPayQuinzena('q1')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
                     payQuinzena === 'q1'
-                      ? 'bg-[#006c49] text-white shadow-xs'
-                      : 'bg-white text-[#45464d] border border-[#dde9ff]'
+                      ? 'bg-brand text-white shadow-xs'
+                      : 'bg-white text-ink-soft border border-line'
                   }`}
                 >
                   1ª Quinzena (01-15)
@@ -757,8 +757,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                   onClick={() => setPayQuinzena('q2')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
                     payQuinzena === 'q2'
-                      ? 'bg-[#006c49] text-white shadow-xs'
-                      : 'bg-white text-[#45464d] border border-[#dde9ff]'
+                      ? 'bg-brand text-white shadow-xs'
+                      : 'bg-white text-ink-soft border border-line'
                   }`}
                 >
                   2ª Quinzena (16-{totalDaysInMonth})
@@ -784,28 +784,28 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
               })
 
               return (
-                <div className="grid grid-cols-3 gap-1.5 p-2.5 bg-[#131b2e] rounded-2xl text-white shadow-xs border border-white/10">
+                <div className="grid grid-cols-3 gap-1.5 p-2.5 bg-navy rounded-2xl text-white shadow-xs border border-white/10">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-[#bec6e0] uppercase font-mono">Total Previsto</span>
+                    <span className="text-[10px] text-on-navy uppercase font-mono">Total Previsto</span>
                     <span className="font-mono text-xs font-bold text-white mt-0.5">
                       R$ {qTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="flex flex-col border-x border-white/10 px-2">
-                    <span className="text-[10px] text-[#6cf8bb] uppercase font-mono font-bold flex items-center gap-0.5">
+                    <span className="text-[10px] text-mint uppercase font-mono font-bold flex items-center gap-0.5">
                       <span className="material-symbols-outlined text-[12px]">check_circle</span>
                       Já Pago
                     </span>
-                    <span className="font-mono text-xs font-bold text-[#6cf8bb] mt-0.5">
+                    <span className="font-mono text-xs font-bold text-mint mt-0.5">
                       R$ {qPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-[10px] text-[#ffddb8] uppercase font-mono font-bold flex items-center justify-end gap-0.5">
+                    <span className="text-[10px] text-warn-soft uppercase font-mono font-bold flex items-center justify-end gap-0.5">
                       <span className="material-symbols-outlined text-[12px]">schedule</span>
                       A Pagar
                     </span>
-                    <span className="font-mono text-xs font-bold text-[#ffddb8] mt-0.5">
+                    <span className="font-mono text-xs font-bold text-warn-soft mt-0.5">
                       R$ {qPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -814,13 +814,13 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
             })()}
 
             <div className="flex items-center justify-between px-1">
-              <span className="text-xs text-[#76777d]">
-                Prestadores • <strong className="text-[#0d1c2f]">{monthInfo.formattedMonth}</strong>:
+              <span className="text-xs text-ink-muted">
+                Prestadores • <strong className="text-ink">{monthInfo.formattedMonth}</strong>:
               </span>
               <button
                 type="button"
                 onClick={handlePayAllQuinzena}
-                className="text-xs font-bold text-[#006c49] hover:underline"
+                className="text-xs font-bold text-brand hover:underline"
               >
                 Pagar Todos ({payQuinzena === 'q1' ? '1ª Q' : '2ª Q'} • {monthInfo.monthName.slice(0, 3)}/{year})
               </button>
@@ -840,25 +840,25 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                     key={guard.id}
                     className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                       isPaid
-                        ? 'bg-[#006c49]/5 border-[#6cf8bb]/60'
-                        : 'bg-white border-[#dde9ff] shadow-xs'
+                        ? 'bg-brand/5 border-mint/60'
+                        : 'bg-white border-line shadow-xs'
                     }`}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs text-[#0d1c2f] truncate">
+                        <span className="font-bold text-xs text-ink truncate">
                           {guard.name}
                         </span>
-                        <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-[#eff4ff] text-[#006c49] font-bold border border-[#dde9ff]">
+                        <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-field text-brand font-bold border border-line">
                           {monthInfo.monthName.slice(0, 3).toUpperCase()}/{year}
                         </span>
                         {isPaid && (
-                          <span className="font-mono text-[9px] px-1.5 py-0.2 rounded-full bg-[#006c49] text-white font-bold">
+                          <span className="font-mono text-[9px] px-1.5 py-0.2 rounded-full bg-brand text-white font-bold">
                             Quitado
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 mt-0.5 text-[#76777d]">
+                      <div className="flex items-center gap-1 mt-0.5 text-ink-muted">
                         <span className="font-mono text-[10px] truncate max-w-[130px]">
                           PIX: {guard.pixKey || 'Não cadastrado'}
                         </span>
@@ -866,14 +866,14 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                           <button
                             type="button"
                             onClick={(e) => handleCopyOnlyPix(guard, e)}
-                            className="text-[#45464d] hover:text-[#0d1c2f] transition"
+                            className="text-ink-soft hover:text-ink transition"
                             title="Copiar Chave PIX"
                           >
                             <span className="material-symbols-outlined text-[13px]">content_copy</span>
                           </button>
                         )}
                       </div>
-                      <span className={`font-mono text-xs font-bold block mt-0.5 ${isPaid ? 'text-[#006c49]' : 'text-[#b45309]'}`}>
+                      <span className={`font-mono text-xs font-bold block mt-0.5 ${isPaid ? 'text-brand' : 'text-warn'}`}>
                         {isPaid ? 'Pago: ' : 'A Pagar: '}R$ {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({hours}h)
                       </span>
                     </div>
@@ -884,8 +884,8 @@ export function QuickActionHubModal({ isOpen, onClose, initialTab = 'cadastro' }
                         onClick={() => handlePayGuard(guard)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-xs ${
                           isPaid
-                            ? 'bg-[#006c49] text-white border border-[#6cf8bb] hover:bg-[#005236]'
-                            : 'bg-[#006c49] hover:bg-[#005236] text-white'
+                            ? 'bg-brand text-white border border-mint hover:bg-brand-hover'
+                            : 'bg-brand hover:bg-brand-hover text-white'
                         }`}
                         title={
                           isPaid

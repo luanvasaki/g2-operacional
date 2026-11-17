@@ -33,7 +33,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
   }
 
   return (
-    <header className="fixed top-0 w-full z-40 bg-[#f8f9ff]/90 backdrop-blur-xl border-b border-[#dde9ff]/80 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <header className="fixed top-0 w-full z-40 bg-page/90 backdrop-blur-xl border-b border-line/80 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="max-w-[1920px] 2xl:max-w-full mx-auto h-16 px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-3">
         {/* Brand & Page Info - Click to go Home/Dashboard */}
         <button
@@ -45,7 +45,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
           <G2Logo className="h-10 sm:h-12 w-auto shrink-0 drop-shadow-xs" />
           <div className="flex flex-col truncate">
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[10px] text-[#76777d] uppercase tracking-wider font-semibold">
+              <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
                 G2 Atacadista
               </span>
               {isSupabaseConfigured && (
@@ -58,10 +58,10 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
                 </span>
               )}
             </div>
-            <h1 className="text-xs sm:text-sm font-bold text-[#0d1c2f] truncate leading-tight md:hidden">
+            <h1 className="text-xs sm:text-sm font-bold text-ink truncate leading-tight md:hidden">
               {getTabTitle(activeTab)}
             </h1>
-            <span className="hidden md:inline font-bold text-xs text-[#0d1c2f]">
+            <span className="hidden md:inline font-bold text-xs text-ink">
               Controle Operacional
             </span>
           </div>
@@ -69,7 +69,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
 
         {/* DESKTOP NAVIGATION TABS (Visible on PC / Tablet >= 768px) */}
         {setActiveTab && (
-          <nav className="hidden md:flex items-center gap-1 bg-[#eff4ff]/80 p-1 rounded-2xl border border-[#dde9ff]">
+          <nav className="hidden md:flex items-center gap-1 bg-field/80 p-1 rounded-2xl border border-line">
             {navTabs.map((tab) => {
               const isActive =
                 activeTab === tab.id ||
@@ -82,8 +82,8 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
                     isActive
-                      ? 'bg-[#0d1c2f] text-white shadow-xs'
-                      : 'text-[#45464d] hover:text-[#0d1c2f] hover:bg-white/60'
+                      ? 'bg-ink text-white shadow-xs'
+                      : 'text-ink-soft hover:text-ink hover:bg-white/60'
                   }`}
                 >
                   <span
@@ -118,7 +118,7 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
             <button
               type="button"
               onClick={onOpenQuickHub}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#006c49] hover:bg-[#005236] text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 cursor-pointer"
               title="Ações Rápidas (Cadastro, Escala, Plantão)"
             >
               <span className="material-symbols-outlined text-[17px]">bolt</span>
@@ -127,11 +127,11 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
           )}
 
           {/* User profile & Sair button */}
-          <div className="flex items-center gap-1.5 bg-[#eff4ff] border border-[#dde9ff] rounded-full p-1 pl-2.5 shadow-2xs">
-            <span className="text-xs font-bold text-[#0d1c2f] hidden sm:inline">
+          <div className="flex items-center gap-1.5 bg-field border border-line rounded-full p-1 pl-2.5 shadow-2xs">
+            <span className="text-xs font-bold text-ink hidden sm:inline">
               {currentUser?.name?.split(' ')[0] || 'Luan'}
             </span>
-            <div className="w-6 h-6 rounded-full bg-[#006c49] text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
+            <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
               {currentUser?.name?.charAt(0) || 'L'}
             </div>
             <button

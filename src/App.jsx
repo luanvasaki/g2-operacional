@@ -60,7 +60,7 @@ function MainContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-[#0d1c2f] flex flex-col font-sans">
+    <div className="min-h-screen bg-page text-ink flex flex-col font-sans">
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}

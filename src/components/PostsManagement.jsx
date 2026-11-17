@@ -133,8 +133,8 @@ export function PostsManagement() {
     <div className="flex flex-col w-full gap-4 pb-28 max-w-[1920px] 2xl:max-w-full mx-auto">
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#131b2e] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
-          <span className="material-symbols-outlined text-[#6cf8bb] text-[18px]">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-navy text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 border border-white/10">
+          <span className="material-symbols-outlined text-mint text-[18px]">
             check_circle
           </span>
           <span>{toastMsg}</span>
@@ -142,16 +142,16 @@ export function PostsManagement() {
       )}
 
       {/* Header Info */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex items-center justify-between">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line flex items-center justify-between">
         <div>
-          <span className="font-mono text-[10px] text-[#76777d] uppercase tracking-wider font-semibold">
+          <span className="font-mono text-[10px] text-ink-muted uppercase tracking-wider font-semibold">
             Configurações Operacionais
           </span>
-          <h2 className="text-base font-bold text-[#0d1c2f]">Postos e Parâmetros G2</h2>
+          <h2 className="text-base font-bold text-ink">Postos e Parâmetros G2</h2>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="px-3.5 py-2 bg-[#006c49] hover:bg-[#005236] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+          className="px-3.5 py-2 bg-brand hover:bg-brand-hover text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           <span>Novo Posto</span>
@@ -163,14 +163,14 @@ export function PostsManagement() {
         {/* Left Column: Parâmetros & Senhas */}
         <div className="flex flex-col gap-4">
           {/* Hourly Rate Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+          <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[#006c49]">payments</span>
-          <h3 className="text-xs font-bold text-[#0d1c2f]">Taxa Base Padrão</h3>
+          <span className="material-symbols-outlined text-brand">payments</span>
+          <h3 className="text-xs font-bold text-ink">Taxa Base Padrão</h3>
         </div>
         <form onSubmit={handleSaveRate} className="flex items-center gap-3">
           <div className="relative flex items-center flex-1">
-            <span className="absolute left-3 text-xs text-[#76777d] font-bold font-mono">
+            <span className="absolute left-3 text-xs text-ink-muted font-bold font-mono">
               R$
             </span>
             <input
@@ -179,7 +179,7 @@ export function PostsManagement() {
               min="1"
               value={rateInput}
               onChange={(e) => setRateInput(e.target.value)}
-              className="w-full h-11 pl-9 pr-3 bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
             />
           </div>
           <button
@@ -189,20 +189,20 @@ export function PostsManagement() {
             Atualizar Taxa
           </button>
         </form>
-        <p className="text-[11px] text-[#76777d]">
+        <p className="text-[11px] text-ink-muted">
           Valor multiplicado automaticamente pelo número de horas na 1ª e 2ª Quinzena.
         </p>
       </div>
 
       {/* Teto Orçado Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[#006c49]">account_balance_wallet</span>
-          <h3 className="text-xs font-bold text-[#0d1c2f]">Teto Orçado Operacional</h3>
+          <span className="material-symbols-outlined text-brand">account_balance_wallet</span>
+          <h3 className="text-xs font-bold text-ink">Teto Orçado Operacional</h3>
         </div>
         <form onSubmit={handleSaveBudget} className="flex items-center gap-3">
           <div className="relative flex items-center flex-1">
-            <span className="absolute left-3 text-xs text-[#76777d] font-bold font-mono">
+            <span className="absolute left-3 text-xs text-ink-muted font-bold font-mono">
               R$
             </span>
             <input
@@ -211,35 +211,35 @@ export function PostsManagement() {
               step="500"
               value={budgetInput}
               onChange={(e) => setBudgetInput(e.target.value)}
-              className="w-full h-11 pl-9 pr-3 bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
             />
           </div>
           <button
             type="submit"
-            className="h-11 px-4 bg-[#006c49] hover:bg-[#005236] text-white text-xs font-bold rounded-xl transition"
+            className="h-11 px-4 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-xl transition"
           >
             Salvar Teto
           </button>
         </form>
-        <p className="text-[11px] text-[#76777d]">
+        <p className="text-[11px] text-ink-muted">
           Meta máxima de previsão de pagamento para controle da barra de progresso no Início.
         </p>
       </div>
 
       {/* Manager Access Password Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#006c49]">vpn_key</span>
-            <h3 className="text-xs font-bold text-[#0d1c2f]">Senha Oficial de Acesso dos Gerentes</h3>
+            <span className="material-symbols-outlined text-brand">vpn_key</span>
+            <h3 className="text-xs font-bold text-ink">Senha Oficial de Acesso dos Gerentes</h3>
           </div>
-          <span className="font-mono text-[10px] text-[#006c49] font-bold bg-[#6cf8bb]/20 px-2 py-0.5 rounded-md">
+          <span className="font-mono text-[10px] text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-md">
             G2 Acesso
           </span>
         </div>
         <form onSubmit={handleSavePassword} className="flex items-center gap-3">
           <div className="relative flex items-center flex-1">
-            <span className="absolute left-3 text-[#76777d]">
+            <span className="absolute left-3 text-ink-muted">
               <span className="material-symbols-outlined text-[18px]">lock</span>
             </span>
             <input
@@ -247,29 +247,29 @@ export function PostsManagement() {
               value={passInput}
               onChange={(e) => setPassInput(e.target.value)}
               placeholder="Digite a nova senha oficial..."
-              className="w-full h-11 pl-9 pr-3 bg-[#eff4ff] text-[#0d1c2f] font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+              className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
             />
           </div>
           <button
             type="submit"
-            className="h-11 px-4 bg-[#0d1c2f] hover:bg-[#1a2d47] text-white text-xs font-bold rounded-xl transition cursor-pointer"
+            className="h-11 px-4 bg-ink hover:bg-navy-hover text-white text-xs font-bold rounded-xl transition cursor-pointer"
           >
             Salvar Senha
           </button>
         </form>
-        <p className="text-[11px] text-[#76777d]">
+        <p className="text-[11px] text-ink-muted">
           Esta é a senha que os gerentes usam para entrar na plataforma. Ao salvar, atualiza na nuvem para todos.
         </p>
       </div>
 
       {/* Session Management Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] flex items-center justify-between">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[#006c49]">verified_user</span>
+          <h3 className="text-xs font-bold text-ink flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-brand">verified_user</span>
             <span>Sessão Atual ({currentUser?.name || 'Gestor'})</span>
           </h3>
-          <p className="text-[11px] text-[#76777d] mt-0.5">
+          <p className="text-[11px] text-ink-muted mt-0.5">
             Navegador autenticado com credenciais G2
           </p>
         </div>
@@ -289,7 +289,7 @@ export function PostsManagement() {
     <div className="flex flex-col gap-4">
       {/* Posts Cards Grid */}
       <div className="flex flex-col gap-2.5">
-        <h3 className="text-xs font-bold text-[#0d1c2f] px-1">
+        <h3 className="text-xs font-bold text-ink px-1">
           Postos Cadastrados ({posts.length})
         </h3>
         {posts.map((post) => {
@@ -306,22 +306,22 @@ export function PostsManagement() {
           return (
             <div
               key={post.id}
-              className="bg-white rounded-2xl p-3.5 shadow-xs border border-[#dde9ff] hover:border-[#6cf8bb] transition-all flex items-center justify-between"
+              className="bg-white rounded-2xl p-3.5 shadow-xs border border-line hover:border-mint transition-all flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#eff4ff] flex items-center justify-center text-[#006c49] shrink-0 border border-[#dde9ff]/60">
+                <div className="w-10 h-10 rounded-xl bg-field flex items-center justify-center text-brand shrink-0 border border-line/60">
                   <span className="material-symbols-outlined text-[20px]">
                     location_on
                   </span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#0d1c2f]">{post.name}</h4>
+                  <h4 className="text-sm font-bold text-ink">{post.name}</h4>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-[#76777d]">
+                    <span className="text-[10px] text-ink-muted">
                       {post.address || 'Unidade Operacional'}
                     </span>
-                    <span className="text-[#dde9ff]">•</span>
-                    <span className="font-mono text-[10px] text-[#006c49] font-bold">
+                    <span className="text-line">•</span>
+                    <span className="font-mono text-[10px] text-brand font-bold">
                       {postHours}h acumuladas
                     </span>
                   </div>
@@ -331,7 +331,7 @@ export function PostsManagement() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => handleOpenEdit(post)}
-                  className="p-2 rounded-xl text-[#76777d] hover:text-[#0d1c2f] hover:bg-[#eff4ff] transition"
+                  className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-field transition"
                   title="Editar posto"
                 >
                   <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -350,10 +350,10 @@ export function PostsManagement() {
       </div>
 
       {/* Cloud Database (Supabase) Status Box */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[#006c49]">cloud_sync</span>
+          <h3 className="text-xs font-bold text-ink flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-brand">cloud_sync</span>
             <span>Banco de Dados em Nuvem (Supabase)</span>
           </h3>
           <span
@@ -374,10 +374,10 @@ export function PostsManagement() {
 
         {isSupabaseConfigured ? (
           <div className="space-y-2">
-            <p className="text-xs text-[#45464d] leading-relaxed">
+            <p className="text-xs text-ink-soft leading-relaxed">
               Seus dados estão sendo sincronizados em tempo real no PostgreSQL da sua nuvem Supabase.
               {lastSyncTime && (
-                <span className="block text-[11px] text-[#76777d] mt-1">
+                <span className="block text-[11px] text-ink-muted mt-1">
                   Última sincronização:{' '}
                   {new Date(lastSyncTime).toLocaleTimeString('pt-BR', {
                     hour: '2-digit',
@@ -395,10 +395,10 @@ export function PostsManagement() {
                 if (ok) showToast('Sincronizado com Supabase com sucesso!')
                 else showToast('Erro ao sincronizar com Supabase')
               }}
-              className="w-full py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-xs font-bold text-[#0d1c2f] flex items-center justify-center gap-1.5 border border-[#dde9ff] transition disabled:opacity-50"
+              className="w-full py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-bold text-ink flex items-center justify-center gap-1.5 border border-line transition disabled:opacity-50"
             >
               <span
-                className={`material-symbols-outlined text-[16px] text-[#006c49] ${
+                className={`material-symbols-outlined text-[16px] text-brand ${
                   isSyncing ? 'animate-spin' : ''
                 }`}
               >
@@ -409,39 +409,39 @@ export function PostsManagement() {
           </div>
         ) : (
           <div className="space-y-2">
-            <p className="text-xs text-[#45464d] leading-relaxed">
+            <p className="text-xs text-ink-soft leading-relaxed">
               O sistema está operando localmente no navegador (localStorage). Para sincronizar entre vários
               celulares e computadores na nuvem com o Supabase e Vercel:
             </p>
-            <div className="bg-[#eff4ff]/60 border border-[#dde9ff] rounded-xl p-2.5 text-[11px] font-mono text-[#0d1c2f] space-y-1">
-              <div className="text-[#76777d] font-sans text-[10px] font-bold uppercase tracking-wider">
+            <div className="bg-field/60 border border-line rounded-xl p-2.5 text-[11px] font-mono text-ink space-y-1">
+              <div className="text-ink-muted font-sans text-[10px] font-bold uppercase tracking-wider">
                 Variáveis de Ambiente (Vercel ou .env):
               </div>
-              <div className="text-[#006c49]">VITE_SUPABASE_URL=https://...supabase.co</div>
-              <div className="text-[#006c49]">VITE_SUPABASE_ANON_KEY=eyJ...</div>
+              <div className="text-brand">VITE_SUPABASE_URL=https://...supabase.co</div>
+              <div className="text-brand">VITE_SUPABASE_ANON_KEY=eyJ...</div>
             </div>
-            <p className="text-[11px] text-[#76777d]">
-              Consulte o arquivo <strong className="text-[#0d1c2f]">supabase-schema.sql</strong> gerado no projeto para criar as tabelas com 1 clique no SQL Editor do Supabase.
+            <p className="text-[11px] text-ink-muted">
+              Consulte o arquivo <strong className="text-ink">supabase-schema.sql</strong> gerado no projeto para criar as tabelas com 1 clique no SQL Editor do Supabase.
             </p>
           </div>
         )}
       </div>
 
       {/* Backup and Restore Box */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-[#dde9ff] space-y-3">
-        <h3 className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[#76777d]">backup</span>
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-line space-y-3">
+        <h3 className="text-xs font-bold text-ink flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-ink-muted">backup</span>
           <span>Segurança dos Dados & Cópia de Segurança</span>
         </h3>
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={exportBackupJSON}
-            className="py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-xs font-semibold text-[#0d1c2f] flex items-center justify-center gap-1.5 border border-[#dde9ff]"
+            className="py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 border border-line"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
             <span>Baixar Cópia (JSON)</span>
           </button>
-          <label className="py-2.5 px-3 rounded-xl bg-[#eff4ff] hover:bg-[#dde9ff] text-xs font-semibold text-[#0d1c2f] flex items-center justify-center gap-1.5 border border-[#dde9ff] cursor-pointer">
+          <label className="py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 border border-line cursor-pointer">
             <span className="material-symbols-outlined text-[16px]">upload</span>
             <span>Restaurar Cópia Salva</span>
             <input
@@ -455,7 +455,7 @@ export function PostsManagement() {
 
         <button
           onClick={handleReset}
-          className="w-full py-2.5 text-xs text-[#76777d] hover:text-red-600 font-semibold hover:bg-red-50 rounded-xl transition"
+          className="w-full py-2.5 text-xs text-ink-muted hover:text-red-600 font-semibold hover:bg-red-50 rounded-xl transition"
         >
           Restaurar Dados Originais da Planilha Modelo
         </button>
@@ -466,17 +466,17 @@ export function PostsManagement() {
       {/* Add / Edit Post Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-[#dde9ff] animate-in slide-in-from-bottom duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
-              <h3 className="text-sm font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[#006c49]">
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-line animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center justify-between pb-2 border-b border-field">
+              <h3 className="text-sm font-bold text-ink flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-brand">
                   location_on
                 </span>
                 <span>{editingPost ? 'Editar Posto' : 'Novo Posto de Serviço'}</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#eff4ff] flex items-center justify-center text-[#45464d]"
+                className="w-8 h-8 rounded-full bg-field flex items-center justify-center text-ink-soft"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -484,7 +484,7 @@ export function PostsManagement() {
 
             <form onSubmit={handleSubmit} className="mt-3 space-y-3">
               <div>
-                <label className="text-xs font-semibold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-semibold text-ink block mb-1">
                   Nome do Posto / Local *
                 </label>
                 <input
@@ -493,12 +493,12 @@ export function PostsManagement() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: Diadema, Santo André, Penha..."
-                  className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+                  className="w-full h-11 px-3 bg-field text-ink text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-[#0d1c2f] block mb-1">
+                <label className="text-xs font-semibold text-ink block mb-1">
                   Endereço / Observações
                 </label>
                 <input
@@ -508,21 +508,21 @@ export function PostsManagement() {
                     setFormData({ ...formData, address: e.target.value })
                   }
                   placeholder="Ex: Av. Paulista, 1000 - SP"
-                  className="w-full h-11 px-3 bg-[#eff4ff] text-[#0d1c2f] text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-[#006c49] border border-[#dde9ff]/60"
+                  className="w-full h-11 px-3 bg-field text-ink text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#eff4ff]">
+              <div className="flex justify-end gap-2 pt-2 border-t border-field">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#45464d] hover:bg-[#eff4ff] rounded-xl"
+                  className="px-4 py-2 text-xs font-semibold text-ink-soft hover:bg-field rounded-xl"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#006c49] text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="px-4 py-2 bg-brand text-white text-xs font-bold rounded-xl shadow-xs"
                 >
                   Salvar Posto
                 </button>
@@ -535,15 +535,15 @@ export function PostsManagement() {
       {/* Delete Confirmation Modal */}
       {postToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full sm:max-w-xs rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-[#dde9ff]">
-            <h3 className="text-sm font-bold text-[#0d1c2f]">Excluir Posto</h3>
-            <p className="text-xs text-[#76777d] mt-1">
+          <div className="bg-white w-full sm:max-w-xs rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-line">
+            <h3 className="text-sm font-bold text-ink">Excluir Posto</h3>
+            <p className="text-xs text-ink-muted mt-1">
               Tem certeza que deseja excluir o posto <strong>{postToDelete.name}</strong>?
             </p>
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => setPostToDelete(null)}
-                className="px-3 py-1.5 text-xs text-[#76777d] hover:bg-[#eff4ff] rounded-lg"
+                className="px-3 py-1.5 text-xs text-ink-muted hover:bg-field rounded-lg"
               >
                 Cancelar
               </button>

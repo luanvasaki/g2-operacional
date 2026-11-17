@@ -176,22 +176,22 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
   const totalEstimatedAmount = totalHoursCount * defaultHourlyRate
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0d1c2f]/70 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#dde9ff] flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink/70 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-line flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#eff4ff] flex items-center justify-between bg-[#131b2e] text-white">
+        <div className="p-4 sm:p-5 border-b border-field flex items-center justify-between bg-navy text-white">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#6cf8bb]/20 flex items-center justify-center text-[#6cf8bb] border border-[#6cf8bb]/30">
+            <div className="w-10 h-10 rounded-2xl bg-mint/20 flex items-center justify-center text-mint border border-mint/30">
               <span className="material-symbols-outlined text-[22px]">calendar_add_on</span>
             </div>
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <span>Lançar em Vários Dias</span>
-                <span className="px-2 py-0.5 rounded-full bg-[#6cf8bb] text-[#002113] text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-mint text-brand-ink text-[10px] font-bold uppercase">
                   Agilidade
                 </span>
               </h2>
-              <p className="text-[11px] text-[#bec6e0] capitalize">
+              <p className="text-[11px] text-on-navy capitalize">
                 {monthName} • R$ {defaultHourlyRate},00/h
               </p>
             </div>
@@ -199,7 +199,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[#bec6e0] hover:text-white transition"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-navy hover:text-white transition"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
@@ -208,17 +208,17 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
         {/* Modal Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {/* Section 1: Guard Selection */}
-          <div className="bg-[#eff4ff]/60 p-3.5 rounded-2xl border border-[#dde9ff]">
+          <div className="bg-field/60 p-3.5 rounded-2xl border border-line">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#006c49]">person</span>
+              <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-brand">person</span>
                 <span>Colaborador</span>
               </label>
 
               <button
                 type="button"
                 onClick={() => setIsMultiGuardMode(!isMultiGuardMode)}
-                className="text-[11px] text-[#006c49] font-bold hover:underline flex items-center gap-1"
+                className="text-[11px] text-brand font-bold hover:underline flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[15px]">
                   {isMultiGuardMode ? 'person' : 'group_add'}
@@ -235,7 +235,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                   const g = activeGuards.find((x) => x.id === e.target.value)
                   if (g) setHours(g.defaultShiftHours || 3)
                 }}
-                className="w-full bg-white text-[#0d1c2f] font-bold text-xs p-2.5 rounded-xl border border-[#dde9ff] focus:outline-none focus:ring-2 focus:ring-[#006c49]"
+                className="w-full bg-white text-ink font-bold text-xs p-2.5 rounded-xl border border-line focus:outline-none focus:ring-2 focus:ring-brand"
               >
                 {activeGuards.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -246,28 +246,28 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#45464d] font-semibold">
+                  <span className="text-ink-soft font-semibold">
                     {selectedGuardIds.length} selecionado(s) de {activeGuards.length}
                   </span>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={selectAllGuards}
-                      className="text-[#006c49] font-bold hover:underline"
+                      className="text-brand font-bold hover:underline"
                     >
                       Todos
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedGuardIds([])}
-                      className="text-[#76777d] font-bold hover:underline"
+                      className="text-ink-muted font-bold hover:underline"
                     >
                       Nenhum
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1 bg-white rounded-xl border border-[#dde9ff]">
+                <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1 bg-white rounded-xl border border-line">
                   {activeGuards.map((g) => {
                     const isChecked = selectedGuardIds.includes(g.id)
                     return (
@@ -275,15 +275,15 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                         key={g.id}
                         className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer transition ${
                           isChecked
-                            ? 'bg-[#6cf8bb]/20 text-[#006c49] font-bold border border-[#6cf8bb]/40'
-                            : 'bg-white text-[#45464d] hover:bg-[#eff4ff]'
+                            ? 'bg-mint/20 text-brand font-bold border border-mint/40'
+                            : 'bg-white text-ink-soft hover:bg-field'
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleGuardSelect(g.id)}
-                          className="rounded text-[#006c49] focus:ring-0"
+                          className="rounded text-brand focus:ring-0"
                         />
                         <span className="truncate">{g.name}</span>
                       </label>
@@ -296,12 +296,12 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
 
           {/* Section 2: Shift Hours */}
           <div>
-            <label className="text-xs font-bold text-[#0d1c2f] flex items-center justify-between mb-2">
+            <label className="text-xs font-bold text-ink flex items-center justify-between mb-2">
               <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#006c49]">schedule</span>
+                <span className="material-symbols-outlined text-[17px] text-brand">schedule</span>
                 <span>Carga Horária nos Dias Selecionados</span>
               </span>
-              <span className="font-mono text-xs text-[#006c49] font-bold bg-[#6cf8bb]/20 px-2 py-0.5 rounded-full">
+              <span className="font-mono text-xs text-brand font-bold bg-mint/20 px-2 py-0.5 rounded-full">
                 {hours} Horas / dia
               </span>
             </label>
@@ -319,8 +319,8 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                   onClick={() => setHours(opt.h)}
                   className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center transition border ${
                     hours === opt.h
-                      ? 'bg-[#131b2e] text-white border-[#131b2e] shadow-xs'
-                      : 'bg-[#eff4ff] text-[#45464d] border-[#dde9ff] hover:bg-[#dde9ff]'
+                      ? 'bg-navy text-white border-navy shadow-xs'
+                      : 'bg-field text-ink-soft border-line hover:bg-line'
                   }`}
                 >
                   <span className="font-bold text-xs">{opt.label}</span>
@@ -333,53 +333,53 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
           {/* Section 3: Quick Filter Presets */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-[#0d1c2f] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-[#006c49]">auto_awesome</span>
+              <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[17px] text-brand">auto_awesome</span>
                 <span>Atalhos de Seleção de Dias</span>
               </label>
-              <span className="font-mono text-[10px] text-[#76777d]">1 Toque</span>
+              <span className="font-mono text-[10px] text-ink-muted">1 Toque</span>
             </div>
 
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={selectWeekdays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 💼 Seg a Sex
               </button>
               <button
                 type="button"
                 onClick={selectWeekends}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 🏖️ Sáb e Dom
               </button>
               <button
                 type="button"
                 onClick={selectEvenDays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 🔢 Dias Pares
               </button>
               <button
                 type="button"
                 onClick={selectOddDays}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 🔢 Dias Ímpares
               </button>
               <button
                 type="button"
                 onClick={selectQuinzena1}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 1ª Quinzena (1-15)
               </button>
               <button
                 type="button"
                 onClick={selectQuinzena2}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-[#eff4ff] hover:bg-[#dde9ff] text-[#0d1c2f] rounded-lg border border-[#dde9ff] transition"
+                className="px-2.5 py-1 text-[11px] font-semibold bg-field hover:bg-line text-ink rounded-lg border border-line transition"
               >
                 2ª Quinzena (16-{totalDays})
               </button>
@@ -399,7 +399,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
               <button
                 type="button"
                 onClick={selectAll}
-                className="px-2.5 py-1 text-[11px] font-bold bg-[#6cf8bb]/30 hover:bg-[#6cf8bb]/50 text-[#006c49] rounded-lg border border-[#6cf8bb]/50 transition"
+                className="px-2.5 py-1 text-[11px] font-bold bg-mint/30 hover:bg-mint/50 text-brand rounded-lg border border-mint/50 transition"
               >
                 ✓ Todos ({totalDays})
               </button>
@@ -416,22 +416,22 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
           </div>
 
           {/* Section 4: Calendar Grid */}
-          <div className="bg-white rounded-2xl p-3.5 border border-[#dde9ff] shadow-xs">
+          <div className="bg-white rounded-2xl p-3.5 border border-line shadow-xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-[#0d1c2f]">
+              <span className="text-xs font-bold text-ink">
                 Selecione ou clique nos dias desejados:
               </span>
-              <span className="font-mono text-xs font-bold text-[#006c49]">
+              <span className="font-mono text-xs font-bold text-brand">
                 {selectedDays.length} {selectedDays.length === 1 ? 'dia' : 'dias'} marcados
               </span>
             </div>
 
             {/* Weekday Labels (Brazilian standard: Dom..Sáb) */}
-            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-[#76777d] font-bold mb-1.5">
+            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-ink-muted font-bold mb-1.5">
               {WEEKDAYS.map((w, idx) => (
                 <div
                   key={w}
-                  className={idx === 0 || idx === 6 ? 'text-[#ffb95f]' : 'text-[#76777d]'}
+                  className={idx === 0 || idx === 6 ? 'text-warn-light' : 'text-ink-muted'}
                 >
                   {w}
                 </div>
@@ -466,14 +466,14 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                     }
                     className={`h-11 rounded-xl flex flex-col items-center justify-center relative transition-all active:scale-90 border ${
                       isSelected
-                        ? 'bg-[#006c49] text-white border-[#006c49] shadow-sm font-bold scale-[1.02]'
+                        ? 'bg-brand text-white border-brand shadow-sm font-bold scale-[1.02]'
                         : holiday
                         ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 font-bold'
                         : hasExisting
-                        ? 'bg-[#eff4ff] text-[#0d1c2f] border-[#dde9ff] hover:border-[#006c49]'
+                        ? 'bg-field text-ink border-line hover:border-brand'
                         : isWeekend
-                        ? 'bg-[#fcfaff] text-[#45464d] border-[#dde9ff]/50 hover:bg-[#eff4ff]'
-                        : 'bg-white text-[#45464d] border-[#dde9ff]/70 hover:bg-[#eff4ff]'
+                        ? 'bg-page text-ink-soft border-line/50 hover:bg-field'
+                        : 'bg-white text-ink-soft border-line/70 hover:bg-field'
                     }`}
                   >
                     <div className="flex items-center gap-0.5">
@@ -487,9 +487,9 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
                     <span
                       className={`text-[9px] font-mono leading-none mt-0.5 ${
                         isSelected
-                          ? 'text-[#6cf8bb] font-bold'
+                          ? 'text-mint font-bold'
                           : hasExisting
-                          ? 'text-[#006c49] font-bold'
+                          ? 'text-brand font-bold'
                           : 'text-transparent'
                       }`}
                     >
@@ -498,7 +498,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
 
                     {/* Tiny Check indicator when selected */}
                     {isSelected && (
-                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#6cf8bb] text-[#002113] flex items-center justify-center text-[9px] font-black shadow-xs">
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-mint text-brand-ink flex items-center justify-center text-[9px] font-black shadow-xs">
                         ✓
                       </span>
                     )}
@@ -509,24 +509,24 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
           </div>
 
           {/* Section 5: Dynamic Summary Card */}
-          <div className="bg-[#131b2e] text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
+          <div className="bg-navy text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 shadow-sm">
             <div className="flex flex-col">
-              <span className="text-[10px] text-[#bec6e0] font-mono uppercase">
+              <span className="text-[10px] text-on-navy font-mono uppercase">
                 Resumo da Escala
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="font-bold text-sm text-white">
                   {selectedDays.length} {selectedDays.length === 1 ? 'dia' : 'dias'}
                 </span>
-                <span className="text-xs text-[#bec6e0]">× {hours}h</span>
+                <span className="text-xs text-on-navy">× {hours}h</span>
                 {isMultiGuardMode && (
-                  <span className="text-xs text-[#bec6e0]">× {guardsCount} colab.</span>
+                  <span className="text-xs text-on-navy">× {guardsCount} colab.</span>
                 )}
               </div>
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] text-[#6cf8bb] font-mono uppercase font-bold">
+              <span className="text-[10px] text-mint font-mono uppercase font-bold">
                 Impacto Calculado
               </span>
               <div className="font-mono text-xs font-bold text-white mt-0.5">
@@ -538,11 +538,11 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
         </div>
 
         {/* Modal Sticky Footer */}
-        <div className="p-4 border-t border-[#eff4ff] bg-white flex items-center gap-3">
+        <div className="p-4 border-t border-field bg-white flex items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl border border-[#dde9ff] text-[#45464d] font-bold text-xs hover:bg-[#eff4ff] transition"
+            className="flex-1 py-3 px-4 rounded-xl border border-line text-ink-soft font-bold text-xs hover:bg-field transition"
           >
             Cancelar
           </button>
@@ -553,7 +553,7 @@ export function MultiDayAssignModal({ isOpen, initialGuardId, onClose }) {
             disabled={selectedDays.length === 0}
             className={`flex-2 py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-95 ${
               selectedDays.length > 0
-                ? 'bg-[#006c49] hover:bg-[#005236] text-white'
+                ? 'bg-brand hover:bg-brand-hover text-white'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >

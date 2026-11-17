@@ -65,38 +65,38 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="bg-[#f8f9ff] text-[#0d1c2f] min-h-screen flex flex-col justify-center items-center px-4 py-8 relative">
-      <main className="flex flex-col relative w-full max-w-md bg-[#f8f9ff]">
+    <div className="bg-page text-ink min-h-screen flex flex-col justify-center items-center px-4 py-8 relative">
+      <main className="flex flex-col relative w-full max-w-md bg-page">
         <div className="flex flex-col w-full pb-8">
           {/* Header Brand */}
           <div className="flex flex-col items-center text-center pt-2 pb-6">
-            <div className="relative w-56 h-28 mb-4 bg-white rounded-2xl shadow-md flex items-center justify-center p-2.5 border border-[#dde9ff] hover:shadow-lg transition-shadow">
+            <div className="relative w-56 h-28 mb-4 bg-white rounded-2xl shadow-md flex items-center justify-center p-2.5 border border-line hover:shadow-lg transition-shadow">
               <G2Logo className="w-full h-full object-contain scale-110" showBadge={true} />
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e6eeff] rounded-full mb-2">
-              <span className="w-2 h-2 rounded-full bg-[#006c49]"></span>
-              <span className="font-mono text-[11px] text-[#45464d] uppercase tracking-wider font-semibold">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-field-strong rounded-full mb-2">
+              <span className="w-2 h-2 rounded-full bg-brand"></span>
+              <span className="font-mono text-[11px] text-ink-soft uppercase tracking-wider font-semibold">
                 Gestão Operacional de Bicos
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-[#0d1c2f]">
+            <h1 className="text-2xl font-bold tracking-tight text-ink">
               G2 Atacado de Bebidas
             </h1>
-            <p className="text-sm text-[#45464d] max-w-xs mt-1">
+            <p className="text-sm text-ink-soft max-w-xs mt-1">
               Painel de Controle de Escalas, Horas e Diárias
             </p>
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-md p-6 mb-5 flex flex-col gap-4 border border-[#dde9ff]">
-            <div className="flex items-center justify-between pb-2 border-b border-[#eff4ff]">
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-5 flex flex-col gap-4 border border-line">
+            <div className="flex items-center justify-between pb-2 border-b border-field">
               <div>
-                <h2 className="text-sm font-bold text-[#0d1c2f]">Acesso de Gerência</h2>
-                <p className="text-xs text-[#76777d]">Digite suas credenciais para entrar</p>
+                <h2 className="text-sm font-bold text-ink">Acesso de Gerência</h2>
+                <p className="text-xs text-ink-muted">Digite suas credenciais para entrar</p>
               </div>
-              <span className="material-symbols-outlined text-[#006c49] text-[24px]">
+              <span className="material-symbols-outlined text-brand text-[24px]">
                 admin_panel_settings
               </span>
             </div>
@@ -114,16 +114,16 @@ export function LoginScreen() {
               {/* Username */}
               <div className="flex flex-col gap-1.5">
                 <label
-                  className="text-xs font-semibold text-[#0d1c2f] flex items-center justify-between"
+                  className="text-xs font-semibold text-ink flex items-center justify-between"
                   htmlFor="login-username"
                 >
                   <span>Usuário</span>
-                  <span className="text-[11px] text-[#006c49] font-mono font-bold">
+                  <span className="text-[11px] text-brand font-mono font-bold">
                     luanbarreto
                   </span>
                 </label>
-                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
-                  <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
+                <div className="relative flex items-center bg-field rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-brand transition-all">
+                  <span className="material-symbols-outlined text-ink-muted ml-3.5 mr-2 text-[20px]">
                     account_circle
                   </span>
                   <input
@@ -133,7 +133,7 @@ export function LoginScreen() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="luanbarreto"
-                    className="w-full h-12 bg-transparent pr-4 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-medium"
+                    className="w-full h-12 bg-transparent pr-4 text-sm text-ink placeholder:text-ink-muted focus:outline-none font-medium"
                   />
                 </div>
               </div>
@@ -141,13 +141,13 @@ export function LoginScreen() {
               {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <label
-                  className="text-xs font-semibold text-[#0d1c2f]"
+                  className="text-xs font-semibold text-ink"
                   htmlFor="login-password"
                 >
                   Senha de Acesso
                 </label>
-                <div className="relative flex items-center bg-[#eff4ff] rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-[#006c49] transition-all">
-                  <span className="material-symbols-outlined text-[#76777d] ml-3.5 mr-2 text-[20px]">
+                <div className="relative flex items-center bg-field rounded-xl focus-within:bg-white focus-within:shadow-sm border border-transparent focus-within:border-brand transition-all">
+                  <span className="material-symbols-outlined text-ink-muted ml-3.5 mr-2 text-[20px]">
                     lock
                   </span>
                   <input
@@ -157,12 +157,12 @@ export function LoginScreen() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Digite sua senha"
-                    className="w-full h-12 bg-transparent pr-12 text-sm text-[#0d1c2f] placeholder:text-[#76777d] focus:outline-none font-mono"
+                    className="w-full h-12 bg-transparent pr-12 text-sm text-ink placeholder:text-ink-muted focus:outline-none font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 w-9 h-9 flex items-center justify-center text-[#76777d] hover:text-[#0d1c2f] cursor-pointer"
+                    className="absolute right-2 w-9 h-9 flex items-center justify-center text-ink-muted hover:text-ink cursor-pointer"
                     title={showPassword ? 'Ocultar senha' : 'Ver senha'}
                   >
                     <span className="material-symbols-outlined text-[20px]">
@@ -173,19 +173,19 @@ export function LoginScreen() {
               </div>
 
               {/* Remember Me / Trust Browser */}
-              <div className="bg-[#eff4ff]/60 border border-[#dde9ff] rounded-xl p-3 flex flex-col gap-1">
+              <div className="bg-field/60 border border-line rounded-xl p-3 flex flex-col gap-1">
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#006c49] accent-[#006c49] cursor-pointer shrink-0"
+                    className="w-4 h-4 rounded text-brand accent-brand cursor-pointer shrink-0"
                   />
-                  <span className="text-xs font-semibold text-[#0d1c2f]">
+                  <span className="text-xs font-semibold text-ink">
                     Confiar neste navegador (manter conectado)
                   </span>
                 </label>
-                <span className="text-[11px] text-[#76777d] pl-6.5 leading-tight">
+                <span className="text-[11px] text-ink-muted pl-6.5 leading-tight">
                   Não pedirá senha novamente ao reabrir o app neste dispositivo.
                 </span>
               </div>
@@ -194,7 +194,7 @@ export function LoginScreen() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 mt-1 rounded-xl bg-[#0d1c2f] hover:bg-[#1a2d47] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer disabled:opacity-70"
+                className="w-full h-12 mt-1 rounded-xl bg-ink hover:bg-navy-hover text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-all cursor-pointer disabled:opacity-70"
               >
                 {isSubmitting ? (
                   <>
@@ -215,8 +215,8 @@ export function LoginScreen() {
 
           {/* Security Footer */}
           <div className="flex flex-col items-center justify-center gap-2 text-center pt-4">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eff4ff] text-[#45464d] border border-[#dde9ff]/80">
-              <span className="material-symbols-outlined text-[15px] text-[#006c49]">lock</span>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-field text-ink-soft border border-line/80">
+              <span className="material-symbols-outlined text-[15px] text-brand">lock</span>
               <span className="font-mono text-[11px]">
                 G2 Operacional • Acesso Restrito aos Gestores
               </span>
