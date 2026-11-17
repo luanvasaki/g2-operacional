@@ -9,6 +9,9 @@ import {
   formatCurrencyBR,
 } from '../utils/brazilianCalendar'
 import { buildMonthOptions, getCurrentMonthKey, shiftMonthKey, formatMonthLabel } from '../utils/months'
+import { buildPaidRecords } from '../utils/paymentHistory'
+import { PaymentHistory } from './payments/PaymentHistory'
+import { DayHoursModal } from './payments/DayHoursModal'
 
 export function PaymentsView({ onOpenQuickHub }) {
   const {
@@ -39,9 +42,6 @@ export function PaymentsView({ onOpenQuickHub }) {
   const [onlyPendingFilter, setOnlyPendingFilter] = useState(false)
   const [scheduleModalGuard, setScheduleModalGuard] = useState(null)
   const [dayEditModal, setDayEditModal] = useState(null) // { guard, day, hours, note }
-  const [historySearch, setHistorySearch] = useState('')
-  const [historyMonthFilter, setHistoryMonthFilter] = useState('all')
-  const [showHistory, setShowHistory] = useState(true)
 
   const [year, month] = selectedMonth.split('-').map(Number)
   const monthInfo = getMonthInfo(year, month)
@@ -64,7 +64,6 @@ export function PaymentsView({ onOpenQuickHub }) {
     displayedGuards[0] ||
     activeGuards.find((g) => g.id === selectedGuardId) ||
     activeGuards[0]
-  const currentPost = posts.find((p) => p.id === currentGuard?.postId)
 
   // Global financial metrics for current month
   let q1PendingCount = 0
@@ -271,63 +270,15 @@ export function PaymentsView({ onOpenQuickHub }) {
   // Auditoria e Histórico Geral de Pagamentos Confirmados
   const currentMonthKey = getCurrentMonthKey()
   const prevMonthKey = shiftMonthKey(currentMonthKey, -1)
-  const paidCountsByMonth = {}
-  const confirmedPaymentRecords = Object.entries(payments || {})
-    .filter(([_, data]) => data?.status === 'PAID')
-    .map(([key, data]) => {
-      const [pMonth, pGuardId, pQuinzena = 'q1'] = key.split('_')
-      paidCountsByMonth[pMonth] = (paidCountsByMonth[pMonth] || 0) + 1
-
-      const guard = guards.find((g) => g.id === pGuardId)
-      const post = posts.find((p) => p.id === guard?.postId)
-
-      const guardMonthShifts = shifts[pMonth]?.[pGuardId] || {}
-      const [pYear, pMNum] = (pMonth || currentMonthKey).split('-').map(Number)
-      const pTotalDays = new Date(pYear, pMNum, 0).getDate()
-      const rate = Number(guard?.hourlyRate) > 0 ? Number(guard.hourlyRate) : (Number(defaultHourlyRate) || 40)
-
-      let pHours = 0
-      const startDay = pQuinzena === 'q1' ? 1 : 16
-      const endDay = pQuinzena === 'q1' ? 15 : pTotalDays
-      for (let d = startDay; d <= endDay; d++) {
-        const h = Number(guardMonthShifts[d])
-        if (!isNaN(h) && h > 0) pHours += h
-      }
-      const pAmount = Math.round(pHours * rate * 100) / 100
-      const pMonthInfo = getMonthInfo(pYear, pMNum)
-
-      return {
-        key,
-        month: pMonth,
-        monthName: pMonthInfo.formattedMonth,
-        guardId: pGuardId,
-        guardName: guard?.name || pGuardId,
-        guardFullName: guard?.fullName || '',
-        pixKey: guard?.pixKey || '',
-        pixType: guard?.pixType || '',
-        postName: post?.name || 'Posto Geral',
-        quinzena: pQuinzena,
-        quinzenaLabel: pQuinzena === 'q1' ? '1ª Quinzena (01 a 15)' : '2ª Quinzena (16 ao fim)',
-        paidAt: data.paidAt,
-        notes: data.notes || 'PIX Realizado',
-        hours: pHours,
-        amount: pAmount,
-      }
-    })
-    .sort((a, b) => {
-      if (a.paidAt && b.paidAt) return new Date(b.paidAt) - new Date(a.paidAt)
-      return b.month.localeCompare(a.month)
-    })
-
-  const filteredHistory = confirmedPaymentRecords.filter((rec) => {
-    const matchMonth = historyMonthFilter === 'all' || rec.month === historyMonthFilter
-    const matchSearch =
-      !historySearch.trim() ||
-      rec.guardName.toLowerCase().includes(historySearch.toLowerCase()) ||
-      rec.guardFullName.toLowerCase().includes(historySearch.toLowerCase()) ||
-      rec.pixKey.toLowerCase().includes(historySearch.toLowerCase())
-    return matchMonth && matchSearch
+  const { records: confirmedPaymentRecords, paidCountsByMonth } = buildPaidRecords({
+    payments,
+    guards,
+    posts,
+    shifts,
+    defaultHourlyRate,
+    currentMonthKey,
   })
+
 
   return (
     <div className="flex flex-col w-full gap-4 pb-36 max-w-[1920px] 2xl:max-w-full mx-auto">
@@ -1188,321 +1139,14 @@ export function PaymentsView({ onOpenQuickHub }) {
       )}
 
       {/* HISTÓRICO GERAL DE PAGAMENTOS CONFIRMADOS (AUDITORIA DO GERENTE) */}
-      <section className="bg-white rounded-3xl p-5 shadow-xs border border-line flex flex-col gap-4 mt-2">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-field pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-brand text-white flex items-center justify-center font-black shadow-xs shrink-0">
-              <span className="material-symbols-outlined text-[24px]">verified</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-black text-ink">
-                  Histórico Geral de Pagamentos Confirmados
-                </h3>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-brand font-mono text-xs font-bold border border-emerald-200">
-                  {confirmedPaymentRecords.length} Pagamentos Registrados
-                </span>
-              </div>
-              <p className="text-xs text-ink-muted mt-0.5">
-                Auditoria completa: consulte quando cada pagamento foi feito, chave PIX utilizada e mês de competência correspondente.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Search */}
-            <div className="relative min-w-[200px]">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-ink-muted">
-                search
-              </span>
-              <input
-                type="text"
-                value={historySearch}
-                onChange={(e) => setHistorySearch(e.target.value)}
-                placeholder="Buscar prestador..."
-                className="w-full text-xs pl-9 pr-3 py-2 bg-page border border-line rounded-xl outline-none focus:ring-1 focus:ring-brand"
-              />
-            </div>
-
-            {/* Filter by Month */}
-            <select
-              value={historyMonthFilter}
-              onChange={(e) => setHistoryMonthFilter(e.target.value)}
-              className="text-xs font-bold px-3 py-2 bg-page border border-line rounded-xl text-ink outline-none cursor-pointer"
-            >
-              <option value="all">Todos os Meses</option>
-              {buildMonthOptions({ selected: historyMonthFilter, back: 12, ahead: 0 }).map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              onClick={() => setShowHistory(!showHistory)}
-              className="px-3 py-2 rounded-xl text-xs font-bold bg-field text-ink hover:bg-line transition cursor-pointer flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                {showHistory ? 'expand_less' : 'expand_more'}
-              </span>
-              <span>{showHistory ? 'Recolher' : 'Expandir'}</span>
-            </button>
-          </div>
-        </div>
-
-        {showHistory && (
-          <>
-            {filteredHistory.length === 0 ? (
-              <div className="py-8 text-center text-ink-muted flex flex-col items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-[36px] text-on-navy">
-                  receipt_long
-                </span>
-                <p className="text-sm font-semibold">Nenhum pagamento encontrado com os filtros selecionados.</p>
-                <p className="text-xs">Selecione "Todos os Meses" ou limpe a busca para visualizar os registros.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto rounded-2xl border border-line">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-field text-ink border-b border-line">
-                      <th className="py-3 px-3.5 font-black">Data / Horário</th>
-                      <th className="py-3 px-3.5 font-black">Prestador</th>
-                      <th className="py-3 px-3.5 font-black">Competência</th>
-                      <th className="py-3 px-3.5 font-black">Quinzena</th>
-                      <th className="py-3 px-3.5 font-black">Horas</th>
-                      <th className="py-3 px-3.5 font-black">Valor Quitado</th>
-                      <th className="py-3 px-3.5 font-black">Chave PIX</th>
-                      <th className="py-3 px-3.5 font-black">Status</th>
-                      <th className="py-3 px-3.5 font-black text-right">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-field bg-white">
-                    {filteredHistory.map((rec) => {
-                      let dateStr = 'Gravado na Nuvem'
-                      if (rec.paidAt) {
-                        try {
-                          const d = new Date(rec.paidAt)
-                          if (!isNaN(d.getTime())) {
-                            dateStr = d.toLocaleString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          }
-                        } catch {}
-                      }
-
-                      return (
-                        <tr key={rec.key} className="hover:bg-page transition-colors">
-                          <td className="py-3 px-3.5 font-mono text-xs text-ink-soft whitespace-nowrap">
-                            <div className="flex items-center gap-1.5">
-                              <span className="material-symbols-outlined text-[15px] text-emerald-600">
-                                event_available
-                              </span>
-                              <span>{dateStr}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-3.5 font-bold text-ink">
-                            <span>{rec.guardName}</span>
-                          </td>
-                          <td className="py-3 px-3.5 whitespace-nowrap">
-                            <span className="font-mono font-bold text-xs px-2 py-0.5 rounded-md bg-field text-brand border border-line">
-                              {rec.monthName}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3.5 whitespace-nowrap text-ink-soft font-semibold">
-                            {rec.quinzena === 'q1' ? '1ª Quinzena (01 a 15)' : '2ª Quinzena (16 ao fim)'}
-                          </td>
-                          <td className="py-3 px-3.5 font-mono font-bold text-ink">
-                            {rec.hours > 0 ? `${rec.hours}h` : '—'}
-                          </td>
-                          <td className="py-3 px-3.5 font-mono font-black text-emerald-700 whitespace-nowrap">
-                            {rec.amount > 0 ? formatCurrencyBR(rec.amount) : 'Quitado'}
-                          </td>
-                          <td className="py-3 px-3.5 font-mono text-xs text-ink-soft">
-                            {rec.pixKey ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(rec.pixKey)
-                                  showToast(`Chave PIX de ${rec.guardName} copiada!`)
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-field hover:bg-line text-ink transition cursor-pointer"
-                                title="Copiar PIX"
-                              >
-                                <span className="material-symbols-outlined text-[13px]">content_copy</span>
-                                <span className="truncate max-w-[120px]">{rec.pixKey}</span>
-                              </button>
-                            ) : (
-                              <span className="text-on-navy italic">Sem PIX</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              <span className="material-symbols-outlined text-[13px]">check_circle</span>
-                              PAGO
-                            </span>
-                          </td>
-                          <td className="py-3 px-3.5 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1.5">
-                              {rec.month !== selectedMonth && (
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedMonth(rec.month)}
-                                  className="px-2 py-1 rounded-lg bg-field hover:bg-line text-ink font-bold text-[11px] transition cursor-pointer"
-                                  title="Ver folha desta competência"
-                                >
-                                  Ver Folha
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (window.confirm(`Deseja reabrir e marcar como PENDENTE a ${rec.quinzena === 'q1' ? '1ª' : '2ª'} Quinzena de ${rec.guardName} (${rec.monthName})?`)) {
-                                    togglePaymentStatus(rec.guardId, rec.quinzena, rec.month)
-                                    showToast(`Pagamento de ${rec.guardName} reaberto (Pendente).`)
-                                  }
-                                }}
-                                className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] transition cursor-pointer border border-rose-200"
-                                title="Desfazer marcação de pago"
-                              >
-                                Reabrir
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-      </section>
+      <PaymentHistory records={confirmedPaymentRecords} showToast={showToast} />
 
       {/* Modal de Ajuste Rápido de Horas / Hora Extra do Dia */}
-      {dayEditModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 shadow-2xl border border-line">
-            <div className="flex items-center justify-between border-b border-field pb-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center font-black">
-                  <span className="material-symbols-outlined text-[18px]">more_time</span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-ink">
-                    Ajustar Dia {dayEditModal.day}
-                  </h4>
-                  <span className="text-xs text-ink-muted">
-                    {dayEditModal.guard.name}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setDayEditModal(null)}
-                className="w-7 h-7 rounded-full bg-field flex items-center justify-center text-ink-soft hover:bg-line"
-              >
-                <span className="material-symbols-outlined text-[16px]">close</span>
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-ink block mb-1">
-                  Horas Trabalhadas:
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDayEditModal({ ...dayEditModal, hours: Math.max(0, dayEditModal.hours - 1) })}
-                    className="w-10 h-10 rounded-xl bg-field text-ink font-bold text-lg flex items-center justify-center cursor-pointer"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min="0"
-                    max="24"
-                    value={dayEditModal.hours}
-                    onChange={(e) => setDayEditModal({ ...dayEditModal, hours: Math.max(0, Number(e.target.value) || 0) })}
-                    className="flex-1 h-10 bg-white border border-line rounded-xl text-center font-mono font-bold text-base outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setDayEditModal({ ...dayEditModal, hours: dayEditModal.hours + 1 })}
-                    className="w-10 h-10 rounded-xl bg-brand text-white font-bold text-lg flex items-center justify-center cursor-pointer"
-                  >
-                    +
-                  </button>
-                </div>
-
-                {/* Preset Chips */}
-                <div className="grid grid-cols-5 gap-1 mt-2">
-                  {[0, 3, 4, 6, 12].map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      onClick={() => setDayEditModal({ ...dayEditModal, hours: h })}
-                      className={`py-1 rounded-lg text-xs font-mono font-bold transition border cursor-pointer ${
- dayEditModal.hours === h
- ? 'bg-brand text-white border-brand'
- : 'bg-field text-ink-soft border-line hover:bg-line'
- }`}
-                    >
-                      {h === 0 ? '0h' : `${h}h`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-ink block mb-1">
-                  Motivo / Observação da Hora Extra (Opcional):
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Ficou até mais tarde, Dobra..."
-                  value={dayEditModal.note}
-                  onChange={(e) => setDayEditModal({ ...dayEditModal, note: e.target.value })}
-                  className="w-full text-xs px-3 py-2 bg-page border border-line rounded-xl outline-none focus:ring-1 focus:ring-brand"
-                />
-              </div>
-
-              {/* Subtotal preview */}
-              <div className="p-2.5 bg-navy text-white rounded-xl flex items-center justify-between text-xs">
-                <span className="text-on-navy">Total deste dia:</span>
-                <span className="font-mono font-black text-mint">
-                  R$ {(dayEditModal.hours * (calc.rate || defaultHourlyRate)).toFixed(2).replace('.', ',')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setDayEditModal(null)}
-                className="w-1/3 py-2 rounded-xl bg-field text-ink-soft text-xs font-bold cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShiftHours(dayEditModal.guard.id, dayEditModal.day, dayEditModal.hours, dayEditModal.note)
-                  setDayEditModal(null)
-                }}
-                className="w-2/3 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-bold shadow-md transition active:scale-95 cursor-pointer"
-              >
-                Salvar Horas
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DayHoursModal
+        dayEditModal={dayEditModal}
+        setDayEditModal={setDayEditModal}
+        rate={calc.rate || defaultHourlyRate}
+      />
 
       {/* Modal de Edição Completa da Escala */}
       {scheduleModalGuard && (
