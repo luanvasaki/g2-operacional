@@ -8,6 +8,7 @@ import {
 import { getCurrentMonthKey, isValidMonthKey } from '../utils/months'
 import { clampHours, isSafeKey } from '../utils/safety'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { uploadLocalDataOnce } from '../utils/localUpload'
 
 const AppContext = createContext(null)
 
@@ -89,6 +90,7 @@ function postToDb(post) {
     active: post.active !== false,
   }
 }
+
 
 export function AppProvider({ children }) {
   // Sync state
@@ -312,6 +314,18 @@ export function AppProvider({ children }) {
   const refreshFromSupabase = useCallback(async () => {
     if (!isSupabaseConfigured || !supabase) return false
     setIsSyncing(true)
+    // Primeiro envia o que este aparelho tem; se falhar, não lê a nuvem (para não sobrescrever)
+    const uploaded = await uploadLocalDataOnce({
+      supabase,
+      storage: localStorage,
+      keys: STORAGE_KEYS,
+      guardToDb,
+      postToDb,
+    })
+    if (!uploaded) {
+      setIsSyncing(false)
+      return false
+    }
     try {
       const [postsRes, guardsRes, shiftsRes, notesRes, paymentsRes, settingsRes] = await Promise.all([
         supabase.from('posts').select('*'),
