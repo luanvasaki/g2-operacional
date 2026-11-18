@@ -21,7 +21,6 @@ export function PostsManagement() {
     lastSyncTime,
     refreshFromSupabase,
     pendingSyncCount,
-    managerPassword,
     updateManagerPassword,
     currentUser,
     logout,
@@ -32,7 +31,7 @@ export function PostsManagement() {
   const [postToDelete, setPostToDelete] = useState(null)
   const [rateInput, setRateInput] = useState(defaultHourlyRate)
   const [budgetInput, setBudgetInput] = useState(budgetCeiling || 12000)
-  const [passInput, setPassInput] = useState(managerPassword || 'G2barreto$')
+  const [passInput, setPassInput] = useState('')
   const [toastMsg, setToastMsg] = useState('')
 
   const [formData, setFormData] = useState({
@@ -96,8 +95,13 @@ export function PostsManagement() {
 
   const handleSavePassword = (e) => {
     e.preventDefault()
-    if (!passInput.trim()) return
-    updateManagerPassword(passInput.trim())
+    const next = passInput.trim()
+    if (next.length < 8) {
+      showToast('A senha precisa ter pelo menos 8 caracteres')
+      return
+    }
+    updateManagerPassword(next)
+    setPassInput('')
     showToast('Senha oficial de acesso dos gerentes atualizada!')
   }
 
@@ -247,7 +251,7 @@ export function PostsManagement() {
               type="text"
               value={passInput}
               onChange={(e) => setPassInput(e.target.value)}
-              placeholder="Digite a nova senha oficial..."
+              placeholder="Nova senha (mínimo 8 caracteres)"
               className="w-full h-11 pl-9 pr-3 bg-field text-ink font-mono font-bold text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand border border-line/60"
             />
           </div>

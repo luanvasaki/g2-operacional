@@ -23,7 +23,6 @@ export function LoginScreen() {
 
     const trimmedUser = username.trim().toLowerCase()
     const trimmedPass = password.trim()
-    const effectivePass = managerPassword || 'G2barreto$'
 
     // Validates credentials
     const isMasterUser =
@@ -31,9 +30,13 @@ export function LoginScreen() {
       trimmedUser === 'luan barreto' ||
       trimmedUser === 'luan'
 
-    const isPasswordCorrect =
-      trimmedPass === effectivePass ||
-      trimmedPass === 'G2barreto$'
+    // A senha vem da nuvem (e fica guardada no aparelho); não existe senha fixa no código
+    if (!managerPassword) {
+      setErrorMsg('Ainda não foi possível carregar a senha da nuvem. Confira a internet e tente de novo em alguns segundos.')
+      return
+    }
+
+    const isPasswordCorrect = trimmedPass === managerPassword
 
     if (!isPasswordCorrect) {
       setErrorMsg('Senha incorreta! Digite a senha oficial da G2.')

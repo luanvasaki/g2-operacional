@@ -269,9 +269,9 @@ export function AppProvider({ children }) {
   // Official G2 Manager Access Password
   const [managerPassword, setManagerPassword] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.MANAGER_PASSWORD) || 'G2barreto$'
+      return localStorage.getItem(STORAGE_KEYS.MANAGER_PASSWORD) || ''
     } catch {
-      return 'G2barreto$'
+      return ''
     }
   })
 
