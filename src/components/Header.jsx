@@ -3,7 +3,7 @@ import { G2Logo } from './G2Logo'
 import { useApp } from '../context/AppContext'
 
 export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
-  const { currentUser, logout, isSupabaseConfigured, isSyncing, getPendingPaymentsSummary } = useApp()
+  const { currentUser, logout, isSupabaseConfigured, isSyncing, pendingSyncCount, syncError, getPendingPaymentsSummary } = useApp()
   const { pendingCount } = getPendingPaymentsSummary ? getPendingPaymentsSummary('both') : { pendingCount: 0 }
 
   const navTabs = [
@@ -48,7 +48,19 @@ export function Header({ activeTab, setActiveTab, onGoHome, onOpenQuickHub }) {
               <span className="font-mono text-[11px] text-ink-muted font-semibold">
                 G2 Atacadista
               </span>
-              {isSupabaseConfigured && (
+              {isSupabaseConfigured && pendingSyncCount > 0 && (
+                <span
+                  title={
+                    'Estas alterações estão guardadas neste aparelho e serão enviadas assim que a nuvem responder. Não limpe os dados do navegador.' +
+                    (syncError ? ' Último erro: ' + syncError : '')
+                  }
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300"
+                >
+                  <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
+                  {pendingSyncCount === 1 ? '1 alteração' : pendingSyncCount + ' alterações'} sem enviar
+                </span>
+              )}
+              {isSupabaseConfigured && pendingSyncCount === 0 && (
                 <span
                   title={isSyncing ? 'Sincronizando com a nuvem...' : 'Conectado à nuvem'}
                   className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"

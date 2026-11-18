@@ -20,6 +20,7 @@ export function PostsManagement() {
     isSyncing,
     lastSyncTime,
     refreshFromSupabase,
+    pendingSyncCount,
     managerPassword,
     updateManagerPassword,
     currentUser,
@@ -393,6 +394,8 @@ export function PostsManagement() {
               onClick={async () => {
                 const ok = await refreshFromSupabase()
                 if (ok) showToast('Sincronizado com Supabase com sucesso!')
+                else if (pendingSyncCount > 0)
+                  showToast(`Sem conexão com a nuvem: ${pendingSyncCount} alteração(ões) guardadas no aparelho, enviando depois`)
                 else showToast('Erro ao sincronizar com Supabase')
               }}
               className="w-full py-2.5 px-3 rounded-xl bg-field hover:bg-line text-xs font-bold text-ink flex items-center justify-center gap-1.5 border border-line transition disabled:opacity-50"

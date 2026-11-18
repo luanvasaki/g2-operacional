@@ -9,6 +9,7 @@ import { getCurrentMonthKey, isValidMonthKey } from '../utils/months'
 import { clampHours, isSafeKey } from '../utils/safety'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { uploadLocalDataOnce } from '../utils/localUpload'
+import { createSyncQueue } from '../utils/syncQueue'
 
 const AppContext = createContext(null)
 
@@ -92,10 +93,25 @@ function postToDb(post) {
 }
 
 
+// Fila única de envio para a nuvem (ver utils/syncQueue.js)
+const syncQueue =
+  isSupabaseConfigured && supabase && typeof localStorage !== 'undefined'
+    ? createSyncQueue({ supabase, storage: localStorage })
+    : null
+
+// Grava no aparelho a alteração a enviar e tenta mandar na hora
+function cloudWrite(ops) {
+  if (!syncQueue) return
+  syncQueue.enqueue(ops)
+  syncQueue.flush()
+}
+
 export function AppProvider({ children }) {
   // Sync state
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncTime, setLastSyncTime] = useState(null)
+  const [pendingSyncCount, setPendingSyncCount] = useState(() => (syncQueue ? syncQueue.pendingCount() : 0))
+  const [syncError, setSyncError] = useState(null)
 
   // Authentication - Checks trusted browser or active session
   const [currentUser, setCurrentUser] = useState(() => {
@@ -326,6 +342,11 @@ export function AppProvider({ children }) {
       setIsSyncing(false)
       return false
     }
+    // Depois reenvia o que ficou na fila; se algo não subir, não lê a nuvem
+    if (syncQueue && !(await syncQueue.flush())) {
+      setIsSyncing(false)
+      return false
+    }
     try {
       const [postsRes, guardsRes, shiftsRes, notesRes, paymentsRes, settingsRes] = await Promise.all([
         supabase.from('posts').select('*'),
@@ -335,6 +356,13 @@ export function AppProvider({ children }) {
         supabase.from('payments').select('*'),
         supabase.from('app_settings').select('*'),
       ])
+
+      // Alterou algo enquanto lia? Não substitui; tenta de novo depois
+      if (syncQueue && syncQueue.pendingCount() > 0) {
+        syncQueue.flush()
+        setIsSyncing(false)
+        return false
+      }
 
       if (postsRes.data && postsRes.data.length > 0) {
         setPosts(postsRes.data.map(postFromDb))
@@ -411,104 +439,82 @@ export function AppProvider({ children }) {
     }
   }, [refreshFromSupabase])
 
-  // Background Cloud Sync Helpers (Fail-safe, non-blocking)
-  const syncGuardCloud = async (guard, action = 'upsert') => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      if (action === 'delete') {
-        await supabase.from('guards').delete().eq('id', guard.id)
-      } else {
-        await supabase.from('guards').upsert(guardToDb(guard))
-      }
-    } catch (e) {
-      console.warn('Supabase guard sync warning:', e)
-    }
-  }
-
-  const syncPostCloud = async (post, action = 'upsert') => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      if (action === 'delete') {
-        await supabase.from('posts').delete().eq('id', post.id)
-      } else {
-        await supabase.from('posts').upsert(postToDb(post))
-      }
-    } catch (e) {
-      console.warn('Supabase post sync warning:', e)
-    }
-  }
-
-  const syncShiftCloud = async (month, guardId, day, hours) => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      if (hours === null || hours === undefined || hours === '') {
-        await supabase.from('shifts').delete().match({ month, guard_id: guardId, day })
-      } else {
-        await supabase.from('shifts').upsert({
-          month,
-          guard_id: guardId,
-          day: Number(day),
-          hours: clampHours(hours),
-          updated_at: new Date().toISOString(),
-        })
-      }
-    } catch (e) {
-      console.warn('Supabase shift sync warning:', e)
-    }
-  }
-
-  const syncShiftNoteCloud = async (month, guardId, day, note) => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      if (!note || !note.trim()) {
-        await supabase.from('shift_notes').delete().match({ month, guard_id: guardId, day })
-      } else {
-        await supabase.from('shift_notes').upsert({
-          month,
-          guard_id: guardId,
-          day: Number(day),
-          note: note.trim(),
-          updated_at: new Date().toISOString(),
-        })
-      }
-    } catch (e) {
-      console.warn('Supabase shift note sync warning:', e)
-    }
-  }
-
-  const syncPaymentCloud = async (key, month, guardId, quinzena, action = 'upsert') => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      if (action === 'delete') {
-        await supabase.from('payments').delete().eq('key', key)
-      } else {
-        await supabase.from('payments').upsert({
-          key,
-          month,
-          guard_id: guardId,
-          quinzena,
-          status: 'PAID',
-          paid_at: new Date().toISOString(),
-          notes: 'PIX Realizado',
-          updated_at: new Date().toISOString(),
-        })
-      }
-    } catch (e) {
-      console.warn('Supabase payment sync warning:', e)
-    }
-  }
-
-  const syncSettingCloud = async (key, value) => {
-    if (!isSupabaseConfigured || !supabase) return
-    try {
-      await supabase.from('app_settings').upsert({
-        key,
-        value: String(value),
-        updated_at: new Date().toISOString(),
+  // Fila de envio: mostra quantas alterações faltam subir e tenta de novo sozinho
+  useEffect(() => {
+    if (!syncQueue) return undefined
+    // Avisa a tela fora de qualquer atualização em andamento (algumas gravações nascem dentro de setState)
+    const unsubscribe = syncQueue.subscribe(({ pending, lastError }) => {
+      queueMicrotask(() => {
+        setPendingSyncCount(pending)
+        setSyncError(pending > 0 && lastError ? String(lastError.message || lastError) : null)
       })
-    } catch (e) {
-      console.warn('Supabase setting sync warning:', e)
+    })
+    const retry = () => {
+      if (syncQueue.pendingCount() > 0) syncQueue.flush()
     }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') retry()
+    }
+    window.addEventListener('online', retry)
+    document.addEventListener('visibilitychange', onVisible)
+    const timer = setInterval(retry, 30000)
+    return () => {
+      unsubscribe()
+      window.removeEventListener('online', retry)
+      document.removeEventListener('visibilitychange', onVisible)
+      clearInterval(timer)
+    }
+  }, [])
+
+  // Background Cloud Sync Helpers: tudo passa pela fila (não se perde se falhar)
+  const syncGuardCloud = (guard, action = 'upsert') => {
+    cloudWrite([{ table: 'guards', action, row: action === 'delete' ? { id: guard.id } : guardToDb(guard) }])
+  }
+
+  const syncPostCloud = (post, action = 'upsert') => {
+    cloudWrite([{ table: 'posts', action, row: action === 'delete' ? { id: post.id } : postToDb(post) }])
+  }
+
+  const shiftOp = (month, guardId, day, hours) =>
+    hours === null || hours === undefined || hours === ''
+      ? { table: 'shifts', action: 'delete', row: { month, guard_id: guardId, day: Number(day) } }
+      : {
+          table: 'shifts',
+          action: 'upsert',
+          row: { month, guard_id: guardId, day: Number(day), hours: clampHours(hours), updated_at: new Date().toISOString() },
+        }
+
+  const syncShiftCloud = (month, guardId, day, hours) => {
+    cloudWrite([shiftOp(month, guardId, day, hours)])
+  }
+
+  const syncShiftNoteCloud = (month, guardId, day, note) => {
+    cloudWrite([
+      !note || !note.trim()
+        ? { table: 'shift_notes', action: 'delete', row: { month, guard_id: guardId, day: Number(day) } }
+        : {
+            table: 'shift_notes',
+            action: 'upsert',
+            row: { month, guard_id: guardId, day: Number(day), note: note.trim(), updated_at: new Date().toISOString() },
+          },
+    ])
+  }
+
+  const syncPaymentCloud = (key, month, guardId, quinzena, action = 'upsert') => {
+    const now = new Date().toISOString()
+    cloudWrite([
+      action === 'delete'
+        ? { table: 'payments', action: 'delete', row: { key } }
+        : {
+            table: 'payments',
+            action: 'upsert',
+            row: { key, month, guard_id: guardId, quinzena, status: 'PAID', paid_at: now, notes: 'PIX Realizado', updated_at: now },
+          },
+    ])
+  }
+
+  const syncSettingCloud = (key, value) => {
+    cloudWrite([{ table: 'app_settings', action: 'upsert', row: { key, value: String(value), updated_at: new Date().toISOString() } }])
   }
 
   // Login & Logout
@@ -896,8 +902,8 @@ export function AppProvider({ children }) {
       }
     })
 
-    if (isSupabaseConfigured && supabase && rowsToSync.length > 0) {
-      supabase.from('shifts').upsert(rowsToSync).then(() => {}).catch(console.warn)
+    if (rowsToSync.length > 0) {
+      cloudWrite(rowsToSync.map((row) => ({ table: 'shifts', action: 'upsert', row })))
     }
   }
 
@@ -909,7 +915,7 @@ export function AppProvider({ children }) {
       [toMonth]: JSON.parse(JSON.stringify(source)),
     }))
 
-    if (isSupabaseConfigured && supabase) {
+    {
       const rows = []
       Object.entries(source).forEach(([gid, daysObj]) => {
         Object.entries(daysObj).forEach(([d, h]) => {
@@ -923,7 +929,7 @@ export function AppProvider({ children }) {
         })
       })
       if (rows.length > 0) {
-        supabase.from('shifts').upsert(rows).then(() => {}).catch(console.warn)
+        cloudWrite(rows.map((row) => ({ table: 'shifts', action: 'upsert', row })))
       }
     }
   }
@@ -957,8 +963,8 @@ export function AppProvider({ children }) {
       return next
     })
 
-    if (isSupabaseConfigured && supabase && rows.length > 0) {
-      supabase.from('payments').upsert(rows).then(() => {}).catch(console.warn)
+    if (rows.length > 0) {
+      cloudWrite(rows.map((row) => ({ table: 'payments', action: 'upsert', row })))
     }
   }
 
@@ -1021,14 +1027,10 @@ export function AppProvider({ children }) {
       }
     })
 
-    if (isSupabaseConfigured && supabase) {
-      if (upsertRows.length > 0) {
-        supabase.from('shifts').upsert(upsertRows).then(() => {}).catch(console.warn)
-      }
-      deleteMatches.forEach((m) => {
-        supabase.from('shifts').delete().match(m).then(() => {}).catch(console.warn)
-      })
-    }
+    cloudWrite([
+      ...upsertRows.map((row) => ({ table: 'shifts', action: 'upsert', row })),
+      ...deleteMatches.map((m) => ({ table: 'shifts', action: 'delete', row: { ...m, day: Number(m.day) } })),
+    ])
   }
 
   // Batch apply parsed schedule from WhatsApp / external text
@@ -1038,9 +1040,11 @@ export function AppProvider({ children }) {
       const monthData = prev[monthKey] || {}
       const newMonthData = { ...monthData }
 
+      const cleared = new Set()
       if (clearExistingForGuards) {
         const uniqueGuards = [...new Set(records.map((r) => r.guardId))]
         uniqueGuards.forEach((gid) => {
+          Object.keys(newMonthData[gid] || {}).forEach((d) => cleared.add(`${gid}|${Number(d)}`))
           newMonthData[gid] = {}
         })
       }
@@ -1049,9 +1053,11 @@ export function AppProvider({ children }) {
       records.forEach(({ guardId, day, hours }) => {
         const guardData = { ...(newMonthData[guardId] || {}) }
         if (hours === null || hours === undefined || Number(hours) === 0) {
+          if (guardData[day] !== undefined) cleared.add(`${guardId}|${Number(day)}`)
           delete guardData[day]
         } else {
           guardData[day] = clampHours(hours)
+          cleared.delete(`${guardId}|${Number(day)}`)
           rowsToUpsert.push({
             month: monthKey,
             guard_id: guardId,
@@ -1063,9 +1069,11 @@ export function AppProvider({ children }) {
         newMonthData[guardId] = guardData
       })
 
-      if (isSupabaseConfigured && supabase && rowsToUpsert.length > 0) {
-        supabase.from('shifts').upsert(rowsToUpsert).then(() => {}).catch(console.warn)
-      }
+      const deleteOps = [...cleared].map((k) => {
+        const [gid, d] = k.split('|')
+        return { table: 'shifts', action: 'delete', row: { month: monthKey, guard_id: gid, day: Number(d) } }
+      })
+      cloudWrite([...rowsToUpsert.map((row) => ({ table: 'shifts', action: 'upsert', row })), ...deleteOps])
 
       return {
         ...prev,
@@ -1170,6 +1178,8 @@ export function AppProvider({ children }) {
         isSupabaseConfigured,
         isSyncing,
         lastSyncTime,
+        pendingSyncCount,
+        syncError,
         refreshFromSupabase,
       }}
     >
