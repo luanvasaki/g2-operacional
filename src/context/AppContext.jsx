@@ -10,6 +10,7 @@ import { clampHours, isSafeKey } from '../utils/safety'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { uploadLocalDataOnce } from '../utils/localUpload'
 import { createSyncQueue } from '../utils/syncQueue'
+import { backupToCloudOps } from '../utils/backupRows'
 
 const AppContext = createContext(null)
 
@@ -1103,6 +1104,7 @@ export function AppProvider({ children }) {
       posts,
       guards,
       shifts,
+      shiftNotes,
       payments,
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -1119,13 +1121,17 @@ export function AppProvider({ children }) {
   const importBackupJSON = (jsonString) => {
     try {
       const data = JSON.parse(jsonString)
-      if (data.posts) setPosts(data.posts)
-      if (data.guards) setGuards(data.guards)
-      if (data.shifts) setShifts(data.shifts)
-      if (data.payments) setPayments(data.payments)
-      if (data.defaultHourlyRate) setDefaultHourlyRate(data.defaultHourlyRate)
-      if (data.budgetCeiling) setBudgetCeiling(data.budgetCeiling)
-      if (data.selectedMonth) setSelectedMonth(data.selectedMonth)
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('arquivo de backup inválido')
+      if (Array.isArray(data.posts)) setPosts(data.posts)
+      if (Array.isArray(data.guards)) setGuards(data.guards)
+      if (data.shifts && typeof data.shifts === 'object') setShifts(data.shifts)
+      if (data.shiftNotes && typeof data.shiftNotes === 'object') setShiftNotes(data.shiftNotes)
+      if (data.payments && typeof data.payments === 'object') setPayments(data.payments)
+      if (Number(data.defaultHourlyRate) > 0) setDefaultHourlyRate(Number(data.defaultHourlyRate))
+      if (Number(data.budgetCeiling) > 0) setBudgetCeiling(Number(data.budgetCeiling))
+      if (isValidMonthKey(data.selectedMonth)) setSelectedMonth(data.selectedMonth)
+      // Sem isto a próxima leitura da nuvem desfazia a importação
+      cloudWrite(backupToCloudOps(data, { guardToDb, postToDb }))
       return { success: true }
     } catch (err) {
       return { success: false, error: err.message }
